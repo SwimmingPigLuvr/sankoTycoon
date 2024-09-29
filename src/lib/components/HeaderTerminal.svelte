@@ -1,5 +1,5 @@
 <script>
-	let messages = ['', '', '',''];
+	let messages = ['', '', '', ''];
 	let newMessage = 'bridge to sanko';
 </script>
 
@@ -10,8 +10,8 @@
 				. {message}
 			</p>
 		{/each}
-		<p class="slate-200">
-			> {newMessage} <span class="pulsate">|</span>
+		<p class="terminal-glow slate-200">
+			> {newMessage} <span class="animate-pulse pulsate">_</span>
 		</p>
 	</div>
 </main>
@@ -23,5 +23,14 @@
 		-webkit-animation: pulsate 0.5s ease-out;
 		-webkit-animation-iteration-count: infinite;
 		opacity: 100;
+	}
+
+	/* complete this glow to make it look like an old school terminal */
+	.terminal-glow {
+		text-shadow:
+			0 0 5px rgba(0, 255, 0, 0.75),
+			0 0 10px rgba(0, 255, 0, 0.75),
+			0 0 20px rgba(0, 255, 0, 0.75),
+			0 0 40px rgba(0, 255, 0, 0.75);
 	}
 </style>
