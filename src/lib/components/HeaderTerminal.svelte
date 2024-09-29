@@ -1,6 +1,6 @@
 <script>
 	let messages = ['', '', '', ''];
-	let newMessage = 'bridge to sanko';
+	let newMessage = 'Welcome to Sanko Tycoon ©️';
 </script>
 
 <main class="bg-black text-white font-mono -tracking-widest p-2 w-full">
