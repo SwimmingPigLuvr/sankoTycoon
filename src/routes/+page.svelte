@@ -1,3 +1,4 @@
+<!-- routes/+page.svelte -->
 <script>
 	import Bridge from '../lib/components/Bridge.svelte';
 	import HeaderTerminal from '../lib/components/HeaderTerminal.svelte';

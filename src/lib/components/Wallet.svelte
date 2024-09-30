@@ -1,7 +1,14 @@
+<!-- lib/components/Wallet.svelte -->
 <script>
-	let dmtBalance = 0;
+	import { wallet } from '../stores/wallet';
+	let chain = 'Arbitrum';
+
+	$: tokens = $wallet.tokens;
 </script>
 
 <main>
-	<h1 class="text-3xl">$DMT: {dmtBalance}</h1>
+	<p>network: {chain}</p>
+	{#each tokens as token}
+		<p class="text-3xl">{token.name}: {token.balance}</p>
+	{/each}
 </main>
