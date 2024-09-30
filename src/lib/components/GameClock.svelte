@@ -20,7 +20,7 @@
 		startTime = Date.now();
 		setInterval(() => {
 			elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-		}, 100);
+		}, 1000);
 	});
 </script>
 

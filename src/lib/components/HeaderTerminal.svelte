@@ -1,6 +1,20 @@
 <script>
+	import { onMount } from 'svelte';
+
 	let messages = ['', '', '', ''];
 	let newMessage = 'Welcome to Sanko Tycoon ©️';
+
+	onMount(() => {
+		setTimeout(() => {
+			changeMessage('Bridge to Sanko');
+		}, 5000);
+
+	});
+
+	function changeMessage(newMsg) {
+		messages = [...messages.slice(1), newMessage];
+		newMessage = newMsg;
+	}
 </script>
 
 <main class="bg-black text-white font-mono -tracking-widest p-2 w-full">
@@ -10,19 +24,28 @@
 				. {message}
 			</p>
 		{/each}
-		<p class="terminal-glow slate-200">
-			> {newMessage} <span class="animate-pulse pulsate">_</span>
+		<p class="terminal-glow">
+			> {newMessage} <span class="terminal-glow animate-pulse pulsate">_</span>
 		</p>
 	</div>
 </main>
 
 <style>
 	.pulsate {
-		animation: pulsate 0.5s ease-out;
-		animation-iteration-count: infinite;
-		-webkit-animation: pulsate 0.5s ease-out;
-		-webkit-animation-iteration-count: infinite;
+		animation: pulsate 1s ease-out infinite;
 		opacity: 100;
+	}
+
+	@keyframes pulsate {
+		0% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.5;
+		}
+		100% {
+			opacity: 1;
+		}
 	}
 
 	/* complete this glow to make it look like an old school terminal */
