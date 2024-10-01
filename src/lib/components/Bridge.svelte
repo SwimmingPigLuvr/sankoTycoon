@@ -1,12 +1,12 @@
 <!-- lib/components/Bridge.svelte -->
-<script>
+<script lang="ts">
 	import { get } from 'svelte/store';
 	import { gameState, progressStep } from '../stores/gameState';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	let isBridging = false;
 	let progress = 0;
-	let interval;
+	let interval: number;
 
 	function bridgeToSanko() {
 		const audio = new Audio('sounds/click.wav');
@@ -22,6 +22,7 @@
 				progressStep();
 			}
 		}, 70);
+		// !todo mark bridge step as complete
 	}
 
 	function handleHoverBridge() {
@@ -46,10 +47,11 @@
 	{#if !hideBridge}
 		<div class="flex flex-col w-[150px]">
 			<button
-				class="relative rounded-lg text-sm p-1 border-black border-2 px-2 bg-gradient-to-b from-white to-slate-400 hover:border-slate-300 h-8"
+				class="relative rounded-lg text-sm p-1 border-black border-2 px-2 bg-gradient-to-b from-white to-slate-400 hover:border-slate-300 h-8 overflow-hidden"
 				on:focus={handleHoverBridge}
 				on:mouseover={handleHoverBridge}
 				on:click={bridgeToSanko}
+				disabled={isBridging}
 			>
 				{#if isBridging}
 					<div
@@ -71,7 +73,8 @@
 
 <style>
 	.progress-bar {
-		background-color: #4caf50;
-		transition: width 0.1s;
+		background-color: #0aea00;
+		transition: width 0.1s linear;
+		z-index: 0;
 	}
 </style>

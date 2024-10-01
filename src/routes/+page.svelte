@@ -1,10 +1,10 @@
 <!-- routes/+page.svelte -->
-<script>
+<script lang="ts">
 	import Bridge from '../lib/components/Bridge.svelte';
 	import HeaderTerminal from '../lib/components/HeaderTerminal.svelte';
 	import Wallet from '../lib/components/Wallet.svelte';
 	import GameClock from '../lib/components/GameClock.svelte';
-
+	import MintEgg from '../lib/components/MintEgg.svelte';
 </script>
 
 <main class="p-2 font-mono -tracking-widest">
@@ -14,6 +14,6 @@
 		<GameClock />
 		<Wallet />
 		<Bridge />
+		<MintEgg />
 	</div>
 </main>
-

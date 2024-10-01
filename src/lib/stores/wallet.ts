@@ -2,12 +2,12 @@
 import { writable } from "svelte/store";
 
 // Define interfaces for various types used in the wallet objects
-interface Token {
+export interface Token {
     name: string;
     balance: number;
 }
 
-interface Fruit {
+export interface Fruit {
     round: number;
     lumpy: number;
     heart: number;
@@ -15,7 +15,7 @@ interface Fruit {
     square: number;
 }
 
-interface Seeds {
+export interface Seeds {
     round: number;
     lumpy: number;
     heart: number;
@@ -23,7 +23,7 @@ interface Seeds {
     square: number;
 }
 
-interface BunWallet {
+export interface BunWallet {
     bunId: string;
     gold: number;
     fruit: Fruit;
@@ -111,7 +111,7 @@ enum BunVariety {
     Blue = 'Blue',
 }
 
-interface Bun {
+export interface Bun {
     id: string;
     name: string;
     industry: number;
@@ -120,13 +120,14 @@ interface Bun {
     stamina: number;
     strength: number;
     birthday: Date;
-    rarity: Rarity;
+    rarity: BunRarity;
     type: BunType;
     variety: BunVariety;
     wallet: BunWallet;
 }
 
-interface Wallet {
+export interface Wallet {
+    network: 'Arbitrum' | 'Sanko';
     walletAddress: string;
     tokens: Token[];
     nfts: Bun[];
@@ -155,9 +156,9 @@ const exampleWallet: Wallet = {
             stamina: 4,
             strength: 12,
             birthDay: Date.now(), // date hatched
-            rarity: Rarity.Rare,
+            rarity: BunRarity.Rare,
             type: BunType.Bun,
-            variety: Variety.Mini,
+            variety: BunVariety.Mini,
             wallet: {
                 gold: 10,
                 fruit: {
@@ -187,10 +188,11 @@ const exampleWallet: Wallet = {
 
 // Define the starterWallet object with only 3 $DMT
 const starterWallet: Wallet = {
-    walletAddress: '', // No wallet address
+    walletAddress: '', // generate random address for them, let them use a .DMT address in the future
+    network: 'Arbitrum',
     tokens: [
         {
-            name: '$DMT',
+            name: 'DMT',
             balance: 3,
         },
     ],

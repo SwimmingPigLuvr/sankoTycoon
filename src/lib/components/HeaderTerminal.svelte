@@ -1,17 +1,28 @@
-<script>
-	import { onMount } from 'svelte';
+<script lang="ts">
+	import { onDestroy, onMount } from 'svelte';
+	import { gameState } from '../stores/gameState';
 
-	let messages = ['', '', '', ''];
+	let messages: string[] = ['', '', '', ''];
+	let currentStepDescription: string = '';
 	let newMessage = 'Welcome to Sanko Tycoon ©️';
+
+	const unsubscribe = gameState.subscribe(state => {
+		messages = state.messages;
+		const currentStep = state.steps.find(step => step.id === state.currentStep);
+		currentStepDescription = currentStep ? currentStep.description : '';
+	});
 
 	onMount(() => {
 		setTimeout(() => {
 			changeMessage('Bridge to Sanko');
 		}, 5000);
-
 	});
 
-	function changeMessage(newMsg) {
+	onDestroy(() => {
+		unsubscribe();
+	});
+
+	function changeMessage(newMsg: string) {
 		messages = [...messages.slice(1), newMessage];
 		newMessage = newMsg;
 	}
