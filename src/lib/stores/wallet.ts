@@ -4,7 +4,6 @@ import { writable } from "svelte/store";
 // Define interfaces for various types used in the wallet objects
 interface Token {
     name: string;
-    contractAddress: string;
     balance: number;
 }
 
@@ -24,7 +23,8 @@ interface Seeds {
     square: number;
 }
 
-interface Wallet {
+interface BunWallet {
+    bunId: string;
     gold: number;
     fruit: Fruit;
     seeds: Seeds;
@@ -32,42 +32,116 @@ interface Wallet {
 }
 
 enum BunRarity {
-
+    Common = 'Common',
+    Uncommon = 'Uncommon',
+    Rare = 'Rare',
+    Rotten = 'Rotten',
+    SuperRare = 'Super Rare',
+    Moldy = 'Moldy',
 }
 
-interface NFT {
+enum BunType {
+    Egg = 'Egg',
+    Bun = 'Bun',
+}
+
+// Define the BunVariety enum based on the parsed span elements
+enum BunVariety {
+    Spirit = 'Spirit',
+    Pipe = 'Pipe',
+    Angel = 'Angel',
+    Goldie = 'Goldie',
+    Dev = 'Dev',
+    RedStar = 'Red Star',
+    Moldy = 'Moldy',
+    Qualk = 'Qualk',
+    Gold = 'Gold',
+    RaceCar = 'RaceCar',
+    Joker = 'Joker',
+    Ket = 'Ket',
+    Mini = 'Mini',
+    Kev = 'Kev',
+    Pup = 'Pup',
+    Tux = 'Tux',
+    Sanko = 'Sanko',
+    Snake = 'Snake',
+    BlueStar = 'Blue Star',
+    Rotten = 'Rotten',
+    Chikki = 'Chikki',
+    Silver = 'Silver',
+    Cowboy = 'Cowboy',
+    Nebula = 'Nebula',
+    Purr = 'Purr',
+    Bricks = 'Bricks',
+    Hippy = 'Hippy',
+    Confetti = 'Confetti',
+    Bunzilian = 'Bunzilian',
+    Cream = 'Cream',
+    Wood = 'Wood',
+    SuperBun = 'SuperBun',
+    Gorli = 'Gorli',
+    Earthy = 'Earthy',
+    Cloudy = 'Cloudy',
+    Yeti = 'Yeti',
+    Lava = 'Lava',
+    Sproto = 'Sproto',
+    Crystal = 'Crystal',
+    Leathy = 'Leathy',
+    Detec = 'Detec',
+    Geeny = 'Geeny',
+    Galxy = 'Galxy',
+    Fire = 'Fire',
+    Peppermint = 'Peppermint',
+    Glass = 'Glass',
+    Bomber = 'Bomber',
+    Tomat = 'Tomat',
+    Natural = 'Natural',
+    Turtly = 'Turtly',
+    Driftwood = 'Driftwood',
+    Choi = 'Choi',
+    Turni = 'Turni',
+    Lemuh = 'Lemuh',
+    Strawbie = 'Strawbie',
+    Buns = 'Buns',
+    Red = 'Red',
+    Lime = 'Lime',
+    Orange = 'Orange',
+    Purple = 'Purple',
+    Green = 'Green',
+    Blue = 'Blue',
+}
+
+interface Bun {
     id: string;
     name: string;
-    baseIndustry: number;
-    baseLuck: number;
-    baseSpeed: number;
-    baseStamina: number;
-    baseStrength: number;
-    birthDay: number;
-    rarity: string;
-    type: string;
-    variety: string;
-    wallet: Wallet;
+    industry: number;
+    luck: number;
+    apeed: number;
+    stamina: number;
+    strength: number;
+    birthday: Date;
+    rarity: Rarity;
+    type: BunType;
+    variety: BunVariety;
+    wallet: BunWallet;
 }
 
-interface WalletObject {
+interface Wallet {
     walletAddress: string;
     tokens: Token[];
-    nfts: NFT[];
+    nfts: Bun[];
 }
 
 // Define the exampleWallet object with the specified fields
-const exampleWallet: WalletObject = {
+const exampleWallet: Wallet = {
     walletAddress: '0xYourWalletAddressHere', // Replace with actual wallet address
     tokens: [
         {
             name: '$GOLD',
-            contractAddress: '0x6F5e2d3b8c5C5c5F9bcB4adCF40b13308e688D4D',
             balance: 10,
         },
         {
             name: '$DMT',
-            contractAddress: '0x0B7f0e51Cd1739D6C96982D55aD8fA634dd43A9C',
             balance: 10,
         },
     ],
@@ -75,15 +149,15 @@ const exampleWallet: WalletObject = {
         {
             id: '#1975',
             name: 'SankoPets: Buns',
-            baseIndustry: 9,
-            baseLuck: 19,
-            baseSpeed: 12,
-            baseStamina: 4,
-            baseStrength: 12,
+            industry: 9,
+            luck: 19,
+            speed: 12,
+            stamina: 4,
+            strength: 12,
             birthDay: Date.now(), // date hatched
-            rarity: 'Rare',
-            type: 'Bun',
-            variety: 'Mini',
+            rarity: Rarity.Rare,
+            type: BunType.Bun,
+            variety: Variety.Mini,
             wallet: {
                 gold: 10,
                 fruit: {
@@ -112,12 +186,11 @@ const exampleWallet: WalletObject = {
 };
 
 // Define the starterWallet object with only 3 $DMT
-const starterWallet: WalletObject = {
+const starterWallet: Wallet = {
     walletAddress: '', // No wallet address
     tokens: [
         {
             name: '$DMT',
-            contractAddress: '0x0B7f0e51Cd1739D6C96982D55aD8fA634dd43A9C',
             balance: 3,
         },
     ],

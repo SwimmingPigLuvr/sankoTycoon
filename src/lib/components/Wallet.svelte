@@ -1,5 +1,5 @@
 <!-- lib/components/Wallet.svelte -->
-<script>
+<script lang="ts">
 	import { wallet } from '../stores/wallet';
 	let chain = 'Arbitrum';
 
