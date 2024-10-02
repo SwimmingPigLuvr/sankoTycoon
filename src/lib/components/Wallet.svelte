@@ -2,9 +2,11 @@
 <script lang="ts">
 	import { wallet } from '../stores/wallet';
 	import type { Token, Bun, Wallet } from '../stores/wallet';
-	$: network = $wallet.network;
-	$: tokens = $wallet.tokens;
-	$: nfts = $wallet.nfts;
+	$: network = $wallet?.network;
+	let tokens: Token[] = [];
+	let nfts: Bun[] = [];
+	$: tokens = $wallet?.tokens ?? [];
+	$: nfts = $wallet?.nfts ?? [];
 </script>
 
 <main>
