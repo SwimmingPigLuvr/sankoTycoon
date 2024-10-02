@@ -1,43 +1,34 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
 	import { gameState } from '../stores/gameState';
+	import MintEgg from './MintEgg.svelte';
 
-	let messages: string[] = ['', '', '', ''];
+	$: messages = $gameState.messages;
 	let currentStepDescription: string = '';
-	let newMessage = 'Welcome to Sanko Tycoon ©️';
 
-	const unsubscribe = gameState.subscribe(state => {
-		messages = state.messages;
-		const currentStep = state.steps.find(step => step.id === state.currentStep);
+	const unsubscribe = gameState.subscribe((state) => {
+		const currentStep = state.steps.find((step) => step.id === state.currentStep);
 		currentStepDescription = currentStep ? currentStep.description : '';
-	});
-
-	onMount(() => {
-		setTimeout(() => {
-			changeMessage('Bridge to Sanko');
-		}, 5000);
 	});
 
 	onDestroy(() => {
 		unsubscribe();
 	});
-
-	function changeMessage(newMsg: string) {
-		messages = [...messages.slice(1), newMessage];
-		newMessage = newMsg;
-	}
 </script>
 
 <main class="bg-black text-white font-mono -tracking-widest p-2 w-full">
 	<div class="w-full flex flex-col justify-end">
-		{#each messages as message}
-			<p class="text-slate-600">
-				. {message}
-			</p>
+		{#each messages as message, index}
+			{#if index === 4}
+				<p class="terminal-glow">
+					> {message} <span class="terminal-glow animate-pulse pulsate">_</span>
+				</p>
+			{:else}
+				<p class="text-slate-600">
+					. {message}
+				</p>
+			{/if}
 		{/each}
-		<p class="terminal-glow">
-			> {newMessage} <span class="terminal-glow animate-pulse pulsate">_</span>
-		</p>
 	</div>
 </main>
 

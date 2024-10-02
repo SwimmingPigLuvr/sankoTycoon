@@ -1,8 +1,8 @@
 // lib/stores/gameState.ts
 import { writable } from 'svelte/store';
 
-enum StepID {
-    Bridge,
+export enum StepID {
+    Bridge = 0,
     Mint,
     Hatch,
     Farm,
@@ -13,11 +13,11 @@ enum StepID {
 }
 
 interface Step {
-    id: stepID;
+    id: StepID; // Corrected to use StepID type
     name: string;
     description: string;
     completed: boolean;
-    onCompletion: string;
+    message: string;
 }
 
 interface GameState {
@@ -28,32 +28,32 @@ interface GameState {
 
 const steps: Step[] = [
     {
-        id: StepID.Bridge,
+        id: StepID.Bridge, // Corrected to use StepID.Bridge instead of 0
         name: 'Bridge $DMT to Sanko Chain',
         description: 'Bridge to Sanko',
         completed: false,
-        onCompletion: '',
+        message: 'Successfully Bridged $DMT to Sanko Chain ⭐️️️⛓️©️',
     },
-    {
-        id: 2,
+      {
+        id: StepID.Mint, // Corrected to use StepID.Mint instead of 2
         name: 'Mint a SankoPets egg',
         description: '',
         completed: false,
-        onCompletion: 'Mint a SankoPets egg',
+        message: 'Mint a SankoPets egg',
     },
     {
-        id: 3,
+        id: StepID.Hatch, // Corrected to use StepID.Hatch instead of 3
         name: 'Hatch your SankoPets Bun',
         description: '',
         completed: false,
-        onCompletion: 'Hatch your SankoPets Bun',
+        message: 'Hatch your SankoPets Bun',
     },
 ];
 
 const initialState: GameState = {
     currentStep: StepID.Bridge,
     steps: steps,
-    messages: [steps[0].description],
+    messages: ['', '', '', '', 'Welcome to SankoTycoon ©️'],
 };
 
 const gameState = writable<GameState>(initialState);
@@ -66,12 +66,20 @@ function progressStep() {
             const nextStep = state.steps[stepIndex + 1];
             if (nextStep) {
                 state.currentStep = nextStep.id;
-                // add new message to terminal
-                // execute action based on on complete
+                addMessage(nextStep.message); // Add new message to the messages array
             }
         }
         return state;
     });
 }
 
-export { gameState, progressStep };
+function addMessage(newMessage: string) {
+    gameState.update(state => {
+        // state.messages = [...state.messages.slice(0, 4), newMessage];
+        state.messages.shift();
+        state.messages.push(newMessage);
+        return state;
+    });
+}
+
+export { gameState, progressStep, addMessage }; // Export addMessage function

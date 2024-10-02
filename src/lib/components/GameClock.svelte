@@ -1,17 +1,16 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	let startTime;
+	let startTime: number;
 	let elapsedTime = 0;
 
 	// Function to format elapsed time
-	function formatElapsedTime(seconds) {
+	function formatElapsedTime(seconds: number) {
 		const minutes = Math.floor(seconds / 60);
 		const hours = Math.floor(minutes / 60);
-		const remainingSeconds = seconds % 60;
 		const formattedHours = String(hours).padStart(2, '0');
-		const formattedMinutes = String(minutes).padStart(2, '0');
-		const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+		const formattedMinutes = String(minutes % 60).padStart(2, '0');
+		const formattedSeconds = String(seconds % 60).padStart(2, '0');
 		return { hours: formattedHours, minutes: formattedMinutes, seconds: formattedSeconds };
 	}
 
@@ -27,7 +26,7 @@
 <main>
 	<!-- clock -->
 	<button
-		class="italic fixed clock-glow right-2 top-40 flex rounded-lg p-1 px-2 bg-black text-red-500 border-black border-2 -tracking-normal text-xl"
+		class="italic clock-glow border-white  fixed top-4 right-4 flex rounded-xl p-2 px-4 bg-black text-red-500 border-2 text-2xl"
 	>
 		<p class="">{formatElapsedTime(elapsedTime).hours[0]}</p>
 		<p class="">{formatElapsedTime(elapsedTime).hours[1]}</p>
@@ -43,9 +42,9 @@
 <style>
 	.clock-glow {
 		text-shadow:
-			0 0 1px rgba(200, 0, 0),
-			0 0 2px rgba(200, 0, 0),
-			0 0 3px rgba(200, 0, 0),
-			0 0 4px rgba(200, 0, 0);
+			0 0 5px rgba(200, 0, 0),
+			0 0 10px rgba(200, 0, 0),
+			0 0 15px rgba(200, 0, 0),
+			0 0 20px rgba(200, 0, 0);
 	}
 </style>

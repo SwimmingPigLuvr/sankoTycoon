@@ -3,6 +3,7 @@
 	import { get } from 'svelte/store';
 	import { gameState, progressStep } from '../stores/gameState';
 	import { onDestroy, onMount } from 'svelte';
+	import { wallet } from '../stores/wallet';
 
 	let isBridging = false;
 	let progress = 0;
@@ -19,6 +20,13 @@
 			if (progress >= 100) {
 				clearInterval(interval);
 				isBridging = false;
+				console.log('bridge complete');
+				console.log('changing network from arb to sanko');
+				console.log('upadating wallet');
+				wallet.update((wallet) => {
+					wallet.network = 'Sanko';
+					return wallet;
+				});
 				progressStep();
 			}
 		}, 70);

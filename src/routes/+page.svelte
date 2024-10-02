@@ -5,6 +5,17 @@
 	import Wallet from '../lib/components/Wallet.svelte';
 	import GameClock from '../lib/components/GameClock.svelte';
 	import MintEgg from '../lib/components/MintEgg.svelte';
+	import { gameState, StepID } from '../lib/stores/gameState';
+	import { onDestroy } from 'svelte';
+
+	let currentStep: StepID;
+	const unsubscribe = gameState.subscribe((state) => {
+		currentStep = state.currentStep;
+	});
+
+	onDestroy(() => {
+		unsubscribe;
+	});
 </script>
 
 <main class="p-2 font-mono -tracking-widest">
@@ -13,7 +24,10 @@
 		<HeaderTerminal />
 		<GameClock />
 		<Wallet />
-		<Bridge />
-		<MintEgg />
+		{#if currentStep === StepID.Bridge}
+			<Bridge />
+		{:else if currentStep === StepID.Mint}
+			<MintEgg />
+		{/if}
 	</div>
 </main>

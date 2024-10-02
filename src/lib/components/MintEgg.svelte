@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { progressStep } from '../stores/gameState';
 
 	let isMinting = false;
