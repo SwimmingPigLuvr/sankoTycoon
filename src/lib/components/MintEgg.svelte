@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { progressStep } from '../stores/gameState';
+	// todo. mintegg. add egg to wallet
+	// mint success message
+	import { progressStep } from '$lib/stores/gameState';
 
 	let isMinting = false;
 	let minted = false;
