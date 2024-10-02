@@ -51,9 +51,9 @@
 	});
 </script>
 
-<main class="">
+<main class="py-2">
 	{#if !hideBridge}
-		<div class="flex flex-col w-[150px]">
+		<div class="flex flex-col w-40">
 			<button
 				class="relative rounded-lg text-sm p-1 border-black border-2 px-2 bg-gradient-to-b from-white to-slate-400 hover:border-slate-300 h-8 overflow-hidden"
 				on:focus={handleHoverBridge}

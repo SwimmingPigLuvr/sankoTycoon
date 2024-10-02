@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+    font-family: 'FinkHeavy_Regular';
+    src: url('/fonts/FinkHeavy_Regular.ttf') format('opentype');
+}
+

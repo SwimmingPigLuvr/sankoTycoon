@@ -9,8 +9,10 @@
 	$: nfts = $wallet?.nfts ?? [];
 </script>
 
-<main>
-	<p>{network}</p>
+<main class="text-center w-40 flex flex-col items-center">
+	<h1>Wallet</h1>
+	<hr class="w-20 border-white bg-black" />
+	<p>network {network}</p>
 	{#each tokens as token}
 		<p class="text-3xl">{token.balance} {token.name}</p>
 	{/each}

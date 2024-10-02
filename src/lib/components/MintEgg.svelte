@@ -65,25 +65,34 @@
 </script>
 
 <main>
-	<button class="mint-button" disabled={isMinting} on:click={mintEgg}>
-		{#if isMinting}
-			<!-- Adding spinner -->
-			<div class="spinner"></div>
-		{/if}
-		{#if !isMinting}
-			Mint
-		{/if}
-	</button>
+	<div
+		class="border-slate-200 border-4 w-40 text-center mint-button rounded-xl font-FinkHeavy tracking-normal filter hue-rotate-90"
+	>
+		<p class="text-2xl text-blue-700">Mint Eggs</p>
+		<p class="text-lg text-black">Generation 1</p>
+		<p class="text-lg text-black">Remaining 4444 / 4444</p>
+		<p class="text-lg text-black">1 Egg: <span class="text-blue-700">3 DMT</span></p>
+
+		<button
+			class="w-full p-1 rounded-lg text-lime-700 hover:bg-yellow-300 bg-yellow-100"
+			disabled={isMinting}
+			on:click={mintEgg}
+		>
+			{#if isMinting}
+				<!-- Adding spinner -->
+				<div class="w-full m-auto spinner"></div>
+			{/if}
+			{#if !isMinting}
+				Mint
+			{/if}
+		</button>
+	</div>
 </main>
 
 <style>
 	.mint-button {
+		background-image: url('ui/patterns/eggs.png');
 		padding: 10px 20px;
-		background-color: #4caf50;
-		color: white;
-		border: none;
-		border-radius: 5px;
-		cursor: pointer;
 	}
 
 	.mint-button:hover {

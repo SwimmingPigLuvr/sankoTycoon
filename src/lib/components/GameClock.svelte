@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
+	// todo show simulated gametime 1 day = 1 minute?
+	// let user toggle between elapsed time and gametime
+
 	let startTime: number;
 	let elapsedTime = 0;
 
@@ -26,7 +29,7 @@
 <main>
 	<!-- clock -->
 	<button
-		class="italic clock-glow border-white  fixed top-4 right-4 flex rounded-xl p-2 px-4 bg-black text-red-500 border-2 text-2xl"
+		class="italic clock-glow fixed top-4 right-2 flex rounded-xl p-2 px-4 bg-black text-red-500 text-2xl"
 	>
 		<p class="">{formatElapsedTime(elapsedTime).hours[0]}</p>
 		<p class="">{formatElapsedTime(elapsedTime).hours[1]}</p>

@@ -16,7 +16,7 @@
 	});
 </script>
 
-<main class="bg-black text-white font-mono -tracking-widest p-2 w-full">
+<main class="bg-black text-sm text-white tracking-normal font-mono p-2 w-full">
 	<div class="w-full flex flex-col justify-end">
 		{#each messages as message, index}
 			{#if index === 4}
