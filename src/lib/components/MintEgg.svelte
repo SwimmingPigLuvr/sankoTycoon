@@ -2,7 +2,14 @@
 	// todo. mintegg. add egg to wallet
 	// mint success message
 	import { progressStep } from '$lib/stores/gameState';
-	import { wallet, type Bun, type BunWallet, type Fruit, type Seeds } from '$lib/stores/wallet';
+	import {
+		wallet,
+		type Bun,
+		type BunWallet,
+		type Fruit,
+		type Seeds,
+		type Token
+	} from '$lib/stores/wallet';
 
 	let isMinting = false;
 	let minted = false;
@@ -58,7 +65,13 @@
 			//todo set dmt balance to 0
 			wallet.update((wallet) => {
 				wallet.nfts.push(starterEgg);
-				wallet.tokens.find((token) => token.name === 'DMT');
+				// set DMT value to 0
+				const tokenIndex = wallet.tokens.findIndex((token: Token) => token.name === 'DMT');
+				if (tokenIndex !== -1) {
+					wallet.tokens[tokenIndex].balance = 0;
+				}
+
+				return wallet;
 			});
 		}, 5000);
 	}
@@ -66,7 +79,7 @@
 
 <main>
 	<div
-		class="border-slate-200 border-4 w-40 text-center mint-button rounded-xl font-FinkHeavy tracking-normal filter hue-rotate-90"
+		class="border-slate-200 border-4 w-40 text-center mint-button rounded-xl font-FinkHeavy tracking-normal filter hue-rotate-90 flex flex-col"
 	>
 		<p class="text-2xl text-blue-700">Mint Eggs</p>
 		<p class="text-lg text-black">Generation 1</p>

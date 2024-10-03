@@ -32,21 +32,21 @@ const steps: Step[] = [
         name: 'Bridge $DMT to Sanko Chain',
         description: 'Bridge to Sanko',
         completed: false,
-        message: 'Successfully Bridged $DMT to Sanko Chain ⭐️️️⛓️©️',
+        message: 'Successfully Bridged $DMT to Sanko Chain',
     },
       {
         id: StepID.Mint, // Corrected to use StepID.Mint instead of 2
         name: 'Mint a SankoPets egg',
-        description: '',
+        description: 'Mint Egg',
         completed: false,
-        message: 'Mint a SankoPets egg',
+        message: 'Mint Successful!',
     },
     {
         id: StepID.Hatch, // Corrected to use StepID.Hatch instead of 3
         name: 'Hatch your SankoPets Bun',
-        description: '',
+        description: 'Hatch Bun',
         completed: false,
-        message: 'Hatch your SankoPets Bun',
+        message: 'Bun Hatched! Check Wallet.',
     },
 ];
 
@@ -60,13 +60,24 @@ const gameState = writable<GameState>(initialState);
 
 function progressStep() {
     gameState.update(state => {
+        // get current step index
         const stepIndex = state.steps.findIndex(step => step.id === state.currentStep);
+
         if (stepIndex !== -1 && !state.steps[stepIndex].completed) {
+            // mark current step complete
             state.steps[stepIndex].completed = true;
+
+            // add success message for current step
+            addMessage(state.steps[stepIndex].message);
+
+            // get next step
             const nextStep = state.steps[stepIndex + 1];
             if (nextStep) {
+                // advance to next step
                 state.currentStep = nextStep.id;
-                addMessage(nextStep.message); // Add new message to the messages array
+
+                // add next step message
+                addMessage(nextStep.description); // Add new message to the messages array
             }
         }
         return state;
@@ -75,9 +86,12 @@ function progressStep() {
 
 function addMessage(newMessage: string) {
     gameState.update(state => {
-        // state.messages = [...state.messages.slice(0, 4), newMessage];
-        state.messages.shift();
-        state.messages.push(newMessage);
+        if (!state.messages.includes(newMessage)) {
+            if (state.messages.length >= 4) {
+                state.messages.shift();
+            }
+            state.messages.push(newMessage);
+        }
         return state;
     });
 }

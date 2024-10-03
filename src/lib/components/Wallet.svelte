@@ -9,14 +9,16 @@
 	$: nfts = $wallet?.nfts ?? [];
 </script>
 
-<main class="text-center w-40 flex flex-col items-center">
+<main class="space-y-1 tracking-normal text-center w-40 flex flex-col items-center">
 	<h1>Wallet</h1>
-	<hr class="w-20 border-white bg-black" />
-	<p>network {network}</p>
+	<p class="text-sm">{$wallet?.walletAddress}</p>
+	<hr class="w-full border-black bg-black" />
+	<p>ntwrk: {network}</p>
 	{#each tokens as token}
 		<p class="text-3xl">{token.balance} {token.name}</p>
 	{/each}
 	{#each nfts as nft}
-		<p>{nft.name}</p>
+		<p>{nft.rarity}</p>
+		<p>{nft.name} {nft.id}</p>
 	{/each}
 </main>

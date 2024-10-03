@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import { gameState } from '../stores/gameState';
-	import MintEgg from './MintEgg.svelte';
+	import { addMessage, gameState } from '../stores/gameState';
 
 	$: messages = $gameState.messages;
 	let currentStepDescription: string = '';
@@ -10,6 +9,10 @@
 		const currentStep = state.steps.find((step) => step.id === state.currentStep);
 		currentStepDescription = currentStep ? currentStep.description : '';
 	});
+
+	$: if (currentStepDescription) {
+		addMessage(currentStepDescription);
+	}
 
 	onDestroy(() => {
 		unsubscribe();

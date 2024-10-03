@@ -18,7 +18,7 @@
 	});
 </script>
 
-<main class="p-2 font-mono -tracking-widest">
+<main class="p-2 font-mono">
 	<h1 class="w-full text-right fixed bottom-2 right-2">Sanko Tycoon ©</h1>
 	<div class="flex flex-col space-y-2">
 		<HeaderTerminal />

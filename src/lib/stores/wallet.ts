@@ -62,7 +62,7 @@ export interface Wallet {
 
 // Define the starterWallet object with only 3 $DMT
 const starterWallet: Wallet = {
-    walletAddress: '', // generate random address for them, let them use a .DMT address in the future
+    walletAddress: '0x4251b...239B3', // generate random address for them, let them use a .DMT address in the future
     network: 'Arbitrum',
     tokens: [
         {
