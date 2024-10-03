@@ -7,6 +7,9 @@
 	import MintEgg from '../lib/components/MintEgg.svelte';
 	import { gameState, StepID } from '../lib/stores/gameState';
 	import { onDestroy } from 'svelte';
+	import HatchEgg from '$lib/components/HatchEgg.svelte';
+	import Farm from '$lib/components/Farm.svelte';
+	import { wallet } from '$lib/stores/wallet';
 
 	let currentStep: StepID;
 	const unsubscribe = gameState.subscribe((state) => {
@@ -28,6 +31,10 @@
 			<Bridge />
 		{:else if currentStep === StepID.Mint}
 			<MintEgg />
+		{:else if currentStep === StepID.Hatch}
+			<HatchEgg />
+		{:else if currentStep === StepID.Farm}
+			<Farm bun={$wallet.nfts[0]} />
 		{/if}
 	</div>
 </main>

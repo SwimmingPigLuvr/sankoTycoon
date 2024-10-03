@@ -51,6 +51,7 @@ export interface Bun {
     type: BunType;
     variety: BunVariety;
     wallet: BunWallet;
+    imageUrl: string;
 }
 
 export interface Wallet {

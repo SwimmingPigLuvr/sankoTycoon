@@ -39,8 +39,8 @@
 	};
 
 	let starterEgg: Bun = {
-		id: 1,
-		name: 'Bun',
+		id: 1111,
+		name: 'Buns',
 		industry: 0,
 		luck: 0,
 		speed: 0,
@@ -50,7 +50,8 @@
 		rarity: 'Common',
 		type: 'Egg',
 		variety: 'Bun',
-		wallet: bunWallet
+		wallet: bunWallet,
+		imageUrl: '/images/eggs/natural.webp'
 	};
 
 	function mintEgg() {

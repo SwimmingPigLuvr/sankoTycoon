@@ -48,6 +48,13 @@ const steps: Step[] = [
         completed: false,
         message: 'Bun Hatched! Check Wallet.',
     },
+    {
+        id: StepID.Farm, // Corrected to use StepID.Hatch instead of 3
+        name: 'Plant Seeds to Start Farming',
+        description: 'Plant Seeds to Start Farming',
+        completed: false,
+        message: 'Wow solid farming dude',
+    },
 ];
 
 const initialState: GameState = {
