@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { fruitData, seedData, itemData } from '$lib/itemData';
 	import type { Bun } from '$lib/stores/wallet';
 
 	export let bun: Bun;

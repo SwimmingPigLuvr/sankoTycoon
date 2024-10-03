@@ -1,4 +1,4 @@
-export const seeds = {
+export const seedData = {
     // create 4 more objects equivalent to heart for these categories:
     // round, star, lumpy, square
     Heart: {
@@ -28,7 +28,7 @@ export const seeds = {
     }
 }
 
-export const fruits = {
+export const fruitData = {
     // heart - strength
     // star - luck
     // round - speed
@@ -61,7 +61,7 @@ export const fruits = {
     }
 }
 
-export const items = {
+export const itemData = {
     Bunzempic: {
         name: "Bunzempic",
         imgPath: "/images/items/Bunzempic.png",
