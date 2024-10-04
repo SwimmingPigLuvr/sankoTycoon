@@ -40,18 +40,22 @@
 		}
 	}
 
+	function pickFruit(index: number) {
+		const plot = plots[index];
+		if (plot.fruitRemaining && plot.)
+	}
+
 	setInterval(() => {
 		plots = plots.map((plot) => {
 			if (plot.state === 'planted') {
 				// increase maturity
-				if (plot.maturity < 100) {
-					plot.maturity += 1;
-				} else if (plot.maturity === 0 && plot.fruitRemaining > 0) {
+				if (plot.maturity && plot.maturity < 100) {
+					plot.maturity += 25;
+				} else if (plot.maturity === 0 && plot.fruitRemaining && plot.fruitRemaining > 0) {
 					// start yielding fruits once matured
 					plot.fruitRemaining -= 1;
 					if (plot.fruitRemaining === 0) {
-						plot.maturity = 5;
-						plot.fruitRemaining = 3;
+						plot.state = 'empty';
 					}
 				}
 			}

@@ -4,7 +4,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'FinkHeavy': ['FinkHeavy_Regular', 'serif'],
+        'FinkHeavy': ['FinkHeavy-Regular', 'serif'],
+        'TechnologyBold': ['Technology-Bold', 'serif'],
       },
     },
   },

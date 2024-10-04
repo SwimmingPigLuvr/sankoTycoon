@@ -3,7 +3,12 @@
 @tailwind utilities;
 
 @font-face {
-    font-family: 'FinkHeavy_Regular';
-    src: url('/fonts/FinkHeavy_Regular.ttf') format('opentype');
+    font-family: 'FinkHeavy-Regular';
+    src: url('/fonts/FinkHeavy-Regular.ttf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Technology-Bold';
+    src: url('/fonts/Technology-Bold.ttf') format('opentype');
 }
 

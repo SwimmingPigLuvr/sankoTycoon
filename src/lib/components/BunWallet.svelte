@@ -7,8 +7,10 @@
 	$: bunId = bunWallet.bunId;
 	$: gold = bunWallet.gold;
 	$: items = bunWallet.items;
-	$: fruit = bunWallet.fruit;
-	$: seeds = bunWallet.seeds;
+	$: fruit = items.filter((items) => items.type === 'fruit');
+	$: seeds = items.filter((items) => items.type === 'seed');
+	$: wearables = items.filter((items) => items.type === 'wearable');
+	$: consumables = items.filter((items) => items.type === 'consumable');
 
 	// todo
 	// fill the grid with the buns items, fruits, and seeds in that order

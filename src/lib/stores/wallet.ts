@@ -13,6 +13,7 @@ export interface Plot {
     maturity?: number;
     fruitRemaining?: number;
     plantedAt?: number;
+    fruitsReady?: number;
 }
 
 export interface Item  {
