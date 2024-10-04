@@ -42,25 +42,39 @@
 
 	function pickFruit(index: number) {
 		const plot = plots[index];
-		if (plot.fruitRemaining && plot.)
+		if (plot.fruitsReady && plot.fruitsReady > 0) {
+			plot.fruitsReady -= 1;
+			if (plot.fruitRemaining !== undefined) {
+				plot.fruitRemaining -= 1;
+			}
+			if (plot.fruitRemaining === 0 && plot.fruitsReady === 0) {
+				plot.state = 'empty';
+			}
+		}
 	}
 
+	// Simulate the passage of time every day (for demonstration purposes)
 	setInterval(() => {
 		plots = plots.map((plot) => {
 			if (plot.state === 'planted') {
-				// increase maturity
-				if (plot.maturity && plot.maturity < 100) {
+				// Increase maturity by 25% until fully matured (100%)
+				if (plot.maturity !== undefined && plot.maturity < 100) {
 					plot.maturity += 25;
-				} else if (plot.maturity === 0 && plot.fruitRemaining && plot.fruitRemaining > 0) {
-					// start yielding fruits once matured
-					plot.fruitRemaining -= 1;
-					if (plot.fruitRemaining === 0) {
-						plot.state = 'empty';
+
+					// If maturity reaches 100%, start accumulating fruits
+					if (
+						plot.fruitsReady &&
+						plot.maturity === 100 &&
+						plot.fruitRemaining &&
+						plot.fruitRemaining > 0
+					) {
+						plot.fruitsReady += 1;
 					}
 				}
 			}
+			return plot;
 		});
-	});
+	}, 1000 * 6); // Simulates 1 day passing every 24 hours
 </script>
 
 <!-- Farm Grid -->
@@ -82,25 +96,38 @@
 
 <!-- show info for the currently selected plot -->
 {#if selectedPlotIndex !== null}
-	<div class="w-40 p-2 bg-blue-300">
+	<div class="w-40 p-2 bg-blue-300 text-center font-FinkHeavy">
 		<p>Plot #{selectedPlotIndex}</p>
-		<p>Empty Plot</p>
-		<!-- available seeds go here -->
-		{#if availableSeeds.length > 0}
-			<div class="flex flex-wrap gap-2">
-				{#each availableSeeds as seed}
-					<button
-						on:click={() => plantSeed(seed.name)}
-						class="p-2 bg-green-600 text-white rounded-lg flex items-center"
-					>
-						<img src={seed.imgPath} alt={seed.name} class="h-6 w-6 inline-block mr-2" />
-						{seed.name}
-						{seed.quantity}
-					</button>
-				{/each}
-			</div>
+		{#if plots[selectedPlotIndex].state === 'empty'}
+			<p>Empty Plot</p>
 		{:else}
-			<p>no seeds. get some seeds from the shop.</p>
+			<p>{plots[selectedPlotIndex].type}</p>
+			<p>{plots[selectedPlotIndex].maturity}</p>
+			<p>{plots[selectedPlotIndex].fruitRemaining}</p>
+		{/if}
+		<!-- ready fruits go here -->
+		{#if plots[selectedPlotIndex].state === 'planted'}
+			<p>ready fruits go here.</p>
+			<p>once the ui is set for teh available seeds this div will be based on that one</p>
+		{/if}
+		<!-- available seeds go here -->
+		{#if plots[selectedPlotIndex].state === 'empty'}
+			{#if availableSeeds.length > 0}
+				<div class="flex flex-wrap gap-2">
+					{#each availableSeeds as seed}
+						<button
+							on:click={() => plantSeed(seed.name)}
+							class="p-2 bg-green-600 text-white rounded-lg flex items-center"
+						>
+							<img src={seed.imgPath} alt={seed.name} class="h-6 w-6 inline-block mr-2" />
+							{seed.name}
+							{seed.quantity}
+						</button>
+					{/each}
+				</div>
+			{:else}
+				<p class="text-xs">no seeds. get some seeds from the shop.</p>
+			{/if}
 		{/if}
 		<div>
 			{#each availableSeeds as seed}
