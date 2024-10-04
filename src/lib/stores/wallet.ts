@@ -7,28 +7,25 @@ export interface Token {
     balance: number;
 }
 
-export interface Fruit {
-    round: number;
-    lumpy: number;
-    heart: number;
-    star: number;
-    square: number;
+export interface Plot {
+    state: 'empty' | 'planted';
+    type?: string;
+    maturity?: number;
+    fruitRemaining?: number;
+    plantedAt?: number;
 }
 
-export interface Seeds {
-    round: number;
-    lumpy: number;
-    heart: number;
-    star: number;
-    square: number;
+export interface Item  {
+    type: 'fruit' | 'seed' | 'consumable' | 'wearable';
+    name: string;
+    quantity: number;
+    imgPath: string;
 }
 
 export interface BunWallet {
     bunId: number;
     gold: number;
-    fruit: Fruit;
-    seeds: Seeds;
-    items: string[];
+    items: Item[];
 }
 
 type BunRarity = 'Common' | 'Uncommon' | 'Rare' | 'Rotten' | 'SuperRare' | 'Moldy';

@@ -31,8 +31,8 @@
 	};
 
 	let bunWallet: BunWallet = {
-		bunId: 1,
-		gold: 10,
+		bunId: 1111,
+		gold: 0,
 		fruit: starterFruit,
 		seeds: starterSeeds,
 		items: ['Bunzempic']

@@ -1,16 +1,16 @@
 <script lang="ts">
-	import { wallet, type Bun } from '$lib/stores/wallet';
+	import { wallet, type Bun, type Plot } from '$lib/stores/wallet';
 	import { get } from 'svelte/store';
 	import Wallet from './Wallet.svelte';
 	import { fruitData, itemData, seedData } from '$lib/itemData';
 
 	export let bun: Bun;
-	let availableSeeds = get(wallet).nfts.find((nft: Bun) => nft.id === bun.id)?.wallet.seeds;
 
-	$: availableSeeds = get(wallet).nfts.find((nft: Bun) => nft.id === bun.id)?.wallet.seeds;
+	$: bunWallet = bun.wallet;
+	$: availableSeeds = bunWallet.items.filter((item) => item.type === 'seed');
 
 	let selectedPlotIndex: number | null = null;
-	let plots: { state: 'empty' | 'planted'; type?: string }[] = Array(25).fill({ state: 'empty' });
+	let plots: Plot[] = Array(25).fill({ state: 'empty' });
 
 	//function to select plot
 	function selectPlot(index: number) {
@@ -24,45 +24,42 @@
 	// Function to plant a seed in the selected plot
 	function plantSeed(seedType: string) {
 		if (selectedPlotIndex !== null) {
-			const availableSeeds = get(wallet).nfts.find((nft) => nft.id === bun.id)?.wallet.seeds;
-
-			if (availableSeeds && availableSeeds[seedType] && availableSeeds[seedType] > 0) {
-				// Reduce the seed count
-				wallet.update((currentWallet) => {
-					const bunIndex = currentWallet.nfts.findIndex((nft) => nft.id === bun.id);
-					if (bunIndex !== -1) {
-						currentWallet.nfts[bunIndex].wallet.seeds[seedType] -= 1;
-					}
-					return currentWallet;
-				});
-
-				// Update the plot state
-				plots[selectedPlotIndex] = { state: 'planted', type: seedType };
+			const seed = bunWallet.items.find((item) => item.name === seedType);
+			if (seed && seed.quantity > 0) {
+				seed.quantity = 1;
+				plots[selectedPlotIndex] = {
+					state: 'planted',
+					type: seedType,
+					maturity: 0,
+					fruitRemaining: 5,
+					plantedAt: Date.now()
+				};
 			} else {
-				alert('You do not have enough seeds to plant!');
+				alert('not enough seeds to plant');
 			}
 		}
 	}
 
-	// todo. let users pick a plot.
-	// if the user has seeds then they will be prompted to plant them their
-	// impl a planting function
-	// planting takes the seed and plants a tree in the plot
-	// todo. farm needs to be rotated. let me clarify:
-	// plot 1 is the bottom right grid
-	// plot 5 is the top right grid
-	// plot 21 is the bottom left grid
-	// plot 25 is the top left
-
-	// right now the plant seed function only deals with the round seeds
-	// but we need to only consider the types that exist in the wallet
-	// could be any of the five types or none
-	// if seeds, the div that says plant seeds in plot should say
-	// empty plot, then have the available seeds images from left to right
-	// then a button below that says plant seeds
-	// if no seeds, should just be empty
+	setInterval(() => {
+		plots = plots.map((plot) => {
+			if (plot.state === 'planted') {
+				// increase maturity
+				if (plot.maturity < 100) {
+					plot.maturity += 1;
+				} else if (plot.maturity === 0 && plot.fruitRemaining > 0) {
+					// start yielding fruits once matured
+					plot.fruitRemaining -= 1;
+					if (plot.fruitRemaining === 0) {
+						plot.maturity = 5;
+						plot.fruitRemaining = 3;
+					}
+				}
+			}
+		});
+	});
 </script>
 
+<!-- Farm Grid -->
 <div class="grid gap-0 grid-cols-5 grid-rows-5 w-40 h-40 border-black border-2">
 	{#each plots as plot, index (24 - index)}
 		<button
@@ -72,8 +69,8 @@
 				: ''} hover:bg-lime-400 border border-black"
 			on:click={() => selectPlot(index)}
 		>
-			{#if plot.state === 'planted' && plot.type}
-				<img src={seedData[plot.type].imgPath} alt={plot.type} />
+			{#if plot && plot.type && plot.state === 'planted'}
+				<img src={plot.type} alt={plot.type} />
 			{/if}
 		</button>
 	{/each}
@@ -81,18 +78,35 @@
 
 <!-- show info for the currently selected plot -->
 {#if selectedPlotIndex !== null}
-	<div class="w-40 p-2 bg-blue-300"></div>
-	<p>Plot #{selectedPlotIndex}</p>
-	<p>Empty Plot</p>
-	<!-- available seeds go here -->
-	<div>
-		{#each availableSeeds as seed}
-			<img src={seed.imgPath} alt={seed.name} />
-		{/each}
+	<div class="w-40 p-2 bg-blue-300">
+		<p>Plot #{selectedPlotIndex}</p>
+		<p>Empty Plot</p>
+		<!-- available seeds go here -->
+		{#if availableSeeds.length > 0}
+			<div class="flex flex-wrap gap-2">
+				{#each availableSeeds as seed}
+					<button
+						on:click={() => plantSeed(seed.name)}
+						class="p-2 bg-green-600 text-white rounded-lg flex items-center"
+					>
+						<img src={seed.imgPath} alt={seed.name} class="h-6 w-6 inline-block mr-2" />
+						{seed.name}
+						{seed.quantity}
+					</button>
+				{/each}
+			</div>
+		{:else}
+			<p>no seeds. get some seeds from the shop.</p>
+		{/if}
+		<div>
+			{#each availableSeeds as seed}
+				<img src={seed.imgPath} alt={seed.name} />
+			{/each}
+		</div>
+		<button on:click={() => plantSeed} class="bg-green-600 text-white rounded-lg">
+			plant seed
+		</button>
 	</div>
-	<button on:click={() => plantSeed} class="bg-green-600 text-white rounded-lg">
-		plant seed
-	</button>
 {/if}
 
 <style>
