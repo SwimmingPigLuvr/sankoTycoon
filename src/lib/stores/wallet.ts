@@ -21,6 +21,7 @@ export interface Item  {
     name: string;
     quantity: number;
     imgPath: string;
+    fruitType?: 'star' | 'heart' | 'round' | 'lumpy' | 'square';
 }
 
 export interface BunWallet {

@@ -28,12 +28,7 @@ export const seedData = {
     }
 }
 
-export const fruitData = {
-    // heart - strength
-    // star - luck
-    // round - speed
-    // lumpy - stamina
-    // square - industry
+export const fruitData= {
     Heart: {
         name: "Heart Fruit",
         imgPath: "/images/fruit/Heart.png",
@@ -66,5 +61,5 @@ export const itemData = {
         name: "Bunzempic",
         imgPath: "/images/items/Bunzempic.png",
         description: "Use this to revive bun from the dead"
-    }
+    },
 }
