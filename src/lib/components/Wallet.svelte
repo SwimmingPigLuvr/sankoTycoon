@@ -1,8 +1,10 @@
 <!-- lib/components/Wallet.svelte -->
 <script lang="ts">
+	import { cubicInOut } from 'svelte/easing';
 	import { wallet } from '../stores/wallet';
 	import type { Token, Bun, Wallet } from '../stores/wallet';
 	import BunWallet from './BunWallet.svelte';
+	import { fly } from 'svelte/transition';
 	$: network = $wallet?.network;
 	let tokens: Token[] = [];
 	let nfts: Bun[] = [];
@@ -27,10 +29,10 @@
 	<h1>Buns</h1>
 	<div class="flex flex-wrap">
 		{#each nfts as nft}
-			<div class="w-full flex bg-lime-200">
+			<div class="w-full flex flex-col bg-lime-200">
 				<!-- bun -->
-				<div class="bg-red-200 w-1/3">
-					<button on:click={() => openWallet()}>
+				<div class="bg-red-200 w-full">
+					<button in:fly={{duration: 1000, y: 10, easing: cubicInOut}} on:click={() => openWallet()}>
 						<img class="m-auto" src={nft.imageUrl} alt={nft.name} />
 					</button>
 					<p class="text-xs">

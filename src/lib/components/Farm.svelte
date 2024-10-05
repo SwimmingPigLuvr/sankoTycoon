@@ -46,9 +46,7 @@
 		}
 	}
 
-	function startPlotGrowthTimer(plotIndex: number) {
-		
-	}
+	function startPlotGrowthTimer(plotIndex: number) {}
 
 	function pickFruit(index: number) {
 		const plot = plots[index];
@@ -140,6 +138,7 @@
 	}
 </script>
 
+<h2 class="font-FinkHeavy text-2xl text-center w-40">Farm</h2>
 <!-- Farm Grid -->
 <div class="grid gap-0 grid-cols-5 grid-rows-5 w-40 h-40 border-black border-2">
 	{#each plots as plot, index}
@@ -189,14 +188,32 @@
 		{#if plots[selectedPlotIndex].state === 'empty'}
 			<p class="text-xl">Empty Plot</p>
 		{:else}
-			<p>{plots[selectedPlotIndex].type}</p>
-			<p>{plots[selectedPlotIndex].maturity}</p>
-			<p>{plots[selectedPlotIndex].fruitRemaining}</p>
+			<p class="capitalize">{plots[selectedPlotIndex].type} Tree</p>
+			<p>Tree maturity: {plots[selectedPlotIndex].maturity}%</p>
+			<p>{plots[selectedPlotIndex].fruitRemaining} Fruits Remaining</p>
 		{/if}
 		<!-- ready fruits go here -->
 		{#if plots[selectedPlotIndex].state === 'planted'}
-			<p>ready fruits go here.</p>
-			<p>once the ui is set for teh available seeds this div will be based on that one</p>
+			{#if availableSeeds.length > 0}
+				<div class=" flex flex-wrap gap-2">
+					<div class="p-2 w-full bg-black bg-opacity-30 text-white rounded-lg flex items-center">
+						{#each availableSeeds as seed}
+							<!-- if the user clicks anywhere besides directly on the seeds then the selected seed should be undefined -->
+							<button
+								on:click={() => (selectedSeed = seed)}
+								class="{selectedSeed === seed
+									? '-translate-y-2 scale-150 hover:scale-150'
+									: ''} hover:scale-150"
+							>
+								<img src={seed.imgPath} alt="heart" class="h-6 w-6 inline-block mr-2" />
+							</button>
+						{/each}
+					</div>
+				</div>
+				<p class="text-center">{selectedSeed?.name ?? ''}</p>
+			{:else}
+				<p class="text-xs">no seeds. get some seeds from the shop.</p>
+			{/if}
 		{/if}
 		<!-- available seeds go here -->
 		{#if plots[selectedPlotIndex].state === 'empty'}
@@ -216,10 +233,12 @@
 						{/each}
 					</div>
 				</div>
+				<p class="text-center">{selectedSeed?.name ?? ''}</p>
 			{:else}
 				<p class="text-xs">no seeds. get some seeds from the shop.</p>
 			{/if}
 		{/if}
+		<!-- plant seed -->
 		<button
 			disabled={selectedSeed === undefined}
 			on:click={() => plantSeed(selectedSeed?.fruitType ?? 'fake seed')}

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { fruitData, seedData, itemData } from '$lib/itemData';
 	import type { Bun } from '$lib/stores/wallet';
+	import { cubicInOut } from 'svelte/easing';
+	import { fly, slide } from 'svelte/transition';
 
 	export let bun: Bun;
 	$: bunWallet = bun.wallet;
@@ -25,11 +27,14 @@
 	// seeds are at images/seeds/HeartSeed.png, StarSeed ... and so on.
 </script>
 
-<main class="w-full bg-lime-100 flex flex-col border-black border-2">
+<main
+	in:fly={{ duration: 1000, x: -10, easing: cubicInOut }}
+	class="w-full bg-lime-100 flex flex-col border-black border-2"
+>
 	<!-- gold balance -->
 	<p class="text-xs">{gold} GOLD</p>
 	<!-- items, fruits, seeds -->
-	<div class="grid gap-0 grid-cols-4 grid-rows-3 w-full h-full border-2 bg-red-500">
+	<div class="grid gap-0 grid-cols-6 grid-rows-2 w-full h-14 border-2 bg-red-500">
 		<div class="border hover:bg-lime-400 border-black"></div>
 		<div class="border hover:bg-lime-400 border-black"></div>
 		<div class="border hover:bg-lime-400 border-black"></div>
