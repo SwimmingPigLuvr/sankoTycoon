@@ -17,7 +17,7 @@
 	}
 </script>
 
-<main class="bg-sky-300 space-y-1 tracking-normal text-center w-40 flex flex-col items-center">
+<main class="space-y-1 tracking-normal text-center w-40 flex flex-col items-center">
 	<h1>Wallet</h1>
 	<p class="text-sm">{$wallet?.walletAddress}</p>
 	<hr class="w-full border-black bg-black" />
@@ -29,11 +29,14 @@
 	<h1>Buns</h1>
 	<div class="flex flex-wrap">
 		{#each nfts as nft}
-			<div class="w-full flex flex-col bg-lime-200">
+			<div class="w-full flex flex-col">
 				<!-- bun -->
-				<div class="bg-red-200 w-full">
-					<button in:fly={{duration: 1000, y: 10, easing: cubicInOut}} on:click={() => openWallet()}>
-						<img class="m-auto" src={nft.imageUrl} alt={nft.name} />
+				<div class="w-full">
+					<button
+						in:fly={{ duration: 1000, y: 10, easing: cubicInOut }}
+						on:click={() => openWallet()}
+					>
+						<img class="w-1/2 m-auto" src={nft.imageUrl} alt={nft.name} />
 					</button>
 					<p class="text-xs">
 						{#if nft.type === 'Egg'}
@@ -44,8 +47,10 @@
 						<p class="text-xs">{nft.name} #{nft.id}</p>
 					{/if}
 				</div>
-				<!-- bun wallet -->
-				<BunWallet bun={nft} />
+				{#if nft.type === 'Bun'}
+					<!-- bun wallet -->
+					<BunWallet bun={nft} />
+				{/if}
 			</div>
 		{/each}
 	</div>

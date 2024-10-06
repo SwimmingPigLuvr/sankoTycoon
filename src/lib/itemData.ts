@@ -1,3 +1,50 @@
+export const bunzempic: Item = {
+    type: 'consumable',
+    name: 'Bunzempic',
+    quantity: 1,
+    imgPath: '/images/items/Bunzempic.png'
+};
+
+export const starSeed: Item = {
+    type: 'seed',
+    name: 'Star Seed',
+    quantity: 1,
+    imgPath: '/images/seeds/StarSeed.png',
+    fruitType: 'star'
+};
+
+export const heartSeed: Item = {
+    type: 'seed',
+    name: 'Heart Seed',
+    quantity: 1,
+    imgPath: '/images/seeds/HeartSeed.png',
+    fruitType: 'heart'
+};
+
+export const lumpySeed: Item = {
+    type: 'seed',
+    name: 'Lumpy Seed',
+    quantity: 1,
+    imgPath: '/images/seeds/LumpySeed.png',
+    fruitType: 'lumpy'
+};
+
+export const roundSeed: Item = {
+    type: 'seed',
+    name: 'Round Seed',
+    quantity: 1,
+    imgPath: '/images/seeds/RoundSeed.png',
+    fruitType: 'round'
+};
+
+export const squareSeed: Item = {
+    type: 'seed',
+    name: 'Square Seed',
+    quantity: 1,
+    imgPath: '/images/seeds/SquareSeed.png',
+    fruitType: 'square'
+};
+
 export const seedData = {
     // create 4 more objects equivalent to heart for these categories:
     // round, star, lumpy, square

@@ -29,12 +29,12 @@
 
 <main
 	in:fly={{ duration: 1000, x: -10, easing: cubicInOut }}
-	class="w-full bg-lime-100 flex flex-col border-black border-2"
+	class="w-full flex flex-col border-black border-2"
 >
 	<!-- gold balance -->
 	<p class="text-xs">{gold} GOLD</p>
 	<!-- items, fruits, seeds -->
-	<div class="grid gap-0 grid-cols-6 grid-rows-2 w-full h-14 border-2 bg-red-500">
+	<div class="grid gap-0 grid-cols-6 grid-rows-2 w-full h-14 border-2">
 		<div class="border hover:bg-lime-400 border-black"></div>
 		<div class="border hover:bg-lime-400 border-black"></div>
 		<div class="border hover:bg-lime-400 border-black"></div>
