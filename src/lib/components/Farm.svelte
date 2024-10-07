@@ -15,6 +15,8 @@
 
 	let selectedPlotIndex: number | null = null;
 	let plots: Plot[] = Array(25).fill({ state: 'empty' });
+	$: harvest = plots.filter((plot) => plot.fruitsReady && plot.fruitsReady > 0);
+	$: projectedHarvest = plots.reduce((total, plot) => total + (plot.fruitRemaining || 0), 0);
 
 	let plotTimers: Array<NodeJS.Timeout | null> = Array(25).fill(null);
 
@@ -253,11 +255,11 @@
 							{#each Array(plots[selectedPlotIndex].fruitsReady) as _, i}
 								{#if plots[selectedPlotIndex].type && selectedPlotIndex !== null}
 									<button
-										on:click={() => (selectedFruit = getFruit(plots[selectedPlotIndex].type))}
+										on:click={() => (selectedFruit = getFruit(plots[selectedPlotIndex]?.type))}
 										class="p-2 hover:scale-150"
 									>
 										<img
-											src={getFruit(plots[selectedPlotIndex].type)?.imgPath}
+											src={getFruit(plots[selectedPlotIndex]?.type)?.imgPath}
 											alt="heart"
 											class="h-6 w-6 inline-block mr-2"
 										/>
