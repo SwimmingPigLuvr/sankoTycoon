@@ -11,6 +11,10 @@
 
 	$: bunWallet = bun.wallet;
 	$: availableSeeds = bunWallet.items.filter((item) => item.type === 'seed' && item.quantity > 0);
+	$: availableWitheredSeeds = bunWallet.items.filter(
+		(item) => item.type === 'seed' && item.quantity > 0
+	);
+	$: allAvailableSeeds = [...availableSeeds, ...availableWitheredSeeds];
 
 	let selectedPlotIndex: number | null = null;
 	let plots: Plot[] = Array(25).fill({ state: 'empty' });
@@ -73,6 +77,7 @@
 				return currentWallet;
 			});
 		}
+		allAvailableSeeds = [...allAvailableSeeds];
 	}
 
 	function startPlotGrowthTimer(plotIndex: number) {
@@ -123,6 +128,7 @@
 	function harvestFruit(index: number) {
 		console.log('harvesting fruit');
 		const plot = plots[index];
+		console.log('plot type', plot.type);
 		if (plot.fruitsReady && plot.fruitsReady > 0) {
 			// update bunWallet
 			wallet.update((currentWallet) => {
@@ -133,6 +139,10 @@
 					// find the fruit type
 					let fruit = bunItem.wallet.items.find(
 						(item) => item.type === 'fruit' && item.fruitType === plot.type
+					);
+					// find witheredSeed
+					let witheredSeed = bunItem.wallet.items.find(
+						(item) => item.type === 'witheredSeed' && item.fruitType === plot.type
 					);
 					// add fruit to wallet
 					if (fruit && plot.fruitsReady) {
@@ -145,6 +155,14 @@
 						plot.fruitsReady = 0;
 					}
 					if (plot.fruitRemaining === 0 && plot.fruitsReady === 0) {
+						// add witheredSeeds to bunWallet
+						console.log('withered seeds: ', witheredSeed?.name);
+						if (witheredSeed) {
+							console.log('adding witheredSeed to bunwallet: ', witheredSeed.fruitType);
+							witheredSeed.quantity += 1;
+						}
+
+						// clear plot
 						plot.state = 'empty';
 					}
 
@@ -153,6 +171,7 @@
 				return currentWallet;
 			});
 		}
+		allAvailableSeeds = [...allAvailableSeeds];
 	}
 
 	function prevIndex() {
@@ -282,7 +301,7 @@
 				{#if availableSeeds.length > 0}
 					<div class=" flex flex-wrap gap-2">
 						<div class="p-2 w-full bg-black bg-opacity-30 text-white rounded-lg flex items-center">
-							{#each availableSeeds as seed}
+							{#each availableWitheredSeeds as seed}
 								<!-- if the user clicks anywhere besides directly on the seeds then the selected seed should be undefined -->
 								<button
 									on:click={() => (selectedSeed = seed)}

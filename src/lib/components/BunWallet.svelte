@@ -12,10 +12,11 @@
 	$: items = bunWallet.items.filter((items) => items.quantity > 0);
 	$: fruit = items.filter((items) => items.type === 'fruit');
 	$: seeds = items.filter((items) => items.type === 'seed');
+	$: witheredSeeds = items.filter((items) => items.type === 'witheredSeed');
 	$: wearables = items.filter((items) => items.type === 'wearable');
 	$: consumables = items.filter((items) => items.type === 'consumable');
 
-	$: allItems = [...consumables, ...wearables, ...seeds, ...fruit];
+	$: allItems = [...consumables, ...wearables, ...seeds, ...witheredSeeds, ...fruit];
 
 	// todo
 	// if the items have a quantity of more than 1 then they still only take up 1 grid but later on i will add

@@ -12,16 +12,25 @@
 		bunId: 1,
 		gold: 10,
 		items: [
+			// fruit
 			items.heartFruit,
 			items.lumpyFruit,
 			items.roundFruit,
 			items.squareFruit,
 			items.starFruit,
+			// seeds
 			items.heartSeed,
 			items.lumpySeed,
 			items.roundSeed,
 			items.squareSeed,
 			items.starSeed,
+			// witheredSeeds
+			items.witheredStarSeed,
+			items.witheredSquareSeed,
+			items.witheredHeartSeed,
+			items.witheredLumpySeed,
+			items.witheredRoundSeed,
+			// bunzempic
 			items.bunzempic
 		]
 	};

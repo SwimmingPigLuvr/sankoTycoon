@@ -17,7 +17,7 @@ export interface Plot {
 }
 
 export interface Item  {
-    type: 'fruit' | 'seed' | 'consumable' | 'wearable';
+    type: 'fruit' | 'seed' | 'witheredSeed' | 'consumable' | 'wearable';
     name: string;
     quantity: number;
     imgPath: string;
