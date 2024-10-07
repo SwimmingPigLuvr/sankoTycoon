@@ -2,62 +2,28 @@
 	import { progressStep } from '$lib/stores/gameState';
 	import type { Bun, BunWallet, Item } from '$lib/stores/wallet';
 	import { wallet } from '$lib/stores/wallet';
+	import * as items from '$lib/itemData';
 	import Wallet from './Wallet.svelte';
 
 	let isHatching = false;
 	let hatched = false;
 
-	let bunzempic: Item = {
-		type: 'consumable',
-		name: 'Bunzempic',
-		quantity: 1,
-		imgPath: '/images/items/Bunzempic.png'
-	};
-
-	let starSeed: Item = {
-		type: 'seed',
-		name: 'Star Seed',
-		quantity: 1,
-		imgPath: '/images/seeds/StarSeed.png',
-		fruitType: 'star'
-	};
-
-	let heartSeed: Item = {
-		type: 'seed',
-		name: 'Heart Seed',
-		quantity: 1,
-		imgPath: '/images/seeds/HeartSeed.png',
-		fruitType: 'heart'
-	};
-
-	let lumpySeed: Item = {
-		type: 'seed',
-		name: 'Lumpy Seed',
-		quantity: 1,
-		imgPath: '/images/seeds/LumpySeed.png',
-		fruitType: 'lumpy'
-	};
-
-	let roundSeed: Item = {
-		type: 'seed',
-		name: 'Round Seed',
-		quantity: 1,
-		imgPath: '/images/seeds/RoundSeed.png',
-		fruitType: 'round'
-	};
-
-	let squareSeed: Item = {
-		type: 'seed',
-		name: 'Square Seed',
-		quantity: 1,
-		imgPath: '/images/seeds/SquareSeed.png',
-		fruitType: 'square'
-	};
-
 	let bunWallet: BunWallet = {
 		bunId: 1,
 		gold: 10,
-		items: [bunzempic, heartSeed, starSeed, lumpySeed, roundSeed, squareSeed]
+		items: [
+			items.heartFruit,
+			items.lumpyFruit,
+			items.roundFruit,
+			items.squareFruit,
+			items.starFruit,
+			items.heartSeed,
+			items.lumpySeed,
+			items.roundSeed,
+			items.squareSeed,
+			items.starSeed,
+			items.bunzempic
+		]
 	};
 
 	let starterBun: Bun = {

@@ -2,15 +2,16 @@
 	import { wallet, type Bun, type Item, type Plot } from '$lib/stores/wallet';
 	import { get } from 'svelte/store';
 	import Wallet from './Wallet.svelte';
-	import { fruitData, itemData, seedData } from '$lib/itemData';
+	import * as itemData from '$lib/itemData';
 	import { fade } from 'svelte/transition';
 
 	export let bun: Bun;
 
 	let selectedSeed: Item | undefined;
+	let selectedFruit: Item | undefined;
 
 	$: bunWallet = bun.wallet;
-	$: availableSeeds = bunWallet.items.filter((item) => item.type === 'seed');
+	$: availableSeeds = bunWallet.items.filter((item) => item.type === 'seed' && item.quantity > 0);
 
 	let selectedPlotIndex: number | null = null;
 	let plots: Plot[] = Array(25).fill({ state: 'empty' });
@@ -20,18 +21,20 @@
 	//function to select plot
 	function selectPlot(index: number) {
 		console.log('selected plot: ', index);
-		if (plots[index].state === 'empty') {
-			selectedPlotIndex = index;
-		} else {
-			selectedPlotIndex = null;
-		}
+		selectedPlotIndex = index;
 	}
 
 	// Function to plant a seed in the selected plot
 	function plantSeed() {
+		console.log('plotIndex: ', selectedPlotIndex);
+		console.log('selectedSeed: ', selectedSeed?.name);
+		console.log('fruitType: ', selectedSeed?.fruitType);
+		console.log('quantity: ', selectedSeed?.quantity);
+		// if no seedSelected
 		if (selectedSeed === undefined) {
 			return;
 		}
+		// if valid seed selected
 		if (selectedPlotIndex !== null && selectedSeed !== undefined && selectedSeed.fruitType) {
 			// Update the seed quantity in the user's wallet
 			wallet.update((currentWallet) => {
@@ -39,10 +42,11 @@
 				if (bunIndex !== -1) {
 					const bunItem = currentWallet.nfts[bunIndex];
 					const seed = bunItem.wallet.items.find(
-						(item: Item) => item.fruitType === selectedSeed?.fruitType
+						(item: Item) => item.type === 'seed' && item.fruitType === selectedSeed?.fruitType
 					);
+					console.log('Found Seed: ', seed);
 
-					if (seed && seed.quantity > 0 && selectedPlotIndex && selectedSeed) {
+					if (seed && seed.quantity > 0 && selectedPlotIndex !== null && selectedSeed) {
 						// Reduce the seed count by 1
 						seed.quantity -= 1;
 
@@ -71,6 +75,7 @@
 	}
 
 	function startPlotGrowthTimer(plotIndex: number) {
+		console.log('start growth timer: ', plotIndex);
 		// clear old timers for plot
 		// there should not be any other timers because
 		// a planted plot won't have access to the plant button.
@@ -86,8 +91,10 @@
 					plot.maturity += 25;
 					// accumulate fruits once mature
 					if (plot.maturity === 100 && plot.fruitRemaining && plot.fruitRemaining > 0) {
-						plot.fruitsReady = (plot.fruitsReady || 0) + 1;
+						plot.fruitsReady = Math.min((plot.fruitsReady || 0) + 1, plot.fruitRemaining);
 					}
+
+					plots = [...plots];
 				} else {
 					// clear timer if plot is fully matured
 					clearInterval(plotTimers[plotIndex]);
@@ -102,61 +109,35 @@
 		if (plot.fruitsReady && plot.fruitsReady > 0) {
 			plot.fruitsReady -= 1;
 
+			// update bunWallet
 			wallet.update((currentWallet) => {
 				const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
 				if (bunIndex !== -1) {
 					const bunItem: Bun = currentWallet.nfts[bunIndex];
-					// find fruit that match the current type
+
+					// find the fruit type
 					let fruit = bunItem.wallet.items.find(
 						(item) => item.type === 'fruit' && item.fruitType === plot.type
 					);
+					// add fruit to wallet
 					if (fruit) {
 						fruit.quantity += 1;
-					} else {
-						bunItem.wallet.items.push({
-							type: 'fruit',
-							name: `${plot.type} Fruit`,
-							quantity: 1,
-							imgPath: fruitData[plot.type]?.imgPath,
-							fruitType: plot.type
-						});
 					}
+
+					if (plot.fruitsReady && plot.fruitRemaining) {
+						plot.fruitsReady -= 1;
+						plot.fruitRemaining -= 1;
+					}
+					if (plot.fruitRemaining === 0 && plot.fruitsReady === 0) {
+						plot.state = 'empty';
+					}
+
+					plots = [...plots];
 				}
 				return currentWallet;
 			});
-
-			if (plot.fruitRemaining !== undefined) {
-				plot.fruitRemaining -= 1;
-			}
-			if (plot.fruitRemaining === 0 && plot.fruitsReady === 0) {
-				plot.state = 'empty';
-			}
 		}
 	}
-
-	// right now every plot will mature at the same intervals but i want the trees to mature independtly of one another.
-	// Simulate the passage of time every day (for demonstration purposes)
-	setInterval(() => {
-		plots = plots.map((plot) => {
-			if (plot.state === 'planted') {
-				// Increase maturity by 25% until fully matured (100%)
-				if (plot.maturity !== undefined && plot.maturity < 100) {
-					plot.maturity += 25;
-
-					// If maturity reaches 100%, start accumulating fruits
-					if (
-						plot.fruitsReady &&
-						plot.maturity === 100 &&
-						plot.fruitRemaining &&
-						plot.fruitRemaining > 0
-					) {
-						plot.fruitsReady += 1;
-					}
-				}
-			}
-			return plot;
-		});
-	}, 1000 * 6); // Simulates 1 day passing every 24 hours
 
 	function prevIndex() {
 		if (selectedPlotIndex && selectedPlotIndex !== 0) {
@@ -174,23 +155,21 @@
 		}
 	}
 
-	// Function to determine the type of fruit based on the seed type.
-	// This function will extract the fruit type from the seed name.
-	function getFruit(tree: string): string | undefined {
-		// Check if the string includes specific seed types and return the corresponding fruit.
-		if (tree.includes('Heart')) {
-			return 'Heart';
-		} else if (tree.includes('Star')) {
-			return 'Star';
-		} else if (tree.includes('Lumpy')) {
-			return 'Lumpy';
-		} else if (tree.includes('Square')) {
-			return 'Square';
-		} else if (tree.includes('Round')) {
-			return 'Round';
+	function getFruit(type: string): Item | undefined {
+		switch (type) {
+			case 'heart':
+				return itemData.heartFruit;
+			case 'star':
+				return itemData.starFruit;
+			case 'lumpy':
+				return itemData.lumpyFruit;
+			case 'round':
+				return itemData.roundFruit;
+			case 'square':
+				return itemData.squareFruit;
+			default:
+				return undefined;
 		}
-		// Add more conditions here if there are additional seed types.
-		return undefined; // Return undefined if no known fruit type is found.
 	}
 
 	function getFruitImage(type: string) {
@@ -219,8 +198,6 @@
 			<!-- plots -->
 			{#each plots as plot, index}
 				<button
-					class:star={plot.type === 'star'}
-					class:heart={plot.type?.includes('Heart')}
 					class:planted={plot.state === 'planted'}
 					class="{selectedPlotIndex === index
 						? 'bg-lime-400'
@@ -231,11 +208,9 @@
 						<!-- mature trees -->
 						{#if plot.maturity === 100}
 							<!-- show the fruit of the tree type -->
-							{#if plot.type !== undefined}
-								<img src={getFruitImage(plot.type)} alt="" />
-							{/if}
+							<img src={getFruitImage(plot.type)} alt="" />
 						{:else}
-							<div>{plot.maturity}</div>
+							<div>{plot.maturity}%</div>
 						{/if}
 					{/if}
 				</button>
@@ -248,7 +223,7 @@
 		<div
 			class="border-[1px] border-black p-3 rounded-xl {plots[selectedPlotIndex].state === 'empty'
 				? 'wood'
-				: 'leaf'} flex flex-col space-y-1 w-40 p-2 bg-blue-300 text-center font-FinkHeavy"
+				: 'leaf'} flex flex-col space-y-1 w-40 p-2 bg-blue-300 text-center font-FinkHeavy text-sm"
 		>
 			<div class="flex justify-around">
 				<button on:click={() => prevIndex()}
@@ -264,33 +239,40 @@
 				>
 			</div>
 			{#if plots[selectedPlotIndex].state === 'empty'}
-				<p class="text-xl">Empty Plot</p>
+				<p class="text-lg">Empty Plot</p>
 			{:else if plots[selectedPlotIndex].state === 'planted'}
-				<p class="capitalize">{plots[selectedPlotIndex].type} Tree</p>
+				<p class="capitalize text-lg">{plots[selectedPlotIndex].type} Tree</p>
 				<p>Tree maturity: {plots[selectedPlotIndex].maturity}%</p>
 				<p>{plots[selectedPlotIndex].fruitRemaining} Fruits Remaining</p>
 			{/if}
-			<!-- ready fruits go here -->
+			<!-- show ready fruits -->
 			{#if plots[selectedPlotIndex].state === 'planted'}
 				{#if availableSeeds.length > 0}
 					<div class=" flex flex-wrap gap-2">
 						<div class="p-2 w-full bg-black bg-opacity-30 text-white rounded-lg flex items-center">
-							{#each availableSeeds as seed}
-								<!-- if the user clicks anywhere besides directly on the seeds then the selected seed should be undefined -->
-								<button
-									on:click={() => (selectedSeed = seed)}
-									class="{selectedSeed === seed
-										? '-translate-y-2 scale-150 hover:scale-150'
-										: ''} hover:scale-150"
-								>
-									<img src={seed.imgPath} alt="heart" class="h-6 w-6 inline-block mr-2" />
-								</button>
+							{#each Array(plots[selectedPlotIndex].fruitsReady) as _, i}
+								{#if plots[selectedPlotIndex].type && selectedPlotIndex !== null}
+									<button
+										on:click={() => (selectedFruit = getFruit(plots[selectedPlotIndex].type))}
+										class="p-2 hover:scale-150"
+									>
+										<img
+											src={getFruit(plots[selectedPlotIndex].type)?.imgPath}
+											alt="heart"
+											class="h-6 w-6 inline-block mr-2"
+										/>
+									</button>
+								{/if}
 							{/each}
 						</div>
 					</div>
-					<p class="text-center">{selectedSeed?.name ?? ''}</p>
-				{:else}
-					<p class="text-xs">no seeds. get some seeds from the shop.</p>
+					<p class="text-center">
+						{#if plots[selectedPlotIndex].state === 'empty'}
+							{selectedSeed?.name ?? ''}
+						{:else}
+							{selectedFruit?.name ?? ''}
+						{/if}
+					</p>
 				{/if}
 			{/if}
 			<!-- available seeds go here -->
@@ -316,24 +298,29 @@
 					<p class="text-xs">no seeds. get some seeds from the shop.</p>
 				{/if}
 			{/if}
-			<!-- plant seed -->
-			<button
-				disabled={selectedSeed === undefined}
-				on:click={() => plantSeed(selectedSeed?.fruitType ?? 'fake seed')}
-				class="disabled:bg-opacity-10 bg-white bg-opacity-50 w-3/4 m-auto rounded-full border-black border-[1px] text-green-700"
-			>
-				plant seed
-			</button>
+			<!-- plant seed / harvest fruit -->
+			{#if plots[selectedPlotIndex].state === 'empty'}
+				<button
+					disabled={selectedSeed === undefined}
+					on:click={() => plantSeed()}
+					class="disabled:bg-opacity-10 bg-white bg-opacity-50 w-3/4 m-auto rounded-full border-black border-[1px] text-green-700"
+				>
+					plant seed
+				</button>
+			{:else}
+				<button
+					disabled={selectedFruit === undefined}
+					on:click={() => pickFruit(selectedPlotIndex)}
+					class="disabled:bg-opacity-10 bg-white bg-opacity-50 w-3/4 m-auto rounded-full border-black border-[1px] text-green-700"
+				>
+					harvest fruit
+				</button>
+			{/if}
 		</div>
 	{/if}
 </main>
 
 <style>
-	/* Correct the heart class to have a gradient from pink to red */
-	.heart {
-		background: linear-gradient(to bottom, pink, red);
-	}
-
 	.wood {
 		background-image: url('ui/textures/wood.jpg');
 		background-repeat: repeat;

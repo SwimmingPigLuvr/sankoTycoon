@@ -1,3 +1,6 @@
+import type { Item } from '$lib/stores/wallet';
+
+// items
 export const bunzempic: Item = {
     type: 'consumable',
     name: 'Bunzempic',
@@ -5,15 +8,57 @@ export const bunzempic: Item = {
     imgPath: '/images/items/Bunzempic.png'
 };
 
-export const starSeed: Item = {
-    type: 'seed',
-    name: 'Star Seed',
-    quantity: 1,
-    imgPath: '/images/seeds/StarSeed.png',
-    fruitType: 'star'
+// fruit
+export const starFruit: Item = {
+    type: 'fruit',
+    name: 'Star Fruit',
+    quantity: 0,
+    imgPath: '/images/fruit/Star.png',
+    fruitType: 'star',
 };
 
-export const heartSeed: Item = {
+export const lumpyFruit: Item = {
+    type: 'fruit',
+    name: 'Lumpy Fruit',
+    quantity: 0,
+    imgPath: '/images/fruit/Lumpy.png',
+    fruitType: 'lumpy',
+};
+
+export const heartFruit: Item = {
+    type: 'fruit',
+    name: 'Heart Fruit',
+    quantity: 0,
+    imgPath: '/images/fruit/Heart.png',
+    fruitType: 'heart',
+};
+
+export const roundFruit: Item = {
+    type: 'fruit',
+    name: 'Round Fruit',
+    quantity: 0,
+    imgPath: '/images/fruit/Round.png',
+    fruitType: 'round',
+};
+
+export const squareFruit: Item = {
+    type: 'fruit',
+    name: 'Square Fruit',
+    quantity: 0,
+    imgPath: '/images/fruit/Square.png',
+    fruitType: 'square',
+};
+
+// seeds
+export const starSeed: item = {
+    type: 'seed',
+    name: 'Star Seed',
+    quantity: 0,
+    imgPath: '/images/seeds/StarSeed.png',
+    fruittype: 'star'
+};
+
+export const heartSeed: item = {
     type: 'seed',
     name: 'Heart Seed',
     quantity: 1,
@@ -21,92 +66,26 @@ export const heartSeed: Item = {
     fruitType: 'heart'
 };
 
-export const lumpySeed: Item = {
+export const lumpySeed: item = {
     type: 'seed',
     name: 'Lumpy Seed',
-    quantity: 1,
+    quantity: 0,
     imgPath: '/images/seeds/LumpySeed.png',
     fruitType: 'lumpy'
 };
 
-export const roundSeed: Item = {
+export const roundSeed: item = {
     type: 'seed',
     name: 'Round Seed',
-    quantity: 1,
+    quantity: 0,
     imgPath: '/images/seeds/RoundSeed.png',
     fruitType: 'round'
 };
 
-export const squareSeed: Item = {
+export const squareSeed: item = {
     type: 'seed',
     name: 'Square Seed',
-    quantity: 1,
+    quantity: 0,
     imgPath: '/images/seeds/SquareSeed.png',
     fruitType: 'square'
 };
-
-export const seedData = {
-    // create 4 more objects equivalent to heart for these categories:
-    // round, star, lumpy, square
-    Heart: {
-        name: "Heart Seed",
-        imgPath: "/images/seeds/HeartSeed.png",
-        description: "Plant these to grow a Heart Tree"
-    },
-    Round: {
-        name: "Round Seed",
-        imgPath: "/images/seeds/RoundSeed.png",
-        description: "Plant these to grow a Round Tree"
-    },
-    Star: {
-        name: "Star Seed",
-        imgPath: "/images/seeds/StarSeed.png",
-        description: "Plant these to grow a Star Tree"
-    },
-    Lumpy: {
-        name: "Lumpy Seed",
-        imgPath: "/images/seeds/LumpySeed.png",
-        description: "Plant these to grow a Lumpy Tree"
-    },
-    Square: {
-        name: "Square Seed",
-        imgPath: "/images/seeds/SquareSeed.png",
-        description: "Plant these to grow a Square Tree"
-    }
-}
-
-export const fruitData= {
-    Heart: {
-        name: "Heart Fruit",
-        imgPath: "/images/fruit/Heart.png",
-        description: "Feed this to your Bun to increase their Strength stat"
-    },
-    Star: {
-        name: "Star Fruit",
-        imgPath: "/images/fruit/Star.png",
-        description: "Feed this to your Bun to increase their Luck stat"
-    },
-    Round: {
-        name: "Round Fruit",
-        imgPath: "/images/fruit/Round.png",
-        description: "Feed this to your Bun to increase their Speed stat"
-    },
-    Lumpy: {
-        name: "Lumpy Fruit",
-        imgPath: "/images/fruit/Lumpy.png",
-        description: "Feed this to your Bun to increase their Stamina stat"
-    },
-    Square: {
-        name: "Square Fruit",
-        imgPath: "/images/fruit/Square.png",
-        description: "Feed this to your Bun to increase their Industry stat"
-    }
-}
-
-export const itemData = {
-    Bunzempic: {
-        name: "Bunzempic",
-        imgPath: "/images/items/Bunzempic.png",
-        description: "Use this to revive bun from the dead"
-    },
-}

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { fruitData, seedData, itemData } from '$lib/itemData';
+	import * as itemData from '$lib/itemData';
 	import type { Bun } from '$lib/stores/wallet';
 	import { cubicInOut } from 'svelte/easing';
 	import { fly, slide } from 'svelte/transition';
@@ -8,44 +8,50 @@
 	$: bunWallet = bun.wallet;
 	$: bunId = bunWallet.bunId;
 	$: gold = bunWallet.gold;
-	$: items = bunWallet.items;
+	// filter items where there are at least 1
+	$: items = bunWallet.items.filter((items) => items.quantity > 0);
 	$: fruit = items.filter((items) => items.type === 'fruit');
 	$: seeds = items.filter((items) => items.type === 'seed');
 	$: wearables = items.filter((items) => items.type === 'wearable');
 	$: consumables = items.filter((items) => items.type === 'consumable');
 
+	$: allItems = [...consumables, ...wearables, ...seeds, ...fruit];
+
 	// todo
-	// fill the grid with the buns items, fruits, and seeds in that order
-	// fruits
-	// if there are multiple fruits/seeds then we just show the fruit img in 1 grid and we have a number in the corner that shows there are multiple
-	// if there are no fruits of a category we can just skip it and it will not populate a grid
-	// same logic goes for the seeds
-	// there are only a certain number of items that will be added to the game so i have an item caleld Bunzempic and i have an image for it that i want in the grid if the item 'Bunzempic' exists in the items array.
-	// the image is located at '/images/items/Bunzempic.png'
-	// also for fruits and seeds the fruits are at
-	// images/fruit/Heart.png, and so on for Star, Lumpy, Round, Square
-	// seeds are at images/seeds/HeartSeed.png, StarSeed ... and so on.
+	// if the items have a quantity of more than 1 then they still only take up 1 grid but later on i will add
+	// an icon showing the quantity
 </script>
 
 <main
 	in:fly={{ duration: 1000, x: -10, easing: cubicInOut }}
-	class="w-full flex flex-col border-black border-2"
+	class="w-full p-1 flex flex-col border-black border-2"
 >
 	<!-- gold balance -->
-	<p class="text-xs">{gold} GOLD</p>
+	<div class="flex space-x-1 p-1">
+		<img src="/ui/icons/sankogold.png" class="h-4" alt="" />
+		<p class="text-xs">{gold}</p>
+	</div>
 	<!-- items, fruits, seeds -->
-	<div class="grid gap-0 grid-cols-6 grid-rows-2 w-full h-14 border-2">
-		<div class="border hover:bg-lime-400 border-black"></div>
-		<div class="border hover:bg-lime-400 border-black"></div>
-		<div class="border hover:bg-lime-400 border-black"></div>
-		<div class="border hover:bg-lime-400 border-black"></div>
-		<div class="border hover:bg-lime-400 border-black"></div>
-		<div class="border hover:bg-lime-400 border-black"></div>
-		<div class="border hover:bg-lime-400 border-black"></div>
-		<div class="border hover:bg-lime-400 border-black"></div>
-		<div class="border hover:bg-lime-400 border-black"></div>
-		<div class="border hover:bg-lime-400 border-black"></div>
-		<div class="border hover:bg-lime-400 border-black"></div>
-		<div class="border hover:bg-lime-400 border-black"></div>
+	<div
+		class=" overflow-y-auto overflow-x-hidden grid gap-0 grid-cols-6 grid-rows-3 w-full border-[1px]"
+	>
+		{#each allItems as item}
+			<div
+				class="relative border-black border-[1px] hover:bg-lime-400 flex items-center justify-center"
+			>
+				<img src={item.imgPath} alt={item.name} class="h-6 w-auto" />
+				{#if item.quantity > 1}
+					<div
+						class="absolute w-2 h-2 top-0 right-0 bg-rose-600 rounded-none text-white flex items-center justify-center text-[0.4rem] text-center"
+					>
+						{item.quantity}
+					</div>
+				{/if}
+			</div>
+		{/each}
+
+		{#each Array(18 - allItems.length) as _}
+			<div class="border-black border-[1px] hover:bg-lime-400"></div>
+		{/each}
 	</div>
 </main>

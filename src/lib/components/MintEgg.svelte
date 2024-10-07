@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { bunzempic, heartSeed, starSeed } from '$lib/itemData';
+	import * as items from '$lib/itemData';
 	// todo. mintegg. add egg to wallet
 	// mint success message
 	import { progressStep } from '$lib/stores/gameState';
-	import { wallet, type Bun, type BunWallet, type Token } from '$lib/stores/wallet';
+	import { wallet, type Bun, type BunWallet, type Item, type Token } from '$lib/stores/wallet';
 
 	let isMinting = false;
 	let minted = false;
@@ -11,7 +11,7 @@
 	let bunWallet: BunWallet = {
 		bunId: 1111,
 		gold: 0,
-		items: [bunzempic, heartSeed, starSeed]
+		items: []
 	};
 
 	let starterEgg: Bun = {
