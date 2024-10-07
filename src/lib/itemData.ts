@@ -15,7 +15,7 @@ export const starFruit: Item = {
     type: 'fruit',
     name: 'Star Fruit',
     quantity: 0,
-    imgPath: '/images/fruit/Star.png',
+    imgPath: '/images/fruit/star.png',
     fruitType: 'star',
 };
 
@@ -23,7 +23,7 @@ export const lumpyFruit: Item = {
     type: 'fruit',
     name: 'Lumpy Fruit',
     quantity: 0,
-    imgPath: '/images/fruit/Lumpy.png',
+    imgPath: '/images/fruit/lumpy.png',
     fruitType: 'lumpy',
 };
 
@@ -31,7 +31,7 @@ export const heartFruit: Item = {
     type: 'fruit',
     name: 'Heart Fruit',
     quantity: 0,
-    imgPath: '/images/fruit/Heart.png',
+    imgPath: '/images/fruit/heart.png',
     fruitType: 'heart',
 };
 
@@ -39,7 +39,7 @@ export const roundFruit: Item = {
     type: 'fruit',
     name: 'Round Fruit',
     quantity: 0,
-    imgPath: '/images/fruit/Round.png',
+    imgPath: '/images/fruit/round.png',
     fruitType: 'round',
 };
 
@@ -47,7 +47,7 @@ export const squareFruit: Item = {
     type: 'fruit',
     name: 'Square Fruit',
     quantity: 0,
-    imgPath: '/images/fruit/Square.png',
+    imgPath: '/images/fruit/square.png',
     fruitType: 'square',
 };
 

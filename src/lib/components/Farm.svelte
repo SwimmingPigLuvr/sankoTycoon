@@ -191,15 +191,15 @@
 	function getFruitImage(type: string) {
 		console.log('type: ', type);
 		if (type === 'heart') {
-			return 'images/fruit/Heart.png';
+			return 'images/fruit/heart.png';
 		} else if (type === 'star') {
-			return 'images/fruit/Star.png';
+			return 'images/fruit/star.png';
 		} else if (type === 'lumpy') {
-			return 'images/fruit/Lumpy.png';
+			return 'images/fruit/lumpy.png';
 		} else if (type === 'square') {
-			return 'images/fruit/Square.png';
+			return 'images/fruit/square.png';
 		} else if (type === 'round') {
-			return 'images/fruit/Round.png';
+			return 'images/fruit/round.png';
 		}
 		// Add more conditions here if there are additional seed types.
 		return 'images/items/Bunzempic.png'; // Return undefined if no known fruit type is found.
@@ -267,7 +267,11 @@
 					<div class=" flex">
 						<div class="p-2 w-full text-white rounded-lg flex justify-center items-center">
 							{#each Array(plots[selectedPlotIndex].fruitsReady) as _}
-								<img src="/images/fruit/Heart.png" alt="heart" class="h-6 w-6 inline-block" />
+								<img
+									src={`/images/fruit/${plots[selectedPlotIndex].type}.png`}
+									alt={`${plots[selectedPlotIndex].type} Tree`}
+									class="h-6 w-6 inline-block"
+								/>
 							{/each}
 						</div>
 					</div>
@@ -286,7 +290,7 @@
 										? '-translate-y-2 scale-150 hover:scale-150'
 										: ''} hover:scale-150"
 								>
-									<img src={seed.imgPath} alt="heart" class="h-6 w-6 inline-block mr-2" />
+									<img src={seed.imgPath} alt={seed.name} class="h-6 w-6 inline-block mr-2" />
 								</button>
 							{/each}
 						</div>
