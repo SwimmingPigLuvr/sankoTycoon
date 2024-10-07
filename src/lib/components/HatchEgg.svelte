@@ -53,7 +53,7 @@
 				wallet.nfts = [starterBun];
 				return wallet;
 			});
-		}, 2500);
+		}, 250);
 	}
 </script>
 

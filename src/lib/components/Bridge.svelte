@@ -29,7 +29,7 @@
 				});
 				progressStep();
 			}
-		}, 70);
+		}, 7);
 		// !todo mark bridge step as complete
 	}
 

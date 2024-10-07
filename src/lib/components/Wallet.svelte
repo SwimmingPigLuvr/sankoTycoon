@@ -33,7 +33,7 @@
 				<!-- bun -->
 				<div class="w-full">
 					<button
-						in:fly={{ duration: 1000, y: 10, easing: cubicInOut }}
+						in:fly={{ duration: 100, y: 10, easing: cubicInOut }}
 						on:click={() => openWallet()}
 					>
 						<img class="w-1/2 m-auto" src={nft.imageUrl} alt={nft.name} />

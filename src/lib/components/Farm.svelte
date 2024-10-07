@@ -8,7 +8,6 @@
 	export let bun: Bun;
 
 	let selectedSeed: Item | undefined;
-	let selectedFruit: Item | undefined;
 
 	$: bunWallet = bun.wallet;
 	$: availableSeeds = bunWallet.items.filter((item) => item.type === 'seed' && item.quantity > 0);
@@ -82,6 +81,7 @@
 		// there should not be any other timers because
 		// a planted plot won't have access to the plant button.
 		if (plotTimers[plotIndex]) {
+			console.log('interval cleared: ', plotIndex);
 			clearInterval(plotTimers[plotIndex]);
 		}
 
@@ -89,24 +89,39 @@
 		plotTimers[plotIndex] = setInterval(() => {
 			let plot = plots[plotIndex];
 			if (plot.state === 'planted' && plot.maturity !== undefined) {
+				// if not fully mature, increment by 25%
 				if (plot.maturity < 100) {
 					plot.maturity += 25;
-					// accumulate fruits once mature
-					if (plot.maturity === 100 && plot.fruitRemaining && plot.fruitRemaining > 0) {
-						plot.fruitsReady = Math.min((plot.fruitsReady || 0) + 1, plot.fruitRemaining);
-					}
 
 					plots = [...plots];
-				} else {
+				}
+				// if fully mature, add fruit
+				if (
+					plot.maturity === 100 &&
+					plot.fruitRemaining &&
+					plot.fruitRemaining > 0 &&
+					plot.fruitsReady !== undefined &&
+					plot.fruitsReady < 5
+				) {
+					plot.fruitsReady += 1;
+
+					console.log('fruits remaining: ', plot.fruitRemaining);
+					console.log('fruits ready to harvest: ', plot.fruitsReady);
+					plots = [...plots];
+				}
+				// if no more fruit, clear interval
+				if (plot.fruitRemaining === 0) {
 					// clear timer if plot is fully matured
 					clearInterval(plotTimers[plotIndex]);
 					plotTimers[plotIndex] = null;
+					plots = [...plots];
 				}
 			}
-		}, 1000 * 6); // every 6 seconds = 1 day
+		}, 1000); // every 6 seconds = 1 day
 	}
 
-	function pickFruit(index: number) {
+	function harvestFruit(index: number) {
+		console.log('harvesting fruit');
 		const plot = plots[index];
 		if (plot.fruitsReady && plot.fruitsReady > 0) {
 			plot.fruitsReady -= 1;
@@ -249,32 +264,14 @@
 			{/if}
 			<!-- show ready fruits -->
 			{#if plots[selectedPlotIndex].state === 'planted'}
-				{#if availableSeeds.length > 0}
-					<div class=" flex flex-wrap gap-2">
-						<div class="p-2 w-full bg-black bg-opacity-30 text-white rounded-lg flex items-center">
-							{#each Array(plots[selectedPlotIndex].fruitsReady) as _, i}
-								{#if plots[selectedPlotIndex].type && selectedPlotIndex !== null}
-									<button
-										on:click={() => (selectedFruit = getFruit(plots[selectedPlotIndex]?.type))}
-										class="p-2 hover:scale-150"
-									>
-										<img
-											src={getFruit(plots[selectedPlotIndex]?.type)?.imgPath}
-											alt="heart"
-											class="h-6 w-6 inline-block mr-2"
-										/>
-									</button>
-								{/if}
+				{#if plots[selectedPlotIndex].fruitsReady}
+					<div class=" flex">
+						<div class="p-2 w-full text-white rounded-lg flex justify-center items-center">
+							{#each Array(plots[selectedPlotIndex].fruitsReady) as _}
+								<img src="/images/fruit/Heart.png" alt="heart" class="h-6 w-6 inline-block" />
 							{/each}
 						</div>
 					</div>
-					<p class="text-center">
-						{#if plots[selectedPlotIndex].state === 'empty'}
-							{selectedSeed?.name ?? ''}
-						{:else}
-							{selectedFruit?.name ?? ''}
-						{/if}
-					</p>
 				{/if}
 			{/if}
 			<!-- available seeds go here -->
@@ -295,13 +292,15 @@
 							{/each}
 						</div>
 					</div>
-					<p class="text-center">{selectedSeed?.name ?? ''}</p>
 				{:else}
-					<p class="text-xs">no seeds. get some seeds from the shop.</p>
+					<p class="text-xs">Buy more seeds in the Shop!</p>
 				{/if}
 			{/if}
 			<!-- plant seed / harvest fruit -->
 			{#if plots[selectedPlotIndex].state === 'empty'}
+				<p class="text-center">
+					{selectedSeed?.name ?? ''}
+				</p>
 				<button
 					disabled={selectedSeed === undefined}
 					on:click={() => plantSeed()}
@@ -309,13 +308,14 @@
 				>
 					plant seed
 				</button>
+			{:else if plots[selectedPlotIndex].fruitsReady === 0}
+				<p class="text-xs">No fruits to harvest</p>
 			{:else}
 				<button
-					disabled={selectedFruit === undefined}
-					on:click={() => pickFruit(selectedPlotIndex)}
+					on:click={() => harvestFruit(selectedPlotIndex ?? 0)}
 					class="disabled:bg-opacity-10 bg-white bg-opacity-50 w-3/4 m-auto rounded-full border-black border-[1px] text-green-700"
 				>
-					harvest fruit
+					harvest {plots[selectedPlotIndex].fruitsReady}
 				</button>
 			{/if}
 		</div>

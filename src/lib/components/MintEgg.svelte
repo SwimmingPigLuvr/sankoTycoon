@@ -50,7 +50,7 @@
 
 				return wallet;
 			});
-		}, 5000);
+		}, 500);
 	}
 </script>
 

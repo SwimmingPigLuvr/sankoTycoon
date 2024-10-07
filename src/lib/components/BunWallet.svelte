@@ -23,7 +23,7 @@
 </script>
 
 <main
-	in:fly={{ duration: 1000, x: -10, easing: cubicInOut }}
+	in:fly={{ duration: 100, x: -10, easing: cubicInOut }}
 	class="w-full p-1 flex flex-col border-black border-2"
 >
 	<!-- gold balance -->
