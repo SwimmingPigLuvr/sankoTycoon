@@ -124,8 +124,6 @@
 		console.log('harvesting fruit');
 		const plot = plots[index];
 		if (plot.fruitsReady && plot.fruitsReady > 0) {
-			plot.fruitsReady -= 1;
-
 			// update bunWallet
 			wallet.update((currentWallet) => {
 				const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
@@ -137,13 +135,14 @@
 						(item) => item.type === 'fruit' && item.fruitType === plot.type
 					);
 					// add fruit to wallet
-					if (fruit) {
-						fruit.quantity += 1;
+					if (fruit && plot.fruitsReady) {
+						fruit.quantity += plot.fruitsReady;
+						console.log('adding fruits to wallet: ', plot.fruitsReady);
 					}
 
 					if (plot.fruitsReady && plot.fruitRemaining) {
-						plot.fruitsReady -= 1;
-						plot.fruitRemaining -= 1;
+						plot.fruitRemaining -= plot.fruitsReady;
+						plot.fruitsReady = 0;
 					}
 					if (plot.fruitRemaining === 0 && plot.fruitsReady === 0) {
 						plot.state = 'empty';

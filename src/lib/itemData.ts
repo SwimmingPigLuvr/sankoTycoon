@@ -1,5 +1,7 @@
 import type { Item } from '$lib/stores/wallet';
 
+// the quantity of these objects dictates the quantity of the objects in the bun's wallet
+
 // items
 export const bunzempic: Item = {
     type: 'consumable',
@@ -53,7 +55,7 @@ export const squareFruit: Item = {
 export const starSeed: item = {
     type: 'seed',
     name: 'Star Seed',
-    quantity: 0,
+    quantity: 5,
     imgPath: '/images/seeds/StarSeed.png',
     fruittype: 'star'
 };
@@ -61,7 +63,7 @@ export const starSeed: item = {
 export const heartSeed: item = {
     type: 'seed',
     name: 'Heart Seed',
-    quantity: 1,
+    quantity: 5,
     imgPath: '/images/seeds/HeartSeed.png',
     fruitType: 'heart'
 };
@@ -69,7 +71,7 @@ export const heartSeed: item = {
 export const lumpySeed: item = {
     type: 'seed',
     name: 'Lumpy Seed',
-    quantity: 0,
+    quantity: 5,
     imgPath: '/images/seeds/LumpySeed.png',
     fruitType: 'lumpy'
 };
@@ -77,7 +79,7 @@ export const lumpySeed: item = {
 export const roundSeed: item = {
     type: 'seed',
     name: 'Round Seed',
-    quantity: 0,
+    quantity: 5,
     imgPath: '/images/seeds/RoundSeed.png',
     fruitType: 'round'
 };
@@ -85,7 +87,7 @@ export const roundSeed: item = {
 export const squareSeed: item = {
     type: 'seed',
     name: 'Square Seed',
-    quantity: 0,
+    quantity: 5,
     imgPath: '/images/seeds/SquareSeed.png',
     fruitType: 'square'
 };
