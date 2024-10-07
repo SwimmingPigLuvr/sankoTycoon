@@ -51,21 +51,22 @@ export const squareFruit: Item = {
     fruitType: 'square',
 };
 
-// seeds
-export const starSeed: item = {
-    type: 'seed',
-    name: 'Star Seed',
-    quantity: 5,
-    imgPath: '/images/seeds/StarSeed.png',
-    fruittype: 'star'
-};
 
+// seeds
 export const heartSeed: item = {
     type: 'seed',
     name: 'Heart Seed',
     quantity: 5,
     imgPath: '/images/seeds/HeartSeed.png',
     fruitType: 'heart'
+};
+
+export const starSeed: item = {
+    type: 'seed',
+    name: 'Star Seed',
+    quantity: 5,
+    imgPath: '/images/seeds/StarSeed.png',
+    fruitType: 'star'
 };
 
 export const lumpySeed: item = {
@@ -91,3 +92,46 @@ export const squareSeed: item = {
     imgPath: '/images/seeds/SquareSeed.png',
     fruitType: 'square'
 };
+
+// Withered seeds
+export const witheredHeartSeed: Item = {
+    type: 'seed',
+    name: 'Withered Heart Seed',
+    quantity: 0,
+    imgPath: '/images/seeds/WitheredHeartSeed.png',
+    fruitType: 'heart'
+};
+
+export const witheredLumpySeed: Item = {
+    type: 'seed',
+    name: 'Withered Lumpy Seed',
+    quantity: 0,
+    imgPath: '/images/seeds/WitheredLumpySeed.png',
+    fruitType: 'lumpy'
+};
+
+export const witheredRoundSeed: Item = {
+    type: 'seed',
+    name: 'Withered Round Seed',
+    quantity: 0,
+    imgPath: '/images/seeds/WitheredRoundSeed.png',
+    fruitType: 'round'
+};
+
+export const witheredSquareSeed: Item = {
+    type: 'seed',
+    name: 'Withered Square Seed',
+    quantity: 0,
+    imgPath: '/images/seeds/WitheredSquareSeed.png',
+    fruitType: 'square'
+};
+
+export const witheredStarSeed: Item = {
+    type: 'seed',
+    name: 'Withered Star Seed',
+    quantity: 0,
+    imgPath: '/images/seeds/WitheredStarSeed.png',
+    fruitType: 'star'
+};
+
+
