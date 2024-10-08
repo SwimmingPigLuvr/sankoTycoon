@@ -14,6 +14,7 @@ export interface Plot {
     fruitRemaining?: number;
     plantedAt?: number;
     fruitsReady?: number;
+    isWithered: boolean;
 }
 
 export interface Item  {

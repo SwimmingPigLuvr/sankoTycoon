@@ -12,8 +12,9 @@
 	$: bunWallet = bun.wallet;
 	$: availableSeeds = bunWallet.items.filter((item) => item.type === 'seed' && item.quantity > 0);
 	$: availableWitheredSeeds = bunWallet.items.filter(
-		(item) => item.type === 'seed' && item.quantity > 0
+		(item) => item.type === 'witheredSeed' && item.quantity > 0
 	);
+
 	$: allAvailableSeeds = [...availableSeeds, ...availableWitheredSeeds];
 
 	let selectedPlotIndex: number | null = null;
@@ -39,6 +40,7 @@
 		if (selectedSeed === undefined) {
 			return;
 		}
+		console.log('selectedSeed: ', selectedSeed.name);
 		// if valid seed selected
 		if (selectedPlotIndex !== null && selectedSeed !== undefined && selectedSeed.fruitType) {
 			// Update the seed quantity in the user's wallet
@@ -46,10 +48,19 @@
 				const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
 				if (bunIndex !== -1) {
 					const bunItem = currentWallet.nfts[bunIndex];
-					const seed = bunItem.wallet.items.find(
-						(item: Item) => item.type === 'seed' && item.fruitType === selectedSeed?.fruitType
-					);
-					console.log('Found Seed: ', seed);
+					let seed: Item | undefined;
+					if (selectedSeed?.type === 'seed') {
+						seed = bunItem.wallet.items.find(
+							(item: Item) => item.type === 'seed' && item.fruitType === selectedSeed?.fruitType
+						);
+						console.log('Found Seed: ', seed);
+					} else if (selectedSeed?.type === 'witheredSeed') {
+						seed = bunItem.wallet.items.find(
+							(item: Item) =>
+								item.type === 'witheredSeed' && item.fruitType === selectedSeed?.fruitType
+						);
+						console.log('Found Withered Seed: ', seed);
+					}
 
 					if (seed && seed.quantity > 0 && selectedPlotIndex !== null && selectedSeed) {
 						// Reduce the seed count by 1
@@ -60,10 +71,15 @@
 							state: 'planted',
 							type: selectedSeed.fruitType,
 							maturity: 0,
-							fruitRemaining: 5,
+							fruitRemaining: selectedSeed.type === 'witheredSeed' ? 3 : 5,
 							fruitsReady: 0,
-							plantedAt: Date.now()
+							plantedAt: Date.now(),
+							isWithered: selectedSeed.type === 'witheredSeed'
 						};
+						console.log(
+							'based on the seed type we will yield this many fruits: ',
+							plots[selectedPlotIndex].fruitRemaining
+						);
 
 						// Reset selectedSeed after planting
 						selectedSeed = undefined;
@@ -108,7 +124,7 @@
 					plot.fruitRemaining &&
 					plot.fruitRemaining > 0 &&
 					plot.fruitsReady !== undefined &&
-					plot.fruitsReady < 5
+					plot.fruitsReady < plot.fruitRemaining
 				) {
 					plot.fruitsReady += 1;
 					totalReadyFruits += 1;
@@ -160,8 +176,7 @@
 					}
 					if (plot.fruitRemaining === 0 && plot.fruitsReady === 0) {
 						// add witheredSeeds to bunWallet
-						console.log('withered seeds: ', witheredSeed?.name);
-						if (witheredSeed) {
+						if (!plot.isWithered && witheredSeed) {
 							console.log('adding witheredSeed to bunwallet: ', witheredSeed.fruitType);
 							witheredSeed.quantity += 1;
 						}
@@ -302,10 +317,10 @@
 			{/if}
 			<!-- available seeds go here -->
 			{#if plots[selectedPlotIndex].state === 'empty'}
-				{#if availableSeeds.length > 0}
+				{#if allAvailableSeeds.length > 0}
 					<div class=" flex flex-wrap gap-2">
 						<div class="p-2 w-full bg-black bg-opacity-30 text-white rounded-lg flex items-center">
-							{#each availableWitheredSeeds as seed}
+							{#each allAvailableSeeds as seed}
 								<!-- if the user clicks anywhere besides directly on the seeds then the selected seed should be undefined -->
 								<button
 									on:click={() => (selectedSeed = seed)}
