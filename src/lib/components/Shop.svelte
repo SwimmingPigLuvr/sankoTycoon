@@ -19,17 +19,60 @@
 	$: bunId = bunWallet.bunId;
 	$: gold = bunWallet.gold;
 	// filter items where there are at least 1
-	$: items = bunWallet.items.filter((items) => items.quantity > 0);
+	$: items = bunWallet.items;
 	$: fruit = items.filter((items) => items.type === 'fruit');
 	$: seeds = items.filter((items) => items.type === 'seed');
 	$: witheredSeeds = items.filter((items) => items.type === 'witheredSeed');
 	$: wearables = items.filter((items) => items.type === 'wearable');
 	$: consumables = items.filter((items) => items.type === 'consumable');
 
-	$: allItems = [...consumables, ...wearables, ...seeds, ...witheredSeeds, ...fruit];
+	$: allPossibleItems = [...consumables, ...wearables, ...seeds, ...witheredSeeds, ...fruit];
+	$: allItems = [...allPossibleItems.filter((items) => items.quantity > 0)];
+	$: allSellableItems = [...allItems.filter((items) => items.sellPrice)];
+
+	function buyItem(item: Item) {
+		// find correct item in wallet
+		// increment the item by one
+		// subtract buyPrice from users gold
+		wallet.update((currentWallet) => {
+			// find the correct nft from wallet based on the bun.id
+			const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
+			if (bunIndex !== -1) {
+				// define current bun
+				const currentBun = currentWallet.nfts[bunIndex];
+				const correspondingItem: Item = currentBun.wallet.items.find(
+					(itemInWallet: Item) => itemInWallet.name === item.name
+				);
+				if (correspondingItem) {
+					correspondingItem.quantity += 1;
+				}
+				currentBun.wallet.gold -= correspondingItem?.buyPrice ?? 0;
+			}
+			return currentWallet;
+		});
+	}
+
+	function sellItems(item: Item) {
+		// not all items can be sold
+		// check for quantity of > 0
+		// && check for sellPrice?
+		wallet.update((currentWallet) => {
+			const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
+			if (bunIndex !== -1) {
+				const currentBun = currentWallet.nfts[bunIndex];
+				const correspondingItem: Item = currentBun.wallet.items.find(
+					(itemInWallet: Item) => itemInWallet.name === item.name
+				);
+				if (correspondingItem) {
+					correspondingItem.quantity -= 1;
+				}
+				currentBun.wallet.gold += correspondingItem?.sellPrice ?? 0;
+			}
+		});
+	}
 </script>
 
-<main class="rounded-xl p-2 border-sky-400 border-2 bg-sky-600 w-80 flex flex-col space-y-1">
+<main class="w-96 rounded-xl p-2 border-sky-400 border-2 bg-sky-600 flex flex-col space-y-1">
 	<!-- buy/sell buttons -->
 	<div class="flex space-x-1">
 		<div
@@ -58,13 +101,17 @@
 	</div>
 	<!-- items -->
 	<div class="flex w-full space-x-1 overflow-x-auto overflow-y-hidden">
+		<!-- buying items -->
 		{#if buy}
 			{#each dailyItems as item}
 				<button
+					on:click={() => buyItem(item)}
 					class="relative font-FinkHeavy w-full h-24 text-xs rounded border-white border-[1px] bg-white bg-opacity-75 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
 				>
 					<!-- price -->
-					<div class="bg-white bg-opacity-75 rounded-full p-[1px] px-[3px] flex space-x-1 absolute top-[2px] right-[2px]">
+					<div
+						class="bg-white bg-opacity-75 rounded-full p-[1px] px-[3px] flex space-x-1 absolute top-[2px] right-[2px]"
+					>
 						<img class="w-3" src="/ui/icons/sankogold.png" alt="" />
 						<p>{item.buyPrice}</p>
 					</div>
@@ -72,7 +119,10 @@
 					<img class="h-14 absolute top-1 left-1" src={item.imgPath} alt={item.name} />
 					<!-- item name -->
 					<div
-						class="flex items-center text-center h-8 w-full absolute bottom-0 left-0 bg-lime-500 text-black"
+						class="flex items-center text-center h-8 w-full absolute bottom-0 left-0 {item.type ===
+						'wearable'
+							? 'bg-sky-400'
+							: 'bg-lime-500'} text-black"
 					>
 						<p class="w-full m-auto">
 							{item.name}
@@ -81,8 +131,9 @@
 				</button>
 			{/each}
 		{/if}
+		<!-- selling items -->
 		{#if sell}
-			{#each allItems as item}
+			{#each allSellableItems as item}
 				<button
 					class="relative font-FinkHeavy w-20 h-24 text-xs rounded border-white border-[1px] bg-white bg-opacity-75 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
 				>
@@ -101,11 +152,3 @@
 		{/if}
 	</div>
 </main>
-
-<style>
-	.sanko-bg {
-		background-image: url('/ui/textures/water1.png');
-		background-size: 40%;
-		background-repeat: repeat;
-	}
-</style>
