@@ -68,6 +68,7 @@
 				}
 				currentBun.wallet.gold += correspondingItem?.sellPrice ?? 0;
 			}
+			return currentWallet;
 		});
 	}
 </script>
@@ -135,6 +136,7 @@
 		{#if sell}
 			{#each allSellableItems as item}
 				<button
+					on:click={() => sellItems(item)}
 					class="relative font-FinkHeavy w-20 h-24 text-xs rounded border-white border-[1px] bg-white bg-opacity-75 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
 				>
 					<!-- item img -->
