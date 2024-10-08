@@ -10,6 +10,7 @@
 	import HatchEgg from '$lib/components/HatchEgg.svelte';
 	import Farm from '$lib/components/Farm.svelte';
 	import { wallet } from '$lib/stores/wallet';
+	import Shop from '$lib/components/Shop.svelte';
 
 	let currentStep: StepID;
 	const unsubscribe = gameState.subscribe((state) => {
@@ -19,6 +20,8 @@
 	onDestroy(() => {
 		unsubscribe;
 	});
+
+	$: buns = $wallet.nfts;
 </script>
 
 <main class="p-2 font-mono">
@@ -36,5 +39,11 @@
 		{:else if currentStep === StepID.Farm}
 			<Farm bun={$wallet.nfts[0]} />
 		{/if}
+		<div class="absolute top-32 left-48">
+			<Shop bun={buns[0]} />
+		</div>
 	</div>
 </main>
+
+<style>
+</style>
