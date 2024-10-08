@@ -82,6 +82,8 @@
 
 	function startPlotGrowthTimer(plotIndex: number) {
 		console.log('start growth timer: ', plotIndex);
+		// when this number gets to 5 we stop adding fruit
+		let totalReadyFruits = 0;
 		// clear old timers for plot
 		// there should not be any other timers because
 		// a planted plot won't have access to the plant button.
@@ -109,13 +111,14 @@
 					plot.fruitsReady < 5
 				) {
 					plot.fruitsReady += 1;
+					totalReadyFruits += 1;
 
 					console.log('fruits remaining: ', plot.fruitRemaining);
 					console.log('fruits ready to harvest: ', plot.fruitsReady);
 					plots = [...plots];
 				}
-				// if no more fruit, clear interval
-				if (plot.fruitRemaining === 0) {
+				// if 5 fruits have become ready, clear interval
+				if (totalReadyFruits === 5) {
 					// clear timer if plot is fully matured
 					clearInterval(plotTimers[plotIndex]);
 					plotTimers[plotIndex] = null;
@@ -151,6 +154,7 @@
 					}
 
 					if (plot.fruitsReady && plot.fruitRemaining) {
+						// this is how we harvest all the fruit that is ready
 						plot.fruitRemaining -= plot.fruitsReady;
 						plot.fruitsReady = 0;
 					}
