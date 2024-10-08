@@ -21,7 +21,7 @@
 		unsubscribe;
 	});
 
-	$: buns = $wallet.nfts;
+	$: buns = $wallet?.nfts ?? [];
 </script>
 
 <main class="p-2 font-mono">
@@ -40,7 +40,9 @@
 			<Farm bun={$wallet.nfts[0]} />
 		{/if}
 		<div class="absolute top-32 left-48">
-			<Shop bun={buns[0]} />
+			{#each buns as bun}
+				<Shop {bun} />
+			{/each}
 		</div>
 	</div>
 </main>

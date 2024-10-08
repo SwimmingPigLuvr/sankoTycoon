@@ -23,6 +23,8 @@ export interface Item  {
     quantity: number;
     imgPath: string;
     fruitType?: 'star' | 'heart' | 'round' | 'lumpy' | 'square';
+    buyPrice?: number;
+    sellPrice?: number;
 }
 
 export interface BunWallet {

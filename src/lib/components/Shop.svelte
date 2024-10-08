@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { bunzempic, heartFruit, squareSeed } from '$lib/itemData';
+	import { bunBlaster, bunzempic, heartFruit, squareSeed } from '$lib/itemData';
 	import { wallet, type Bun, type Item } from '$lib/stores/wallet';
 
 	// add more items
@@ -11,7 +11,7 @@
 	let buy = true;
 	let sell = false;
 	// add buy/sell prices for all items
-	let dailyItems: Item[] = [bunzempic, heartFruit, squareSeed];
+	let dailyItems: Item[] = [bunzempic, heartFruit, squareSeed, bunBlaster];
 
 	$: nfts = $wallet?.nfts ?? [];
 	export let bun: Bun;
@@ -57,12 +57,17 @@
 		</div>
 	</div>
 	<!-- items -->
-	<div class="flex space-x-1 overflow-x-auto overflow-y-hidden">
+	<div class="flex w-full space-x-1 overflow-x-auto overflow-y-hidden">
 		{#if buy}
 			{#each dailyItems as item}
 				<button
-					class="relative font-FinkHeavy w-20 h-24 text-xs rounded border-white border-[1px] bg-white bg-opacity-75 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
+					class="relative font-FinkHeavy w-full h-24 text-xs rounded border-white border-[1px] bg-white bg-opacity-75 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
 				>
+					<!-- price -->
+					<div class="bg-white bg-opacity-75 rounded-full p-[1px] px-[3px] flex space-x-1 absolute top-[2px] right-[2px]">
+						<img class="w-3" src="/ui/icons/sankogold.png" alt="" />
+						<p>{item.buyPrice}</p>
+					</div>
 					<!-- item img -->
 					<img class="h-14 absolute top-1 left-1" src={item.imgPath} alt={item.name} />
 					<!-- item name -->

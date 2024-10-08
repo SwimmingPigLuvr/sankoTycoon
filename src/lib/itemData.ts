@@ -2,13 +2,23 @@ import type { Item } from '$lib/stores/wallet';
 
 // the quantity of these objects dictates the quantity of the objects in the bun's wallet
 
-// items
+// consumables
 export const bunzempic: Item = {
     type: 'consumable',
     name: 'Bunzempic',
     quantity: 1,
-    imgPath: '/images/items/Bunzempic.png'
+    imgPath: '/images/items/Bunzempic.png',
+    buyPrice: 2,
 };
+
+// wearables
+export const bunBlaster: Item = {
+    type: 'wearable',
+    name: 'Bun Blaster',
+    quantity: 0,
+    imgPath: 'images/items/wearables/BunBlaster.png',
+    buyPrice: 12,
+}
 
 // fruit
 export const starFruit: Item = {
@@ -17,6 +27,8 @@ export const starFruit: Item = {
     quantity: 0,
     imgPath: '/images/fruit/star.png',
     fruitType: 'star',
+    buyPrice: 3,
+    sellPrice: 0.75,
 };
 
 export const lumpyFruit: Item = {
@@ -25,6 +37,8 @@ export const lumpyFruit: Item = {
     quantity: 0,
     imgPath: '/images/fruit/lumpy.png',
     fruitType: 'lumpy',
+    buyPrice: 3,
+    sellPrice: 0.75,
 };
 
 export const heartFruit: Item = {
@@ -33,6 +47,8 @@ export const heartFruit: Item = {
     quantity: 0,
     imgPath: '/images/fruit/heart.png',
     fruitType: 'heart',
+    buyPrice: 3,
+    sellPrice: 0.75,
 };
 
 export const roundFruit: Item = {
@@ -41,6 +57,8 @@ export const roundFruit: Item = {
     quantity: 0,
     imgPath: '/images/fruit/round.png',
     fruitType: 'round',
+    buyPrice: 3,
+    sellPrice: 0.75,
 };
 
 export const squareFruit: Item = {
@@ -49,6 +67,8 @@ export const squareFruit: Item = {
     quantity: 0,
     imgPath: '/images/fruit/square.png',
     fruitType: 'square',
+    buyPrice: 3,
+    sellPrice: 0.75,
 };
 
 
@@ -58,7 +78,8 @@ export const heartSeed: item = {
     name: 'Heart Seed',
     quantity: 1,
     imgPath: '/images/seeds/HeartSeed.png',
-    fruitType: 'heart'
+    fruitType: 'heart',
+    buyPrice: 4.75,
 };
 
 export const starSeed: item = {
@@ -66,7 +87,8 @@ export const starSeed: item = {
     name: 'Star Seed',
     quantity: 0,
     imgPath: '/images/seeds/StarSeed.png',
-    fruitType: 'star'
+    fruitType: 'star',
+    buyPrice: 4.75,
 };
 
 export const lumpySeed: item = {
@@ -74,7 +96,8 @@ export const lumpySeed: item = {
     name: 'Lumpy Seed',
     quantity: 0,
     imgPath: '/images/seeds/LumpySeed.png',
-    fruitType: 'lumpy'
+    fruitType: 'lumpy',
+    buyPrice: 4.75,
 };
 
 export const roundSeed: item = {
@@ -82,7 +105,8 @@ export const roundSeed: item = {
     name: 'Round Seed',
     quantity: 0,
     imgPath: '/images/seeds/RoundSeed.png',
-    fruitType: 'round'
+    fruitType: 'round',
+    buyPrice: 4.75,
 };
 
 export const squareSeed: item = {
@@ -90,7 +114,8 @@ export const squareSeed: item = {
     name: 'Square Seed',
     quantity: 0,
     imgPath: '/images/seeds/SquareSeed.png',
-    fruitType: 'square'
+    fruitType: 'square',
+    buyPrice: 4.75,
 };
 
 // Withered seeds
