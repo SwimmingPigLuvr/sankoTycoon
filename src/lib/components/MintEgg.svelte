@@ -2,7 +2,7 @@
 	import * as items from '$lib/itemData';
 	// todo. mintegg. add egg to wallet
 	// mint success message
-	import { progressStep } from '$lib/stores/gameState';
+	import { activeBun, progressStep } from '$lib/stores/gameState';
 	import { wallet, type Bun, type BunWallet, type Item, type Token } from '$lib/stores/wallet';
 
 	let isMinting = false;
@@ -50,6 +50,8 @@
 
 				return wallet;
 			});
+			// set current bun
+			activeBun.set($wallet.nfts[0]);
 		}, 500);
 	}
 </script>

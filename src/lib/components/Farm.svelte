@@ -141,7 +141,7 @@
 					plots = [...plots];
 				}
 			}
-		}, 1000 * 2);
+		}, 1000 * 10);
 	}
 
 	function harvestFruit(index: number) {

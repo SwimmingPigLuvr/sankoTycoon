@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { progressStep } from '$lib/stores/gameState';
+	import { activeBun, progressStep } from '$lib/stores/gameState';
 	import type { Bun, BunWallet, Item } from '$lib/stores/wallet';
 	import { wallet } from '$lib/stores/wallet';
 	import * as items from '$lib/itemData';
@@ -9,8 +9,14 @@
 	let hatched = false;
 
 	let bunWallet: BunWallet = {
-		bunId: 1,
+		bunId: 1111,
 		gold: 10,
+		items: [...Object.values(items)]
+	};
+
+	let bunWallet2: BunWallet = {
+		bunId: 2222,
+		gold: 100,
 		items: [...Object.values(items)]
 	};
 
@@ -30,6 +36,22 @@
 		imageUrl: '/images/buns/thumbs/Buns.png'
 	};
 
+	let testBun: Bun = {
+		id: 2222,
+		name: 'Snake',
+		industry: 5,
+		luck: 5,
+		speed: 5,
+		stamina: 5,
+		strength: 5,
+		birthday: new Date(),
+		rarity: 'Common',
+		type: 'Bun',
+		variety: 'Bun',
+		wallet: bunWallet2,
+		imageUrl: '/images/buns/thumbs/Snake.png'
+	};
+
 	function hatchEgg() {
 		isHatching = true;
 		setTimeout(() => {
@@ -38,9 +60,11 @@
 			hatched = true;
 			// replace egg with bun
 			wallet.update((wallet) => {
-				wallet.nfts = [starterBun];
+				wallet.nfts = [starterBun, testBun];
 				return wallet;
 			});
+			// set currentBun
+			activeBun.set(starterBun);
 		}, 250);
 	}
 </script>

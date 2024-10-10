@@ -186,6 +186,7 @@
 					on:click={() => sellItems(item)}
 					class="relative font-FinkHeavy w-20 h-24 text-xs rounded border-white border-[1px] bg-white bg-opacity-75 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
 				>
+					<div class="px-1 text-white absolute top-1 right-1 rounded-full bg-rose-600">{item.quantity}</div>
 					<!-- item img -->
 					<img class="h-14 absolute top-1 left-1" src={item.imgPath} alt={item.name} />
 					<!-- item name -->

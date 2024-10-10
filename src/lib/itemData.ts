@@ -498,7 +498,7 @@ export const bunBlaster: Item = {
     name: 'Bun Blaster',
     quantity: 0,
     imgPath: 'images/items/wearables/hands/BunBlaster.png',
-    buyPrice: 12,
+    buyPrice: 1,
     ability: "Double the gold you get from selling any item for the next 10 seconds.",
     description: "Bun Blaster is strictly intended to enhance delightful whipped creams and infusions.",
 }

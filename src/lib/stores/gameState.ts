@@ -1,5 +1,8 @@
 // lib/stores/gameState.ts
 import { writable } from 'svelte/store';
+import type { Bun } from '/$lib/stores/wallet';
+
+export const activeBun = writable<Bun>();
 
 export enum StepID {
     Bridge = 0,
