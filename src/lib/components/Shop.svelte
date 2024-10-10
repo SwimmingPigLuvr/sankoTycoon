@@ -18,10 +18,12 @@
 		allItems.bunzempic,
 		allItems.heartFruit,
 		allItems.squareSeed,
-		allItems.paintBrush,
+		allItems.funkyGlasses,
 		allItems.bunBlaster,
-		allItems.woodSword,
-		allItems.albanianBoxingGloves
+		allItems.npcMask,
+		allItems.albanianBoxingGloves,
+		allItems.matrixBucketHat,
+		allItems.woodSword
 	];
 
 	$: nfts = $wallet?.nfts ?? [];
@@ -127,15 +129,16 @@
 		</div>
 	</div>
 	<!-- items -->
-	<div class="flex w-full space-x-1 overflow-x-auto overflow-y-hidden">
+	<div class="flex w-full space-x-1 overflow-x-auto overflow-y-hidden whitespace-nowrap">
 		<!-- buying items -->
 		{#if buy}
 			{#each dailyItems as item}
 				{#if item.buyPrice}
 					<button
+						on:mouseenter={() => showDescription(item.description)}
 						disabled={item.buyPrice > bunWallet.gold}
 						on:click={() => buyItem(item)}
-						class="disabled:filter disabled:grayscale relative font-FinkHeavy w-full h-24 text-xs rounded border-white border-[1px] bg-white bg-opacity-75 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
+						class="flex-shrink-0 disabled:filter disabled:grayscale-[75%] relative font-FinkHeavy w-20 h-24 text-xs rounded border-white border-[1px] bg-white bg-opacity-75 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
 					>
 						<!-- price -->
 						<div

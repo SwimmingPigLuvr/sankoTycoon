@@ -9,6 +9,7 @@ export const bunzempic: Item = {
     quantity: 1,
     imgPath: '/images/items/Bunzempic.png',
     buyPrice: 2,
+    description: "Dead Bun? Bunzempic should fix him right up..."
 };
 
 // wearables
@@ -151,6 +152,8 @@ export const matrixBucketHat: Item = {
     name: 'Matrix Bucket Hat',
     quantity: 0,
     imgPath: 'images/items/wearables/hats/MatrixBucketHat.png',
+    buyPrice: 30,
+    description: "I got a Matrix Bucket Hat on me."
 };
 
 export const newsBoyHat: Item = {
@@ -299,6 +302,8 @@ export const npcMask: Item = {
     name: "NPC Mask",
     quantity: 0,
     imgPath: 'images/items/wearables/glasses/NPCMask.png',
+    buyPrice: 20,
+    description: "I am an Independent Thinker."
 };
 
 export const pineappleGlasses: Item = {
@@ -351,6 +356,7 @@ export const albanianBoxingGloves: Item = {
     quantity: 0,
     imgPath: 'images/items/wearables/hands/AlbanianBoxingGloves.png',
     buyPrice: 18,
+    description: "Only trust your fists: police will never help you."
 }
 
 export const baguette: Item = {
@@ -493,6 +499,8 @@ export const bunBlaster: Item = {
     quantity: 0,
     imgPath: 'images/items/wearables/hands/BunBlaster.png',
     buyPrice: 12,
+    ability: "Double the fruit yield for the current harvest.",
+    description: "Bun Blaster is strictly intended to enhance delightful whipped creams and infusions.",
 }
 
 // fruit
@@ -504,6 +512,7 @@ export const starFruit: Item = {
     fruitType: 'star',
     buyPrice: 3,
     sellPrice: 0.75,
+    description: "Star Fruits nourish your Bun as well as increase their Luck by 1."
 };
 
 export const lumpyFruit: Item = {
@@ -514,6 +523,7 @@ export const lumpyFruit: Item = {
     fruitType: 'lumpy',
     buyPrice: 3,
     sellPrice: 0.75,
+    description: "Lumpy Fruits nourish your Bun as well as increase their Stamina by 1."
 };
 
 export const heartFruit: Item = {
@@ -524,6 +534,7 @@ export const heartFruit: Item = {
     fruitType: 'heart',
     buyPrice: 3,
     sellPrice: 0.75,
+    description: "Heart Fruits nourish your Bun as well as increase their Strength by 1."
 };
 
 export const roundFruit: Item = {
@@ -534,6 +545,7 @@ export const roundFruit: Item = {
     fruitType: 'round',
     buyPrice: 3,
     sellPrice: 0.75,
+    description: "Round Fruits nourish your Bun as well as increase their Speed by 1."
 };
 
 export const squareFruit: Item = {
@@ -544,6 +556,7 @@ export const squareFruit: Item = {
     fruitType: 'square',
     buyPrice: 3,
     sellPrice: 0.75,
+    description: "Square Fruits nourish your Bun as well as increase their Industry by 1."
 };
 
 
@@ -555,6 +568,7 @@ export const heartSeed: item = {
     imgPath: '/images/seeds/HeartSeed.png',
     fruitType: 'heart',
     buyPrice: 4.75,
+    description: "Grows into a tree that bears Heart Fruit."
 };
 
 export const starSeed: item = {
@@ -564,6 +578,7 @@ export const starSeed: item = {
     imgPath: '/images/seeds/StarSeed.png',
     fruitType: 'star',
     buyPrice: 4.75,
+    description: "Grows into a tree that bears Star Fruit."
 };
 
 export const lumpySeed: item = {
@@ -573,6 +588,7 @@ export const lumpySeed: item = {
     imgPath: '/images/seeds/LumpySeed.png',
     fruitType: 'lumpy',
     buyPrice: 4.75,
+    description: "Grows into a tree that bears Lumpy Fruit."
 };
 
 export const roundSeed: item = {
@@ -582,6 +598,7 @@ export const roundSeed: item = {
     imgPath: '/images/seeds/RoundSeed.png',
     fruitType: 'round',
     buyPrice: 4.75,
+    description: "Grows into a tree that bears Round Fruit."
 };
 
 export const squareSeed: item = {
@@ -591,6 +608,7 @@ export const squareSeed: item = {
     imgPath: '/images/seeds/SquareSeed.png',
     fruitType: 'square',
     buyPrice: 4.75,
+    description: "Grows into a tree that bears Square Fruit."
 };
 
 // Withered seeds

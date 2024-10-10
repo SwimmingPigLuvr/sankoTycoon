@@ -25,6 +25,8 @@ export interface Item  {
     fruitType?: 'star' | 'heart' | 'round' | 'lumpy' | 'square';
     buyPrice?: number;
     sellPrice?: number;
+    ability?: string;
+    decsription?: string;
 }
 
 export interface BunWallet {
