@@ -499,7 +499,7 @@ export const bunBlaster: Item = {
     quantity: 0,
     imgPath: 'images/items/wearables/hands/BunBlaster.png',
     buyPrice: 12,
-    ability: "Double the fruit yield for the current harvest.",
+    ability: "Double the gold you get from selling any item for the next 10 seconds.",
     description: "Bun Blaster is strictly intended to enhance delightful whipped creams and infusions.",
 }
 

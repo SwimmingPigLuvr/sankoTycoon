@@ -1,8 +1,11 @@
 <script lang="ts">
 	import * as allItems from '$lib/itemData';
+	import { bunBlasted } from '$lib/stores/abilities';
 	import { wallet, type Bun, type Item } from '$lib/stores/wallet';
 
 	let showDescription: boolean[] = [];
+	let currentDescription: string | undefined;
+	let currentItemPrice: number | undefined;
 	// dim items we can't afford
 	// highlight items we can afford
 
@@ -76,6 +79,7 @@
 		// not all items can be sold
 		// check for quantity of > 0
 		// && check for sellPrice?
+		let salePrice: number;
 		wallet.update((currentWallet) => {
 			const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
 			if (bunIndex !== -1) {
@@ -83,17 +87,22 @@
 				const correspondingItem: Item = currentBun.wallet.items.find(
 					(itemInWallet: Item) => itemInWallet.name === item.name
 				);
-				if (correspondingItem) {
+				if (correspondingItem && correspondingItem.sellPrice) {
 					correspondingItem.quantity -= 1;
+					if ($bunBlasted) {
+						salePrice = correspondingItem.sellPrice * 2;
+					} else {
+						salePrice = correspondingItem.sellPrice;
+					}
 				}
-				currentBun.wallet.gold += correspondingItem?.sellPrice ?? 0;
+				currentBun.wallet.gold += salePrice;
 			}
 			return currentWallet;
 		});
 	}
 </script>
 
-<main class="w-[700px] rounded-xl p-2 border-sky-400 border-2 bg-sky-600 flex flex-col space-y-1">
+<main class="w-[600px] rounded-xl p-2 border-sky-400 border-2 bg-sky-600 flex flex-col space-y-1">
 	<div class="flex justify-between">
 		<!-- buy/sell buttons -->
 		<div class="flex space-x-1">
@@ -136,19 +145,15 @@
 			{#each dailyItems as item, index}
 				{#if item.buyPrice}
 					<button
-						on:mouseenter={() => (showDescription[index] = true)}
-						on:mouseleave={() => (showDescription[index] = false)}
+						on:mouseenter={() => {
+							currentDescription = item.description;
+							currentItemPrice = item.buyPrice;
+						}}
+						on:mouseleave={() => (currentDescription = undefined)}
 						disabled={item.buyPrice > bunWallet.gold}
 						on:click={() => buyItem(item)}
-						class="flex-shrink-0 disabled:filter disabled:grayscale-[75%] relative font-FinkHeavy w-24 h-24 text-xs rounded border-white border-[1px] bg-white bg-opacity-75 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
+						class="flex-shrink-0 disabled:filter disabled:invert-[50%] relative font-FinkHeavy w-24 h-28 text-xs rounded border-white border-[1px] bg-white bg-opacity-75 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
 					>
-						{#if showDescription[index]}
-							<div
-								class="absolute z-30 bottom-28 border-2 border-black border-dashed bg-white bg-opacity-90 w-24 h-full text-wrap leading-tight rounded-xl p-1 font-FinkHeavy"
-							>
-								<p>{item.description}</p>
-							</div>
-						{/if}
 						<!-- price -->
 						<div
 							class="bg-white bg-opacity-75 rounded-full p-[1px] px-[3px] flex space-x-1 absolute top-[2px] right-[2px]"
@@ -195,4 +200,26 @@
 			{/each}
 		{/if}
 	</div>
+	<div class="">
+		{#if currentDescription}
+			<div
+				class="mt-1 text-lg border-2 border-black border-dashed bg-white w-full h-full text-wrap leading-[1.1] rounded-xl p-2 font-FinkHeavy"
+			>
+				<p>
+					{#if currentItemPrice && currentItemPrice > $wallet.nfts[0].wallet.gold}
+						???
+					{:else}
+						{currentDescription}
+					{/if}
+				</p>
+			</div>
+		{/if}
+	</div>
 </main>
+
+<style>
+	::-webkit-scrollbar-thumb {
+		background-color: #facc15;
+		border-radius: 6px;
+	}
+</style>

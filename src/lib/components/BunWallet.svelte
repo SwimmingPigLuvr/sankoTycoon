@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as itemData from '$lib/itemData';
+	import { bunBlasted } from '$lib/stores/abilities';
 	import type { Bun } from '$lib/stores/wallet';
 	import { cubicInOut } from 'svelte/easing';
 	import { fly, slide } from 'svelte/transition';
@@ -17,6 +18,23 @@
 	$: consumables = items.filter((items) => items.type === 'consumable');
 
 	$: allItems = [...consumables, ...wearables, ...seeds, ...witheredSeeds, ...fruit];
+
+	let currentAbility: string | undefined;
+
+	function activateAbility(itemName: string) {
+		switch (itemName) {
+			case 'Bun Blaster':
+				bunBlasted.set(true);
+				alert('Bun Blaster activated.');
+				setTimeout(() => {
+					bunBlasted.set(false);
+					alert('Bun Blaster effects have worn off.');
+				}, 10000);
+				break;
+			default:
+				break;
+		}
+	}
 
 	// todo
 	// if the items have a quantity of more than 1 then they still only take up 1 grid but later on i will add
@@ -37,7 +55,10 @@
 		class=" border-[1px] bg-gray-100 border-gray-400 overflow-y-auto overflow-x-hidden grid gap-0 grid-cols-4 grid-rows-4 w-full"
 	>
 		{#each allItems as item}
-			<div
+			<button
+				on:mouseenter={() => (currentAbility = item.ability)}
+				on:mouseleave={() => (currentAbility = undefined)}
+				on:click={() => activateAbility(item.name)}
 				class="relative border-gray-400 border-[1px] hover:bg-gray-200 flex items-center justify-center"
 			>
 				<img src={item.imgPath} alt={item.name} class="h-6 w-auto" />
@@ -48,11 +69,16 @@
 						{item.quantity}
 					</div>
 				{/if}
-			</div>
+			</button>
 		{/each}
 
 		{#each Array(16 - allItems.length) as _}
 			<div class="border-gray-400 border-[1px] hover:bg-gray-200"></div>
 		{/each}
 	</div>
+	{#if currentAbility}
+		<div class="w-full">
+			<p class="text-left text-xs w-full">{currentAbility}</p>
+		</div>
+	{/if}
 </main>
