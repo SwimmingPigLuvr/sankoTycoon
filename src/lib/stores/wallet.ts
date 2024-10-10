@@ -26,7 +26,7 @@ export interface Item  {
     buyPrice?: number;
     sellPrice?: number;
     ability?: string;
-    decsription?: string;
+    description?: string;
 }
 
 export interface BunWallet {

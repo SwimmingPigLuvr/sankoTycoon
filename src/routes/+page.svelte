@@ -39,7 +39,7 @@
 		{:else if currentStep === StepID.Farm}
 			<Farm bun={$wallet.nfts[0]} />
 		{/if}
-		<div class="absolute top-32 left-48">
+		<div class="absolute bottom-[4.55rem] left-48">
 			{#each buns as bun}
 				<Shop {bun} />
 			{/each}

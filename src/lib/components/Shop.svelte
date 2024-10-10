@@ -2,6 +2,7 @@
 	import * as allItems from '$lib/itemData';
 	import { wallet, type Bun, type Item } from '$lib/stores/wallet';
 
+	let showDescription: boolean[] = [];
 	// dim items we can't afford
 	// highlight items we can afford
 
@@ -92,7 +93,7 @@
 	}
 </script>
 
-<main class="w-[500px] rounded-xl p-2 border-sky-400 border-2 bg-sky-600 flex flex-col space-y-1">
+<main class="w-[700px] rounded-xl p-2 border-sky-400 border-2 bg-sky-600 flex flex-col space-y-1">
 	<div class="flex justify-between">
 		<!-- buy/sell buttons -->
 		<div class="flex space-x-1">
@@ -132,14 +133,22 @@
 	<div class="flex w-full space-x-1 overflow-x-auto overflow-y-hidden whitespace-nowrap">
 		<!-- buying items -->
 		{#if buy}
-			{#each dailyItems as item}
+			{#each dailyItems as item, index}
 				{#if item.buyPrice}
 					<button
-						on:mouseenter={() => showDescription(item.description)}
+						on:mouseenter={() => (showDescription[index] = true)}
+						on:mouseleave={() => (showDescription[index] = false)}
 						disabled={item.buyPrice > bunWallet.gold}
 						on:click={() => buyItem(item)}
-						class="flex-shrink-0 disabled:filter disabled:grayscale-[75%] relative font-FinkHeavy w-20 h-24 text-xs rounded border-white border-[1px] bg-white bg-opacity-75 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
+						class="flex-shrink-0 disabled:filter disabled:grayscale-[75%] relative font-FinkHeavy w-24 h-24 text-xs rounded border-white border-[1px] bg-white bg-opacity-75 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
 					>
+						{#if showDescription[index]}
+							<div
+								class="absolute z-30 bottom-28 border-2 border-black border-dashed bg-white bg-opacity-90 w-24 h-full text-wrap leading-tight rounded-xl p-1 font-FinkHeavy"
+							>
+								<p>{item.description}</p>
+							</div>
+						{/if}
 						<!-- price -->
 						<div
 							class="bg-white bg-opacity-75 rounded-full p-[1px] px-[3px] flex space-x-1 absolute top-[2px] right-[2px]"
@@ -164,6 +173,7 @@
 				{/if}
 			{/each}
 		{/if}
+
 		<!-- selling items -->
 		{#if sell}
 			{#each allSellableItems as item}
