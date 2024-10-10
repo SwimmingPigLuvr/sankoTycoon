@@ -141,7 +141,7 @@
 					plots = [...plots];
 				}
 			}
-		}, 1000); // every 6 seconds = 1 day
+		}, 1000 * 2);
 	}
 
 	function harvestFruit(index: number) {

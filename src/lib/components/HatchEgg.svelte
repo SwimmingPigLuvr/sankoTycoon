@@ -11,28 +11,7 @@
 	let bunWallet: BunWallet = {
 		bunId: 1,
 		gold: 10,
-		items: [
-			// fruit
-			items.heartFruit,
-			items.lumpyFruit,
-			items.roundFruit,
-			items.squareFruit,
-			items.starFruit,
-			// seeds
-			items.heartSeed,
-			items.lumpySeed,
-			items.roundSeed,
-			items.squareSeed,
-			items.starSeed,
-			// witheredSeeds
-			items.witheredStarSeed,
-			items.witheredSquareSeed,
-			items.witheredHeartSeed,
-			items.witheredLumpySeed,
-			items.witheredRoundSeed,
-			// bunzempic
-			items.bunzempic
-		]
+		items: [...Object.values(items)]
 	};
 
 	let starterBun: Bun = {
@@ -48,7 +27,7 @@
 		type: 'Bun',
 		variety: 'Bun',
 		wallet: bunWallet,
-		imageUrl: '/images/buns/Buns.webp'
+		imageUrl: '/images/buns/thumbs/Buns.png'
 	};
 
 	function hatchEgg() {
