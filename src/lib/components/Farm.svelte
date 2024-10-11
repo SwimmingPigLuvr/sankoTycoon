@@ -8,17 +8,15 @@
 
 	export let bun: Bun;
 
-	$: buns = $wallet.nfts ?? [];
+	$: buns = $wallet?.nfts ?? [];
 	$: currentBun = buns[$b];
-	$: bunFarm = currentBun?.farm ?? Array(25).fill({ state: 'empty' });
 
-	$: bunWallet = currentBun?.wallet;
-	$: availableSeeds = bunWallet.items.filter(
-		(item: Item) => item.type === 'seed' && item.quantity > 0
-	);
-	$: availableWitheredSeeds = bunWallet.items.filter(
-		(item: Item) => item.type === 'witheredSeed' && item.quantity > 0
-	);
+	$: bunWallet = currentBun?.wallet ?? { bunId: 777, gold: 0, items: [] };
+	$: availableSeeds =
+		bunWallet?.items.filter((item: Item) => item.type === 'seed' && item.quantity > 0) ?? [];
+	$: availableWitheredSeeds =
+		bunWallet?.items.filter((item: Item) => item.type === 'witheredSeed' && item.quantity > 0) ??
+		[];
 
 	$: allAvailableSeeds = [...availableSeeds, ...availableWitheredSeeds];
 
@@ -44,7 +42,6 @@
 	$: projectedHarvest = plots.reduce((total, plot) => total + (plot.fruitRemaining || 0), 0);
 
 	// array of separate timers so plots grow independently
-	let plotTimers: Array<NodeJS.Timeout | null> = Array(25).fill(null);
 
 	// Function to plant a seed in the selected plot
 	function plantSeed() {
@@ -79,7 +76,7 @@
 				selectedSeed = undefined;
 
 				if (selectedPlotIndex) {
-					startPlotGrowthTimer(selectedPlotIndex);
+					startPlotGrowthTimer($b, selectedPlotIndex);
 				} else {
 					alert('selected plot index nonexistent');
 					return;
@@ -90,52 +87,38 @@
 		});
 	}
 
-	function startPlotGrowthTimer(plotIndex: number) {
+	function startPlotGrowthTimer(bunIndex: number, plotIndex: number) {
+		const currentBun = buns[bunIndex];
 		console.log('start growth timer: ', plotIndex);
-		// when this number gets to 5 we stop adding fruit
-		let totalReadyFruits = 0;
-		// clear old timers for plot
-		// there should not be any other timers because
-		// a planted plot won't have access to the plant button.
-		if (plotTimers[plotIndex]) {
-			console.log('interval cleared: ', plotIndex);
-			clearInterval(plotTimers[plotIndex]);
+		if (!currentBun || !currentBun.farm[plotIndex]) return;
+
+		if (!currentBun.plotTimers) {
+			currentBun.plotTimers = Array(25).fill(null);
 		}
 
-		// start new timer
-		plotTimers[plotIndex] = setInterval(() => {
-			let plot = plots[plotIndex];
+		if (currentBun.plotTimers[plotIndex]) {
+			clearInterval(currentBun.plotTimers[plotIndex]);
+		}
+
+		currentBun.plotTimers[plotIndex] = setInterval(() => {
+			let plot = currentBun.farm[plotIndex];
 			if (plot.state === 'planted' && plot.maturity !== undefined) {
-				// if not fully mature, increment by 25%
 				if (plot.maturity < 100) {
 					plot.maturity += 25;
-
-					plots = [...plots];
 				}
-				// if fully mature, add fruit
-				if (
-					plot.maturity === 100 &&
-					plot.fruitRemaining &&
-					plot.fruitRemaining > 0 &&
-					plot.fruitsReady !== undefined &&
-					plot.fruitsReady < plot.fruitRemaining
-				) {
+
+				if (plot.maturity === 100 && plot.fruitsReady < plot.fruitRemaining) {
 					plot.fruitsReady += 1;
-					totalReadyFruits += 1;
+				}
 
-					console.log('fruits remaining: ', plot.fruitRemaining);
-					console.log('fruits ready to harvest: ', plot.fruitsReady);
-					plots = [...plots];
+				if (plot.fruitsReady >= plot.fruitRemaining) {
+					clearInterval(currentBun.plotTimers[plotIndex]);
+					currentBun.plotTimers[plotIndex] = null;
 				}
-				// if 5 fruits have become ready, clear interval
-				if (totalReadyFruits === 5) {
-					// clear timer if plot is fully matured
-					clearInterval(plotTimers[plotIndex]);
-					plotTimers[plotIndex] = null;
-					plots = [...plots];
-				}
+
+				buns = [...buns];
 			}
-		}, 1000);
+		}, 1000 * 25);
 	}
 
 	function harvestFruit(index: number) {
@@ -245,7 +228,7 @@
 			<h2 class="font-FinkHeavy text-2xl text-left w-40">Farm</h2>
 			<!-- todo -->
 			<div class="flex justify-start bg-fuchsia-200 items-center px-1">
-				<img src={buns[$b].imageUrl} class="w-12 h-full" alt="" />
+				<img src={buns[$b]?.imageUrl} class="w-12 h-full" alt="" />
 			</div>
 		</div>
 		<div class="grid gap-0 grid-cols-5 grid-rows-5 w-40 h-40 border-black border-2">

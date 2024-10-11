@@ -37,7 +37,7 @@
 		{:else if currentStep === StepID.Hatch}
 			<HatchEgg />
 		{:else if currentStep === StepID.Farm}
-			<Farm bun={$wallet.nfts[0]} />
+			<Farm bun={$wallet?.nfts[0]} />
 		{/if}
 		<div class="absolute top-32 left-48">
 			{#if buns[$b]}
