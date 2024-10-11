@@ -132,7 +132,7 @@
 						on:mouseleave={() => (currentDescription = undefined)}
 						disabled={item.buyPrice > bunWallet.gold}
 						on:click={() => buyItem($b, item)}
-						class="flex-shrink-0 disabled:filter disabled:invert-[50%] relative font-FinkHeavy w-24 h-28 text-xs rounded border-white border-[1px] bg-white bg-opacity-75 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
+						class="flex-shrink-0 disabled:filter disabled:grayscale  relative font-FinkHeavy w-24 h-28 text-xs rounded border-white border-[1px] bg-white bg-opacity-50 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
 					>
 						<!-- price -->
 						<div

@@ -22,19 +22,62 @@
 
 	$: plots = bun?.farm ?? Array(25).fill({ state: 'empty' });
 
-	const gridW = 5;
-	const gridH = 5;
-	let grid = [];
-
-	onMount(() => {
-		for (let x = gridW - 1; x >= 0; x--) {
-			for (let y = 0; y < gridH; y++) {
-				let plotNumber = x * gridH + (gridH - y);
-				let index = gridH * x + y;
-				grid.push({ x, y, plotNumber, index });
-			}
+	function showSankoStylePlotNumber(index: number) {
+		switch (index) {
+			case 0:
+				return 25;
+			case 1:
+				return 20;
+			case 2:
+				return 15;
+			case 3:
+				return 10;
+			case 4:
+				return 5;
+			case 5:
+				return 24;
+			case 6:
+				return 19;
+			case 7:
+				return 14;
+			case 8:
+				return 9;
+			case 9:
+				return 4;
+			case 10:
+				return 23;
+			case 11:
+				return 18;
+			case 12:
+				return 13;
+			case 13:
+				return 8;
+			case 14:
+				return 3;
+			case 15:
+				return 22;
+			case 16:
+				return 17;
+			case 17:
+				return 12;
+			case 18:
+				return 7;
+			case 19:
+				return 2;
+			case 20:
+				return 21;
+			case 21:
+				return 16;
+			case 22:
+				return 11;
+			case 23:
+				return 6;
+			case 24:
+				return 1;
+			default:
+				return index; // Return the index itself if it doesn't match any case
 		}
-	});
+	}
 
 	let selectedPlotIndex: number | null = null;
 
@@ -207,18 +250,26 @@
 	}
 
 	function prevIndex() {
-		if (selectedPlotIndex && selectedPlotIndex !== 0) {
-			selectedPlotIndex -= 1;
-		} else if (selectedPlotIndex === 0) {
-			selectedPlotIndex = 24;
+		if (selectedPlotIndex !== null && selectedPlotIndex !== undefined && selectedPlotIndex !== -1) {
+			if (selectedPlotIndex === 24) {
+				selectedPlotIndex = 0;
+			} else if (selectedPlotIndex >= 20 && selectedPlotIndex <= 23) {
+				selectedPlotIndex -= 19;
+			} else {
+				selectedPlotIndex += 5;
+			}
 		}
 	}
 
 	function nextIndex() {
-		if (selectedPlotIndex && selectedPlotIndex !== 24) {
-			selectedPlotIndex += 1;
-		} else if (selectedPlotIndex === 24) {
-			selectedPlotIndex = 0;
+		if (selectedPlotIndex !== null && selectedPlotIndex !== undefined && selectedPlotIndex !== -1) {
+			if (selectedPlotIndex === 0) {
+				selectedPlotIndex = 24;
+			} else if (selectedPlotIndex >= 1 && selectedPlotIndex <= 4) {
+				selectedPlotIndex += 19;
+			} else {
+				selectedPlotIndex -= 5;
+			}
 		}
 	}
 
@@ -302,7 +353,7 @@
 				<button on:click={() => prevIndex()}
 					><img class="w-6" src="/ui/icons/arrow.png" alt="left-arrow" /></button
 				>
-				<p>plot #{selectedPlotIndex}</p>
+				<p>plot #{showSankoStylePlotNumber(selectedPlotIndex)}</p>
 				<button on:click={() => nextIndex()}
 					><img
 						class="w-6 transform scale-x-[-1]"
