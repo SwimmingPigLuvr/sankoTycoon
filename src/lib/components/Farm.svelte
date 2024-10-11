@@ -1,3 +1,4 @@
+<!-- $lib/components/Farm.svelte -->
 <script lang="ts">
 	import { wallet, type Bun, type Item, type Plot } from '$lib/stores/wallet';
 	import { get } from 'svelte/store';
@@ -5,20 +6,35 @@
 	import * as itemData from '$lib/itemData';
 	import { fade } from 'svelte/transition';
 	import { gameState, b } from '$lib/stores/gameState';
+	import { onMount } from 'svelte';
 
 	export let bun: Bun;
 
-	$: buns = $wallet?.nfts ?? [];
-	$: currentBun = buns[$b];
+	$: bunWallet = bun?.wallet ?? { bunId: 777, gold: 0, items: [itemData.hardHat] };
 
-	$: bunWallet = currentBun?.wallet ?? { bunId: 777, gold: 0, items: [] };
+	// seeds
 	$: availableSeeds =
 		bunWallet?.items.filter((item: Item) => item.type === 'seed' && item.quantity > 0) ?? [];
 	$: availableWitheredSeeds =
 		bunWallet?.items.filter((item: Item) => item.type === 'witheredSeed' && item.quantity > 0) ??
 		[];
-
 	$: allAvailableSeeds = [...availableSeeds, ...availableWitheredSeeds];
+
+	$: plots = bun?.farm ?? Array(25).fill({ state: 'empty' });
+
+	const gridW = 5;
+	const gridH = 5;
+	let grid = [];
+
+	onMount(() => {
+		for (let x = gridW - 1; x >= 0; x--) {
+			for (let y = 0; y < gridH; y++) {
+				let plotNumber = x * gridH + (gridH - y);
+				let index = gridH * x + y;
+				grid.push({ x, y, plotNumber, index });
+			}
+		}
+	});
 
 	let selectedPlotIndex: number | null = null;
 
@@ -28,18 +44,16 @@
 	}
 
 	let selectedSeed: Item | undefined;
-	// create 25 plots set to empty
-	let plots: Plot[] = Array(25).fill({ state: 'empty' });
-
-	// create farms for every bun
-	let farms: Plot[][] = Array(100).fill(plots);
 
 	// fruits available to harvest
 	// eventually the user can 1 click harvest all these fruits :]
-	$: harvest = plots.filter((plot) => plot.fruitsReady && plot.fruitsReady > 0);
+	$: harvest = plots.filter((plot: Plot) => plot.fruitsReady && plot.fruitsReady > 0);
 
 	// all fruits the user will yield when all trees are all grown up
-	$: projectedHarvest = plots.reduce((total, plot) => total + (plot.fruitRemaining || 0), 0);
+	$: projectedHarvest = plots.reduce(
+		(total: number, plot: Plot) => total + (plot.fruitRemaining || 0),
+		0
+	);
 
 	// array of separate timers so plots grow independently
 
@@ -51,18 +65,24 @@
 
 		// update seed quantity & plot
 		wallet.update((currentWallet) => {
-			const bun = currentWallet.nfts[$b];
+			const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
+			if (bunIndex === -1) {
+				alert('bun not found');
+				return currentWallet;
+			}
+			const bunNft = currentWallet.nfts[bunIndex];
 
 			// find seed
-			let seed = bun.wallet.items.find(
-				(item: Item) => item.type === 'seed' && item.fruitType === selectedSeed?.fruitType
+			let seed = bunNft.wallet.items.find(
+				(item: Item) =>
+					item.type === selectedSeed?.type && item.fruitType === selectedSeed?.fruitType
 			);
 
 			if (seed && seed.quantity > 0) {
 				seed.quantity -= 1;
 
 				// update plot
-				bun.farm[selectedPlotIndex] = {
+				bunNft.farm[selectedPlotIndex] = {
 					state: 'planted',
 					type: selectedSeed?.fruitType,
 					maturity: 0,
@@ -72,24 +92,27 @@
 					isWithered: selectedSeed?.type === 'witheredSeed'
 				};
 
+				// trigger reactivity
+				bunNft.farm = [...bunNft.farm];
+
 				// clear selected seed
 				selectedSeed = undefined;
 
-				if (selectedPlotIndex) {
-					startPlotGrowthTimer($b, selectedPlotIndex);
+				if (selectedPlotIndex !== null) {
+					startPlotGrowthTimer(bunIndex, selectedPlotIndex);
 				} else {
 					alert('selected plot index nonexistent');
-					return;
+					return currentWallet;
 				}
 			} else {
 				alert('not enough seeds to plant');
 			}
+			return currentWallet;
 		});
 	}
 
 	function startPlotGrowthTimer(bunIndex: number, plotIndex: number) {
-		const currentBun = buns[bunIndex];
-		console.log('start growth timer: ', plotIndex);
+		const currentBun = $wallet.nfts[bunIndex];
 		if (!currentBun || !currentBun.farm[plotIndex]) return;
 
 		if (!currentBun.plotTimers) {
@@ -101,7 +124,9 @@
 		}
 
 		currentBun.plotTimers[plotIndex] = setInterval(() => {
-			let plot = currentBun.farm[plotIndex];
+			const bunFromStore = get(wallet).nfts[bunIndex];
+			let plot = bunFromStore.farm[plotIndex];
+
 			if (plot.state === 'planted' && plot.maturity !== undefined) {
 				if (plot.maturity < 100) {
 					plot.maturity += 25;
@@ -116,54 +141,65 @@
 					currentBun.plotTimers[plotIndex] = null;
 				}
 
-				buns = [...buns];
+				wallet.update((currentWallet) => {
+					currentWallet.nfts[bunIndex].farm = [...bunFromStore.farm];
+					return currentWallet;
+				});
 			}
-		}, 1000 * 25);
+		}, 100);
 	}
 
 	function harvestFruit(index: number) {
 		console.log('harvesting fruit');
 		const plot = plots[index];
-		console.log('plot type', plot.type);
 		if (plot.fruitsReady && plot.fruitsReady > 0) {
 			// update bunWallet
 			wallet.update((currentWallet) => {
 				const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
-				if (bunIndex !== -1) {
-					const bunItem: Bun = currentWallet.nfts[bunIndex];
+				if (bunIndex === -1) {
+					alert('bun not found');
+					return currentWallet;
+				}
+				const bunNft: Bun = currentWallet.nfts[bunIndex];
 
-					// find the fruit type
-					let fruit = bunItem.wallet.items.find(
-						(item) => item.type === 'fruit' && item.fruitType === plot.type
-					);
-					// find witheredSeed
-					let witheredSeed = bunItem.wallet.items.find(
-						(item) => item.type === 'witheredSeed' && item.fruitType === plot.type
-					);
-					// add fruit to wallet
-					if (fruit && plot.fruitsReady) {
-						fruit.quantity += plot.fruitsReady;
-						console.log('adding fruits to wallet: ', plot.fruitsReady);
-					}
+				// find the fruit type
+				let fruit = bunNft.wallet.items.find(
+					(item: Item) => item.type === 'fruit' && item.fruitType === plot.type
+				);
 
-					if (plot.fruitsReady && plot.fruitRemaining) {
-						// this is how we harvest all the fruit that is ready
-						plot.fruitRemaining -= plot.fruitsReady;
-						plot.fruitsReady = 0;
-					}
-					if (plot.fruitRemaining === 0 && plot.fruitsReady === 0) {
-						// add witheredSeeds to bunWallet
-						if (!plot.isWithered && witheredSeed) {
+				// find witheredSeed
+				let witheredSeed = bunNft.wallet.items.find(
+					(item: Item) => item.type === 'witheredSeed' && item.fruitType === plot.type
+				);
+
+				// add fruit to wallet
+				if (fruit && plot.fruitsReady) {
+					fruit.quantity += plot.fruitsReady;
+					console.log('adding fruits to wallet: ', plot.fruitsReady);
+				}
+
+				// update plot
+				if (plot.fruitsReady && plot.fruitRemaining) {
+					plot.fruitRemaining -= plot.fruitsReady;
+					plot.fruitsReady = 0;
+				}
+
+				if (plot.fruitRemaining === 0 && plot.fruitsReady === 0) {
+					// add witheredSeeds to bunWallet
+					if (!plot.isWithered) {
+						if (witheredSeed) {
 							console.log('adding witheredSeed to bunwallet: ', witheredSeed.fruitType);
 							witheredSeed.quantity += 1;
 						}
-
-						// clear plot
-						plot.state = 'empty';
 					}
 
-					plots = [...plots];
+					// clear plot
+					plot.state = 'empty';
 				}
+
+				// reassign farm to trigger reactivity
+				bunNft.farm = [...bunNft.farm];
+
 				return currentWallet;
 			});
 		}
@@ -228,7 +264,7 @@
 			<h2 class="font-FinkHeavy text-2xl text-left w-40">Farm</h2>
 			<!-- todo -->
 			<div class="flex justify-start bg-fuchsia-200 items-center px-1">
-				<img src={buns[$b]?.imageUrl} class="w-12 h-full" alt="" />
+				<img src={bun?.imageUrl} class="w-12 h-full" alt="" />
 			</div>
 		</div>
 		<div class="grid gap-0 grid-cols-5 grid-rows-5 w-40 h-40 border-black border-2">
@@ -327,7 +363,7 @@
 				</p>
 				<button
 					disabled={selectedSeed === undefined}
-					on:click={() => plantSeed($b)}
+					on:click={() => plantSeed()}
 					class="disabled:bg-opacity-10 bg-white bg-opacity-50 w-3/4 m-auto rounded-full border-black border-[1px] text-green-700"
 				>
 					plant seed

@@ -1,3 +1,4 @@
+<!-- $lib/components/Shop.svelte -->
 <script lang="ts">
 	import * as allItems from '$lib/itemData';
 	import { bunBlasted } from '$lib/stores/abilities';
@@ -10,6 +11,8 @@
 		type Bun,
 		type Item
 	} from '$lib/stores/wallet';
+	import { cubicInOut } from 'svelte/easing';
+	import { fade } from 'svelte/transition';
 
 	let showDescription: boolean[] = [];
 	let currentDescription: string | undefined;
@@ -27,6 +30,7 @@
 	let sell = false;
 	// add buy/sell prices for all items
 	let dailyItems: Item[] = [
+		allItems.slop,
 		allItems.bunzempic,
 		allItems.heartFruit,
 		allItems.squareSeed,
@@ -35,8 +39,8 @@
 		allItems.npcMask,
 		allItems.albanianBoxingGloves,
 		allItems.matrixBucketHat,
-		allItems.woodSword,
-		allItems.niqab
+		allItems.chromeDurag,
+		allItems.bunOil
 	];
 
 	// buns in wallet
@@ -78,7 +82,7 @@
 	}
 </script>
 
-<main class="w-[600px] rounded-xl p-2 border-sky-400 border-2 bg-sky-600 flex flex-col space-y-1">
+<main class="w-[41.5rem] rounded-xl p-2 border-sky-400 border-2 bg-sky-600 flex flex-col space-y-1">
 	<div class="flex justify-between">
 		<!-- buy/sell buttons -->
 		<div class="flex space-x-1">
@@ -138,7 +142,7 @@
 							<p>{item.buyPrice}</p>
 						</div>
 						<!-- item img -->
-						<img class="h-14 absolute top-1 left-1" src={item.imgPath} alt={item.name} />
+						<img class="h-[65%] absolute top-1 left-1" src={item.imgPath} alt={item.name} />
 						<!-- item name -->
 						<div
 							class="flex items-center text-center h-8 w-full absolute bottom-0 left-0 {item.type ===
@@ -179,9 +183,10 @@
 			{/each}
 		{/if}
 	</div>
-	<div class="">
+	<div class="h-10">
 		{#if currentDescription}
 			<div
+				in:fade={{ duration: 500, easing: cubicInOut }}
 				class="mt-1 text-lg border-2 border-black border-dashed bg-white w-full h-full text-wrap leading-[1.1] rounded-xl p-2 font-FinkHeavy"
 			>
 				<p>

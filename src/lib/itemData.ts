@@ -3,6 +3,16 @@ import type { Item } from '$lib/stores/wallet';
 // the quantity of these objects dictates the quantity of the objects in the bun's wallet
 
 // consumables
+export const slop: Item = {
+    type: 'consumable',
+    name: 'Slop',
+    quantity: 0,
+    imgPath: '/images/items/Slop.png',
+    buyPrice: 0.5,
+    description: "Slop just hardly satiates your Bun."
+};
+
+// consumables
 export const bunzempic: Item = {
     type: 'consumable',
     name: 'Bunzempic',
@@ -89,6 +99,8 @@ export const chromeDurag: Item = {
     name: 'Chrome Durag',
     quantity: 0,
     imgPath: 'images/items/wearables/hats/ChromeDurag.png',
+    buyPrice: 25,
+    description: 'Chrome Durags? Chaight Playa.'
 };
 
 export const devoHat: Item = {
@@ -382,6 +394,8 @@ export const bunOil: Item = {
     name: 'Bun Oil',
     quantity: 0,
     imgPath: 'images/items/wearables/hands/BunOil.png',
+    buyPrice: 6,
+    description: 'Stock Up Before B Diddy Comes Thru.'
 }
 
 export const bunPlush: Item = {
@@ -500,7 +514,7 @@ export const bunBlaster: Item = {
     name: 'Bun Blaster',
     quantity: 0,
     imgPath: 'images/items/wearables/hands/BunBlaster.png',
-    buyPrice: 1,
+    buyPrice: 12,
     ability: "Double the gold you get from selling any item for the next 10 seconds.",
     description: "Bun Blaster is strictly intended to enhance delightful whipped creams and infusions.",
 }

@@ -1,3 +1,4 @@
+<!-- $lib/components/BunWallet.svelte -->
 <script lang="ts">
 	import * as itemData from '$lib/itemData';
 	import { bunBlasted } from '$lib/stores/abilities';

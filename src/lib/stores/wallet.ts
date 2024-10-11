@@ -79,7 +79,7 @@ const starterWallet: Wallet = {
     nfts: [], // No NFTs
 };
 
-export const wallet = writable<WalletObject>(starterWallet);
+export const wallet = writable<Wallet>(starterWallet);
 
 export const addItemToWallet = (bunIndex: number, newItem: Item) => {
     wallet.update((wallet) => {
