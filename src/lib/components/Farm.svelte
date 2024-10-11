@@ -4,21 +4,31 @@
 	import Wallet from './Wallet.svelte';
 	import * as itemData from '$lib/itemData';
 	import { fade } from 'svelte/transition';
+	import { gameState, b } from '$lib/stores/gameState';
 
 	export let bun: Bun;
 
 	let selectedSeed: Item | undefined;
 
-	$: bunWallet = bun.wallet;
-	$: availableSeeds = bunWallet.items.filter((item) => item.type === 'seed' && item.quantity > 0);
+	$: buns = $wallet.nfts ?? [];
+	$: bunWallet = buns[$b].wallet;
+	$: availableSeeds = bunWallet.items.filter(
+		(item: Item) => item.type === 'seed' && item.quantity > 0
+	);
 	$: availableWitheredSeeds = bunWallet.items.filter(
-		(item) => item.type === 'witheredSeed' && item.quantity > 0
+		(item: Item) => item.type === 'witheredSeed' && item.quantity > 0
 	);
 
 	$: allAvailableSeeds = [...availableSeeds, ...availableWitheredSeeds];
 
+	// create farms for every bun
+
 	let selectedPlotIndex: number | null = null;
+	// create 25 plots set to empty
 	let plots: Plot[] = Array(25).fill({ state: 'empty' });
+
+	// fruits available to harvest
+	// eventually the user can 1 click harvest all these fruits :]
 	$: harvest = plots.filter((plot) => plot.fruitsReady && plot.fruitsReady > 0);
 	$: projectedHarvest = plots.reduce((total, plot) => total + (plot.fruitRemaining || 0), 0);
 
@@ -141,7 +151,7 @@
 					plots = [...plots];
 				}
 			}
-		}, 1000 * 10);
+		}, 1000);
 	}
 
 	function harvestFruit(index: number) {
@@ -247,7 +257,13 @@
 <main class="flex flex-col space-y-3" in:fade={{ delay: 100, duration: 250 }}>
 	<!-- Farm Grid -->
 	<div>
-		<h2 class="font-FinkHeavy text-2xl text-center w-40">Farm</h2>
+		<div class="flex justify-between w-40 bg-lime-400">
+			<h2 class="font-FinkHeavy text-2xl text-left w-40">Farm</h2>
+			<!-- todo -->
+			<div class="flex justify-start bg-fuchsia-200 items-center px-1">
+				<img src={buns[$b].imageUrl} class="w-12 h-full" alt="" />
+			</div>
+		</div>
 		<div class="grid gap-0 grid-cols-5 grid-rows-5 w-40 h-40 border-black border-2">
 			<!-- plots -->
 			{#each plots as plot, index}

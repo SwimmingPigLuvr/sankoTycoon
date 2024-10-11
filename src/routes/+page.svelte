@@ -5,11 +5,11 @@
 	import Wallet from '../lib/components/Wallet.svelte';
 	import GameClock from '../lib/components/GameClock.svelte';
 	import MintEgg from '../lib/components/MintEgg.svelte';
-	import { gameState, StepID } from '../lib/stores/gameState';
+	import { activeBun, gameState, StepID, b } from '../lib/stores/gameState';
 	import { onDestroy } from 'svelte';
 	import HatchEgg from '$lib/components/HatchEgg.svelte';
 	import Farm from '$lib/components/Farm.svelte';
-	import { wallet } from '$lib/stores/wallet';
+	import { wallet, type Bun } from '$lib/stores/wallet';
 	import Shop from '$lib/components/Shop.svelte';
 
 	let currentStep: StepID;
@@ -40,9 +40,10 @@
 			<Farm bun={$wallet.nfts[0]} />
 		{/if}
 		<div class="absolute top-32 left-48">
-			{#each buns as bun}
-				<Shop {bun} />
-			{/each}
+			{#if buns[$b]}
+				<!-- bun wallet -->
+				<Shop bun={buns[$b]} />
+			{/if}
 		</div>
 	</div>
 </main>

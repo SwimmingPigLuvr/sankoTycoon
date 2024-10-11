@@ -1,22 +1,22 @@
 <script lang="ts">
 	import * as itemData from '$lib/itemData';
 	import { bunBlasted } from '$lib/stores/abilities';
-	import { addMessage } from '$lib/stores/gameState';
+	import { addMessage, gameState, b } from '$lib/stores/gameState';
 	import { wallet, type Bun, type Item } from '$lib/stores/wallet';
 	import { cubicInOut } from 'svelte/easing';
 	import { fly, slide } from 'svelte/transition';
 
-	export let bun: Bun;
-	$: bunWallet = bun.wallet;
+	$: buns = $wallet?.nfts ?? [];
+	$: bunWallet = buns[$b].wallet;
+	$: items = bunWallet.items.filter((items: Item) => items.quantity > 0);
 	$: bunId = bunWallet.bunId;
 	$: gold = bunWallet.gold;
-	// filter items where there are at least 1
-	$: items = bunWallet.items.filter((items) => items.quantity > 0);
-	$: fruit = items.filter((items) => items.type === 'fruit');
-	$: seeds = items.filter((items) => items.type === 'seed');
-	$: witheredSeeds = items.filter((items) => items.type === 'witheredSeed');
-	$: wearables = items.filter((items) => items.type === 'wearable');
-	$: consumables = items.filter((items) => items.type === 'consumable');
+
+	$: fruit = items.filter((items: Item) => items.type === 'fruit');
+	$: seeds = items.filter((items: Item) => items.type === 'seed');
+	$: witheredSeeds = items.filter((items: Item) => items.type === 'witheredSeed');
+	$: wearables = items.filter((items: Item) => items.type === 'wearable');
+	$: consumables = items.filter((items: Item) => items.type === 'consumable');
 
 	$: allItems = [...consumables, ...wearables, ...seeds, ...witheredSeeds, ...fruit];
 
@@ -28,30 +28,22 @@
 			case 'Bun Blaster':
 				// tell the user how much gold they made
 				wallet.update((currentWallet) => {
-					const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
-					let currentBun;
-					if (bunIndex !== -1) {
-						currentBun = currentWallet.nfts[bunIndex];
-					} else {
-						alert('do you wanna torture me');
-						return currentWallet;
-					}
-					const blaster = currentBun.wallet.items.find((item: Item) => item.name === 'Bun Blaster');
+					const blaster = buns[$b].wallet.items.find((item: Item) => item.name === 'Bun Blaster');
 					if (blaster) {
 						console.log('found the blaster');
 						blaster.quantity -= 1;
 					}
 					return currentWallet;
 				});
-				let startingGold = bun.wallet.gold;
+				let startingGold = buns[$b].wallet.gold;
 				bunBlasted.set(true);
 				addMessage('Bun Blaster activated.');
 				setTimeout(() => {
 					bunBlasted.set(false);
 					addMessage('Bun Blaster effects have worn off.');
-					let endingGold = bun.wallet.gold;
+					let endingGold = buns[$b].wallet.gold;
 					let goldMade = endingGold - startingGold;
-					addMessage(`total gold earned while high: ${goldMade}`);
+					addMessage(`total gold earned while blasted: ${goldMade}`);
 				}, 10000);
 				bunBlastMessage = undefined;
 				break;
@@ -88,7 +80,7 @@
 				on:click={() => activateAbility(item.name)}
 				class="relative border-gray-400 border-[1px] hover:bg-gray-200 flex items-center justify-center"
 			>
-				<img src={item.imgPath} alt={item.name} class="h-6 w-auto" />
+				<img src={item.imgPath} alt={item.name} class="h-8 w-auto" />
 				{#if item.quantity > 1}
 					<div
 						class="absolute w-2 h-2 top-0 right-0 bg-rose-600 rounded-none text-white flex items-center justify-center text-[0.4rem] text-center"

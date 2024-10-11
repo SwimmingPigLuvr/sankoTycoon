@@ -4,7 +4,7 @@
 	import { wallet } from '../stores/wallet';
 	import type { Token, Bun, Wallet } from '../stores/wallet';
 	import { fly } from 'svelte/transition';
-	import { activeBun } from '$lib/stores/gameState';
+	import { activeBun, b } from '$lib/stores/gameState';
 	import BunWallet from '$lib/components/BunWallet.svelte';
 	$: network = $wallet?.network;
 	let tokens: Token[] = [];
@@ -12,7 +12,6 @@
 	$: tokens = $wallet?.tokens ?? [];
 	$: nfts = $wallet?.nfts ?? [];
 	let showBunWallet = false;
-	$: b = nfts.findIndex((bun: Bun) => bun.id === $activeBun.id);
 
 	function openWallet() {
 		showBunWallet = true;
@@ -20,11 +19,13 @@
 
 	// Modify the nextBun and prevBun functions to cycle through the nfts array
 	function nextBun() {
-		b = (b + 1) % nfts.length; // Increment b and wrap around using modulo
+		b.set(($b + 1) % nfts.length); // Increment b and wrap around using modulo
+		console.log(`current bun: ${nfts[$b].name} id #${nfts[$b].id}`);
 	}
 
 	function prevBun() {
-		b = (b - 1 + nfts.length) % nfts.length; // Decrement b and wrap around using modulo to handle negative index
+		b.set(($b - 1 + nfts.length) % nfts.length); // Decrement b and wrap around using modulo to handle negative index
+		console.log(`current bun: ${nfts[$b].name} id #${nfts[$b].id}`);
 	}
 </script>
 
@@ -40,43 +41,49 @@
 	<h1>Buns</h1>
 	<div class="flex flex-wrap">
 		<div class="w-full flex flex-col">
-			{#if nfts[b]}
+			{#if nfts[$b]}
 				<!-- buns -->
-				<div class="flex justify-between">
+				<div class="flex justify-between space-x-1">
+					<!-- left arrow -->
 					<button on:click={() => nextBun()}>
-						<img src="/ui/icons/arrow.png" class="w-6" alt="" />
+						<img src="/ui/icons/arrow.png" class="w-8" alt="" />
 					</button>
+
+					<!-- active bun -->
+					<div class="w-full">
+						<button
+							in:fly={{ duration: 100, y: 10, easing: cubicInOut }}
+							on:click={() => openWallet()}
+							class="relative"
+						>
+							<img class="w- border-[1px] m-auto" src={nfts[$b].imageUrl} alt={nfts[$b].name} />
+
+							<!-- hunger meter -->
+							{#if nfts[$b].type === 'Bun'}
+								<img
+									src="/ui/icons/hunger.png"
+									class="absolute top-1 right-1 w-6"
+									alt="hungerMeter"
+								/>
+							{/if}
+						</button>
+						<p class="text-xs">
+							{#if nfts[$b].type === 'Egg'}
+								{nfts[$b].rarity} Egg
+							{/if}
+						</p>
+						{#if nfts[$b].type === 'Bun'}
+							<p class="text-xs">{nfts[$b].name} #{nfts[$b].id}</p>
+						{/if}
+					</div>
+					<!-- right arrow -->
 					<button on:click={() => prevBun()}>
-						<img src="/ui/icons/arrow.png" class="w-6 scale-[-100%]" alt="" />
+						<img src="/ui/icons/arrow.png" class="w-8 scale-[-100%]" alt="" />
 					</button>
 				</div>
-				<div class="w-full">
-					<button
-						in:fly={{ duration: 100, y: 10, easing: cubicInOut }}
-						on:click={() => openWallet()}
-						class="relative"
-					>
-						<img class="w- border-2 m-auto" src={nfts[b].imageUrl} alt={nfts[b].name} />
-						{#if nfts[b].type === 'Bun'}
-							<img
-								src="/ui/icons/hunger.png"
-								class="absolute top-4 right-4 w-8"
-								alt="hungerMeter"
-							/>
-						{/if}
-					</button>
-					<p class="text-xs">
-						{#if nfts[b].type === 'Egg'}
-							{nfts[b].rarity} Egg
-						{/if}
-					</p>
-					{#if nfts[b].type === 'Bun'}
-						<p class="text-xs">{nfts[b].name} #{nfts[b].id}</p>
-					{/if}
-				</div>
-				{#if nfts[b].type === 'Bun'}
+				{#if nfts[$b].type === 'Bun'}
 					<!-- bun wallet -->
-					<BunWallet bun={nfts[b]} />
+					<BunWallet />
 				{/if}
 			{/if}
 		</div>

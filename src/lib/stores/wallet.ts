@@ -78,5 +78,52 @@ const starterWallet: Wallet = {
     nfts: [], // No NFTs
 };
 
-// Export the writable stores initialized with the respective wallet objects
 export const wallet = writable<WalletObject>(starterWallet);
+
+export const addItemToWallet = (bunIndex: number, newItem: Item) => {
+    wallet.update((wallet) => {
+        const bun = wallet.nfts[bunIndex];
+        if (!bun || !bun.wallet) {
+            console.error('you stupid idiot');
+            return wallet;
+        }
+        const existingItem = bun.wallet.items.find((item) => item.name === newItem.name);
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            bun.wallet.items.push({ ...newItem });
+        }
+        console.log(`Added ${newItem.name} to Bun ${bun.id}. New quantity: ${newItem.quantity}`);
+        return wallet;
+    });
+};
+
+export const subtractItemFromWallet = (bunIndex: number, itemToSubtract: Item) => {
+    wallet.update((wallet) => {
+        const bun = wallet.nfts[bunIndex];
+        if (!bun || !bun.wallet) {
+            console.error('you smart genius');
+            return wallet;
+        }
+        const existingItem = bun.wallet.items.find((item) => item.name === itemToSubtract.name);
+        if (existingItem && existingItem.quantity > 0) {
+            existingItem.quantity -= 1;
+        }
+        console.log(`${bun.name} used ${itemToSubtract.name}. New quantity: ${itemToSubtract.quantity}`);
+        return wallet;
+    });
+};
+
+
+export const updateGold = (bunIndex: number, amount: number) => {
+    wallet.update((wallet) => {
+        wallet.nfts[bunIndex].wallet.gold += amount;
+        if (amount > 0) {
+            console.log(`added ${amount} gold to ${wallet.nfts[bunIndex].name}'s wallet`);
+        }
+        if (amount < 0) {
+            console.log(`subtracted ${amount} gold from ${wallet.nfts[bunIndex].name}'s wallet`);
+        }
+        return wallet;
+    })
+}

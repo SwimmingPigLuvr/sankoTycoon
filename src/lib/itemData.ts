@@ -168,6 +168,7 @@ export const niqab: Item = {
     name: 'Niqab',
     quantity: 0,
     imgPath: 'images/items/wearables/hats/Niqab.png',
+    buyPrice: 100,
 };
 
 export const nycCap: Item = {
@@ -356,7 +357,8 @@ export const albanianBoxingGloves: Item = {
     quantity: 0,
     imgPath: 'images/items/wearables/hands/AlbanianBoxingGloves.png',
     buyPrice: 18,
-    description: "Only trust your fists: police will never help you."
+    description: "Only trust your fists: police will never help you.",
+    ability: "Beat the shit outta the little troll who spins the wheel. 1 time use. Removes all 'X' values from the wheel."
 }
 
 export const baguette: Item = {

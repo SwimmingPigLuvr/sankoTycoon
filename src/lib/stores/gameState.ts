@@ -3,6 +3,7 @@ import { writable } from 'svelte/store';
 import type { Bun } from '/$lib/stores/wallet';
 
 export const activeBun = writable<Bun>();
+export const b = writable<number>(0);
 
 export enum StepID {
     Bridge = 0,

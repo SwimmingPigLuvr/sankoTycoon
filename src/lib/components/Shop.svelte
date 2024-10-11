@@ -1,7 +1,15 @@
 <script lang="ts">
 	import * as allItems from '$lib/itemData';
 	import { bunBlasted } from '$lib/stores/abilities';
-	import { wallet, type Bun, type Item } from '$lib/stores/wallet';
+	import { gameState, b } from '$lib/stores/gameState';
+	import {
+		addItemToWallet,
+		subtractItemFromWallet,
+		updateGold,
+		wallet,
+		type Bun,
+		type Item
+	} from '$lib/stores/wallet';
 
 	let showDescription: boolean[] = [];
 	let currentDescription: string | undefined;
@@ -27,78 +35,46 @@
 		allItems.npcMask,
 		allItems.albanianBoxingGloves,
 		allItems.matrixBucketHat,
-		allItems.woodSword
+		allItems.woodSword,
+		allItems.niqab
 	];
 
-	$: nfts = $wallet?.nfts ?? [];
+	// buns in wallet
+	$: buns = $wallet?.nfts ?? [];
+	$: bunWallet = buns[$b]?.wallet ?? {};
+
+	// existing items
+	$: items = bunWallet?.items.filter((items: Item) => items.quantity > 0) ?? [];
+
 	export let bun: Bun;
-	$: bunWallet = bun.wallet;
+
+	// bun id and gold
 	$: bunId = bunWallet.bunId;
 	$: gold = bunWallet.gold;
-	// filter items where there are at least 1
-	$: items = bunWallet.items;
-	$: fruit = items.filter((items) => items.type === 'fruit');
-	$: seeds = items.filter((items) => items.type === 'seed');
-	$: witheredSeeds = items.filter((items) => items.type === 'witheredSeed');
-	$: wearables = items.filter((items) => items.type === 'wearable');
-	$: consumables = items.filter((items) => items.type === 'consumable');
+
+	// filter items based on type
+	$: fruit = items.filter((items: Item) => items.type === 'fruit');
+	$: seeds = items.filter((items: Item) => items.type === 'seed');
+	$: witheredSeeds = items.filter((items: Item) => items.type === 'witheredSeed');
+	$: wearables = items.filter((items: Item) => items.type === 'wearable');
+	$: consumables = items.filter((items: Item) => items.type === 'consumable');
 
 	$: allPossibleItems = [...consumables, ...wearables, ...seeds, ...witheredSeeds, ...fruit];
 	$: allExistingItems = [...allPossibleItems.filter((items) => items.quantity > 0)];
 	$: allSellableItems = [...allExistingItems.filter((items) => items.sellPrice)];
 
-	function buyItem(item: Item) {
-		console.log('attempting to buy: ', item.name);
-		// find correct item in wallet
-		// increment the item by one
-		// subtract buyPrice from users gold
-		const bunIndex = $wallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
-		const currentBun = $wallet.nfts[bunIndex];
-		const correspondingItem: Item = currentBun.wallet.items.find(
-			(itemInWallet: Item) => itemInWallet.name === item.name
-		);
-		if (item.buyPrice && item.buyPrice > currentBun.wallet.gold) {
-			alert('you cannot afford that. come back with more gold');
-			return;
+	function buyItem(bunIndex: number, newItem: Item) {
+		addItemToWallet(bunIndex, newItem);
+		if (newItem.buyPrice) {
+			updateGold(bunIndex, -newItem.buyPrice);
 		}
-		wallet.update((currentWallet) => {
-			// find the correct nft from wallet based on the bun.id
-			if (bunIndex !== -1) {
-				// define current bun
-				if (correspondingItem) {
-					correspondingItem.quantity += 1;
-				}
-				currentBun.wallet.gold -= correspondingItem?.buyPrice ?? 0;
-			}
-			return currentWallet;
-		});
 	}
 
-	function sellItems(item: Item) {
-		console.log('attempting to sell: ', item.name);
-		// not all items can be sold
-		// check for quantity of > 0
-		// && check for sellPrice?
-		let salePrice: number;
-		wallet.update((currentWallet) => {
-			const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
-			if (bunIndex !== -1) {
-				const currentBun = currentWallet.nfts[bunIndex];
-				const correspondingItem: Item = currentBun.wallet.items.find(
-					(itemInWallet: Item) => itemInWallet.name === item.name
-				);
-				if (correspondingItem && correspondingItem.sellPrice) {
-					correspondingItem.quantity -= 1;
-					if ($bunBlasted) {
-						salePrice = correspondingItem.sellPrice * 2;
-					} else {
-						salePrice = correspondingItem.sellPrice;
-					}
-				}
-				currentBun.wallet.gold += salePrice;
-			}
-			return currentWallet;
-		});
+	function sellItem(bunIndex: number, newItem: Item) {
+		subtractItemFromWallet(bunIndex, newItem);
+		if (newItem.sellPrice) {
+			updateGold(bunIndex, newItem.sellPrice);
+		}
 	}
 </script>
 
@@ -135,7 +111,7 @@
 		>
 			<img src="/ui/icons/sankogold.png" class="w-4 h-4" alt="" />
 			<p>{bunWallet.gold}</p>
-			<p class="border-l-2 border-l-yellow-500 px-1">{$wallet.nfts[0].name}</p>
+			<p class="border-l-2 border-l-yellow-500 px-1">{buns[$b].name}</p>
 		</div>
 	</div>
 	<!-- items -->
@@ -151,7 +127,7 @@
 						}}
 						on:mouseleave={() => (currentDescription = undefined)}
 						disabled={item.buyPrice > bunWallet.gold}
-						on:click={() => buyItem(item)}
+						on:click={() => buyItem($b, item)}
 						class="flex-shrink-0 disabled:filter disabled:invert-[50%] relative font-FinkHeavy w-24 h-28 text-xs rounded border-white border-[1px] bg-white bg-opacity-75 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
 					>
 						<!-- price -->
@@ -183,10 +159,12 @@
 		{#if sell}
 			{#each allSellableItems as item}
 				<button
-					on:click={() => sellItems(item)}
+					on:click={() => sellItem($b, item)}
 					class="relative font-FinkHeavy w-20 h-24 text-xs rounded border-white border-[1px] bg-white bg-opacity-75 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
 				>
-					<div class="px-1 text-white absolute top-1 right-1 rounded-full bg-rose-600">{item.quantity}</div>
+					<div class="px-1 text-white absolute top-1 right-1 rounded-full bg-rose-600">
+						{item.quantity}
+					</div>
 					<!-- item img -->
 					<img class="h-14 absolute top-1 left-1" src={item.imgPath} alt={item.name} />
 					<!-- item name -->
@@ -207,7 +185,7 @@
 				class="mt-1 text-lg border-2 border-black border-dashed bg-white w-full h-full text-wrap leading-[1.1] rounded-xl p-2 font-FinkHeavy"
 			>
 				<p>
-					{#if currentItemPrice && currentItemPrice > $wallet.nfts[0].wallet.gold}
+					{#if currentItemPrice && currentItemPrice > buns[$b].wallet.gold}
 						???
 					{:else}
 						{currentDescription}

@@ -17,7 +17,7 @@
 	let bunWallet2: BunWallet = {
 		bunId: 2222,
 		gold: 100,
-		items: [...Object.values(items)]
+		items: [...Object.values(items), (items.elfHat.quantity = 1)]
 	};
 
 	let starterBun: Bun = {
