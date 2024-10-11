@@ -56,6 +56,7 @@ export interface Bun {
     variety: BunVariety;
     wallet: BunWallet;
     imageUrl: string;
+    farm: Plot[];
 }
 
 export interface Wallet {

@@ -8,10 +8,11 @@
 
 	export let bun: Bun;
 
-	let selectedSeed: Item | undefined;
-
 	$: buns = $wallet.nfts ?? [];
-	$: bunWallet = buns[$b].wallet;
+	$: currentBun = buns[$b];
+	$: bunFarm = currentBun?.farm ?? Array(25).fill({ state: 'empty' });
+
+	$: bunWallet = currentBun?.wallet;
 	$: availableSeeds = bunWallet.items.filter(
 		(item: Item) => item.type === 'seed' && item.quantity > 0
 	);
@@ -21,89 +22,72 @@
 
 	$: allAvailableSeeds = [...availableSeeds, ...availableWitheredSeeds];
 
-	// create farms for every bun
-
 	let selectedPlotIndex: number | null = null;
-	// create 25 plots set to empty
-	let plots: Plot[] = Array(25).fill({ state: 'empty' });
 
-	// fruits available to harvest
-	// eventually the user can 1 click harvest all these fruits :]
-	$: harvest = plots.filter((plot) => plot.fruitsReady && plot.fruitsReady > 0);
-	$: projectedHarvest = plots.reduce((total, plot) => total + (plot.fruitRemaining || 0), 0);
-
-	let plotTimers: Array<NodeJS.Timeout | null> = Array(25).fill(null);
-
-	//function to select plot
 	function selectPlot(index: number) {
 		console.log('selected plot: ', index);
 		selectedPlotIndex = index;
 	}
 
+	let selectedSeed: Item | undefined;
+	// create 25 plots set to empty
+	let plots: Plot[] = Array(25).fill({ state: 'empty' });
+
+	// create farms for every bun
+	let farms: Plot[][] = Array(100).fill(plots);
+
+	// fruits available to harvest
+	// eventually the user can 1 click harvest all these fruits :]
+	$: harvest = plots.filter((plot) => plot.fruitsReady && plot.fruitsReady > 0);
+
+	// all fruits the user will yield when all trees are all grown up
+	$: projectedHarvest = plots.reduce((total, plot) => total + (plot.fruitRemaining || 0), 0);
+
+	// array of separate timers so plots grow independently
+	let plotTimers: Array<NodeJS.Timeout | null> = Array(25).fill(null);
+
 	// Function to plant a seed in the selected plot
 	function plantSeed() {
-		console.log('plotIndex: ', selectedPlotIndex);
-		console.log('selectedSeed: ', selectedSeed?.name);
-		console.log('fruitType: ', selectedSeed?.fruitType);
-		console.log('quantity: ', selectedSeed?.quantity);
-		// if no seedSelected
-		if (selectedSeed === undefined) {
+		if (!selectedSeed || selectedPlotIndex === null || !selectedSeed.fruitType) {
 			return;
 		}
-		console.log('selectedSeed: ', selectedSeed.name);
-		// if valid seed selected
-		if (selectedPlotIndex !== null && selectedSeed !== undefined && selectedSeed.fruitType) {
-			// Update the seed quantity in the user's wallet
-			wallet.update((currentWallet) => {
-				const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
-				if (bunIndex !== -1) {
-					const bunItem = currentWallet.nfts[bunIndex];
-					let seed: Item | undefined;
-					if (selectedSeed?.type === 'seed') {
-						seed = bunItem.wallet.items.find(
-							(item: Item) => item.type === 'seed' && item.fruitType === selectedSeed?.fruitType
-						);
-						console.log('Found Seed: ', seed);
-					} else if (selectedSeed?.type === 'witheredSeed') {
-						seed = bunItem.wallet.items.find(
-							(item: Item) =>
-								item.type === 'witheredSeed' && item.fruitType === selectedSeed?.fruitType
-						);
-						console.log('Found Withered Seed: ', seed);
-					}
 
-					if (seed && seed.quantity > 0 && selectedPlotIndex !== null && selectedSeed) {
-						// Reduce the seed count by 1
-						seed.quantity -= 1;
+		// update seed quantity & plot
+		wallet.update((currentWallet) => {
+			const bun = currentWallet.nfts[$b];
 
-						// Update the plot state
-						plots[selectedPlotIndex] = {
-							state: 'planted',
-							type: selectedSeed.fruitType,
-							maturity: 0,
-							fruitRemaining: selectedSeed.type === 'witheredSeed' ? 3 : 5,
-							fruitsReady: 0,
-							plantedAt: Date.now(),
-							isWithered: selectedSeed.type === 'witheredSeed'
-						};
-						console.log(
-							'based on the seed type we will yield this many fruits: ',
-							plots[selectedPlotIndex].fruitRemaining
-						);
+			// find seed
+			let seed = bun.wallet.items.find(
+				(item: Item) => item.type === 'seed' && item.fruitType === selectedSeed?.fruitType
+			);
 
-						// Reset selectedSeed after planting
-						selectedSeed = undefined;
+			if (seed && seed.quantity > 0) {
+				seed.quantity -= 1;
 
-						// Start independent growth timer for the planted plot
-						startPlotGrowthTimer(selectedPlotIndex);
-					} else {
-						alert('Not enough seeds to plant');
-					}
+				// update plot
+				bun.farm[selectedPlotIndex] = {
+					state: 'planted',
+					type: selectedSeed?.fruitType,
+					maturity: 0,
+					fruitRemaining: selectedSeed?.type === 'witheredSeed' ? 3 : 5,
+					fruitsReady: 0,
+					plantedAt: Date.now(),
+					isWithered: selectedSeed?.type === 'witheredSeed'
+				};
+
+				// clear selected seed
+				selectedSeed = undefined;
+
+				if (selectedPlotIndex) {
+					startPlotGrowthTimer(selectedPlotIndex);
+				} else {
+					alert('selected plot index nonexistent');
+					return;
 				}
-				return currentWallet;
-			});
-		}
-		allAvailableSeeds = [...allAvailableSeeds];
+			} else {
+				alert('not enough seeds to plant');
+			}
+		});
 	}
 
 	function startPlotGrowthTimer(plotIndex: number) {
@@ -360,7 +344,7 @@
 				</p>
 				<button
 					disabled={selectedSeed === undefined}
-					on:click={() => plantSeed()}
+					on:click={() => plantSeed($b)}
 					class="disabled:bg-opacity-10 bg-white bg-opacity-50 w-3/4 m-auto rounded-full border-black border-[1px] text-green-700"
 				>
 					plant seed

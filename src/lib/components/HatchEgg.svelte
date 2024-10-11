@@ -17,8 +17,21 @@
 	let bunWallet2: BunWallet = {
 		bunId: 2222,
 		gold: 100,
-		items: [...Object.values(items), (items.elfHat.quantity = 1)]
+		items: Object.values(items).map((item) => ({
+			...item,
+			quantity: 0
+		}))
 	};
+
+	// add items to bunwallet2
+	const elfHat = bunWallet2.items.find((item) => item.name === 'Elf Hat');
+	if (elfHat) {
+		elfHat.quantity = 1;
+	}
+	const starSeed2 = bunWallet2.items.find((item) => item.name === 'Star Seed');
+	if (starSeed2) {
+		starSeed2.quantity = 1;
+	}
 
 	let starterBun: Bun = {
 		id: 1111,
@@ -33,7 +46,8 @@
 		type: 'Bun',
 		variety: 'Bun',
 		wallet: bunWallet,
-		imageUrl: '/images/buns/thumbs/Buns.png'
+		imageUrl: '/images/buns/thumbs/Buns.png',
+		farm: Array(25).fill({ state: 'empty' })
 	};
 
 	let testBun: Bun = {
@@ -49,7 +63,8 @@
 		type: 'Bun',
 		variety: 'Bun',
 		wallet: bunWallet2,
-		imageUrl: '/images/buns/thumbs/Snake.png'
+		imageUrl: '/images/buns/thumbs/Snake.png',
+		farm: Array(25).fill({ state: 'empty' })
 	};
 
 	function hatchEgg() {
