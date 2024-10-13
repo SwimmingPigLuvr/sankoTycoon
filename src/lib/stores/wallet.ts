@@ -57,6 +57,8 @@ export interface Bun {
     wallet: BunWallet;
     imageUrl: string;
     farm: Plot[];
+    hungerLevel: number;
+    isHibernating: boolean;
 }
 
 export interface Wallet {

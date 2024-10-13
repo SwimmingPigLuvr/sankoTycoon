@@ -47,7 +47,9 @@
 		variety: 'Bun',
 		wallet: bunWallet,
 		imageUrl: '/images/buns/thumbs/Buns.png',
-		farm: Array(25).fill({ state: 'empty' })
+		farm: Array(25).fill({ state: 'empty' }),
+		hungerLevel: 5,
+		isHibernating: false
 	};
 
 	let testBun: Bun = {
@@ -64,7 +66,9 @@
 		variety: 'Bun',
 		wallet: bunWallet2,
 		imageUrl: '/images/buns/thumbs/Snake.png',
-		farm: Array(25).fill({ state: 'empty' })
+		farm: Array(25).fill({ state: 'empty' }),
+		hungerLevel: 5,
+		isHibernating: false
 	};
 
 	function hatchEgg() {

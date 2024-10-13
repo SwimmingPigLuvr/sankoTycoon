@@ -82,7 +82,7 @@
 	}
 </script>
 
-<main class="w-[41.5rem] rounded-xl p-2 border-sky-400 border-2 bg-sky-600 flex flex-col space-y-1">
+<main class="w-[41.5rem] rounded-xl p-2 border-sky-400 border-4 bg-sky-800 flex flex-col space-y-1">
 	<div class="flex justify-between">
 		<!-- buy/sell buttons -->
 		<div class="flex space-x-1">
@@ -132,7 +132,7 @@
 						on:mouseleave={() => (currentDescription = undefined)}
 						disabled={item.buyPrice > bunWallet.gold}
 						on:click={() => buyItem($b, item)}
-						class="flex-shrink-0 disabled:filter disabled:grayscale  relative font-FinkHeavy w-24 h-28 text-xs rounded border-white border-[1px] bg-white bg-opacity-50 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
+						class="flex-shrink-0 disabled:filter disabled:invert-[50%] relative font-FinkHeavy w-24 h-28 text-xs rounded border-white border-[1px] bg-white bg-opacity-50 hover:bg-opacity-75 flex flex-col justify-evenly overflow-hidden items-center"
 					>
 						<!-- price -->
 						<div
@@ -183,7 +183,7 @@
 			{/each}
 		{/if}
 	</div>
-	<div class="h-10">
+	<div class="">
 		{#if currentDescription}
 			<div
 				in:fade={{ duration: 500, easing: cubicInOut }}

@@ -6,6 +6,7 @@
 	import { fly } from 'svelte/transition';
 	import { activeBun, b } from '$lib/stores/gameState';
 	import BunWallet from '$lib/components/BunWallet.svelte';
+	import Hunger from './Hunger.svelte';
 	$: network = $wallet?.network;
 	let tokens: Token[] = [];
 	let nfts: Bun[] = [];
@@ -60,11 +61,9 @@
 
 							<!-- hunger meter -->
 							{#if nfts[$b].type === 'Bun'}
-								<img
-									src="/ui/icons/hunger.png"
-									class="absolute top-1 right-1 w-6"
-									alt="hungerMeter"
-								/>
+								<div class="w-full absolute top-0 right-0">
+									<Hunger bun={nfts[$b]} />
+								</div>
 							{/if}
 						</button>
 						<p class="text-xs">
