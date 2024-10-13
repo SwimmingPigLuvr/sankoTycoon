@@ -27,7 +27,7 @@
 
 				return currrentWallet;
 			});
-		}, 1000 * 2);
+		}, 1000);
 	}
 </script>
 
@@ -39,7 +39,8 @@
 	>
 		{#if showHungerLevel || bunStatus[statusIndex] === 'Hibernating'}
 			<p
-				class="w-full bg-opacity-80 font-FinkHeavy text-white {bunStatus[statusIndex] === 'Hibernating'
+				class="w-full bg-opacity-80 font-FinkHeavy text-white {bunStatus[statusIndex] ===
+				'Hibernating'
 					? 'bg-black'
 					: bunStatus[statusIndex] === 'Full'
 						? 'bg-green-600'

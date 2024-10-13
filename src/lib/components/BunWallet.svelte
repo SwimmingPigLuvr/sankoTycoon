@@ -1,7 +1,7 @@
 <!-- $lib/components/BunWallet.svelte -->
 <script lang="ts">
 	import * as itemData from '$lib/itemData';
-	import { bunBlasted } from '$lib/stores/abilities';
+	import { bunBlasted, isReviving } from '$lib/stores/abilities';
 	import { addMessage, gameState, b } from '$lib/stores/gameState';
 	import { wallet, type Bun, type Item } from '$lib/stores/wallet';
 	import { cubicInOut } from 'svelte/easing';
@@ -48,6 +48,31 @@
 				}, 10000);
 				bunBlastMessage = undefined;
 				break;
+			case 'Bunzempic':
+				if (buns[$b].isHibernating) {
+					console.log('not hibernating');
+					break;
+				}
+				// update wallet
+				wallet.update((currentWallet) => {
+					const bunzempic = buns[$b].wallet.items.find((item: Item) => item.name === 'Bunzempic');
+					if (bunzempic) {
+						// decrement bunzempic quantity
+						bunzempic.quantity -= 1;
+					}
+					if (buns[$b].hungerLevel) {
+						buns[$b].hungerLevel = 5;
+					}
+					buns[$b].isHibernating = false;
+					return currentWallet;
+				});
+				// start reviving
+				isReviving.set(true);
+				addMessage(`${buns[$b].name} has been revived.`);
+				setTimeout(() => {
+					// reviving complete
+					isReviving.set(false);
+				}, 10000);
 			default:
 				break;
 		}

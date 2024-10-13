@@ -9,7 +9,8 @@ export const slop: Item = {
     quantity: 0,
     imgPath: '/images/items/Slop.png',
     buyPrice: 0.5,
-    description: "Slop just hardly satiates your Bun."
+    description: "Slop just hardly satiates your Bun.",
+    ability: "Slop just hardly satiates your Bun.",
 };
 
 // consumables
@@ -19,7 +20,8 @@ export const bunzempic: Item = {
     quantity: 1,
     imgPath: '/images/items/Bunzempic.png',
     buyPrice: 2,
-    description: "Dead Bun? Bunzempic should fix him right up..."
+    description: "Dead Bun? Bunzempic should fix him right up...",
+    ability: "Dead Bun? Bunzempic should fix him right up...",
 };
 
 // wearables
@@ -528,7 +530,8 @@ export const starFruit: Item = {
     fruitType: 'star',
     buyPrice: 3,
     sellPrice: 0.75,
-    description: "Star Fruits nourish your Bun as well as increase their Luck by 1."
+    description: "Star Fruits nourish your Bun as well as increase their Luck by 1.",
+    ability: "Star Fruits nourish your Bun as well as increase their Luck by 1.",
 };
 
 export const lumpyFruit: Item = {
@@ -539,7 +542,8 @@ export const lumpyFruit: Item = {
     fruitType: 'lumpy',
     buyPrice: 3,
     sellPrice: 0.75,
-    description: "Lumpy Fruits nourish your Bun as well as increase their Stamina by 1."
+    description: "Lumpy Fruits nourish your Bun as well as increase their Stamina by 1.",
+    ability: "Lumpy Fruits nourish your Bun as well as increase their Stamina by 1.",
 };
 
 export const heartFruit: Item = {
@@ -550,7 +554,8 @@ export const heartFruit: Item = {
     fruitType: 'heart',
     buyPrice: 3,
     sellPrice: 0.75,
-    description: "Heart Fruits nourish your Bun as well as increase their Strength by 1."
+    description: "Heart Fruits nourish your Bun as well as increase their Strength by 1.",
+    ability: "Heart Fruits nourish your Bun as well as increase their Strength by 1.",
 };
 
 export const roundFruit: Item = {
@@ -561,7 +566,8 @@ export const roundFruit: Item = {
     fruitType: 'round',
     buyPrice: 3,
     sellPrice: 0.75,
-    description: "Round Fruits nourish your Bun as well as increase their Speed by 1."
+    description: "Round Fruits nourish your Bun as well as increase their Speed by 1.",
+    ability: "Round Fruits nourish your Bun as well as increase their Speed by 1.",
 };
 
 export const squareFruit: Item = {
@@ -572,7 +578,8 @@ export const squareFruit: Item = {
     fruitType: 'square',
     buyPrice: 3,
     sellPrice: 0.75,
-    description: "Square Fruits nourish your Bun as well as increase their Industry by 1."
+    description: "Square Fruits nourish your Bun as well as increase their Industry by 1.",
+    ability: "Square Fruits nourish your Bun as well as increase their Industry by 1.",
 };
 
 
