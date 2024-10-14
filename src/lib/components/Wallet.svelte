@@ -82,7 +82,7 @@
 				</div>
 				{#if nfts[$b].type === 'Bun'}
 					<!-- bun wallet -->
-					<BunWallet />
+					<BunWallet bun={nfts[$b]} />
 				{/if}
 			{/if}
 		</div>

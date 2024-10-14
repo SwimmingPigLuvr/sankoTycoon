@@ -1,4 +1,5 @@
 import { wallet, type Bun } from '$lib/stores/wallet';
+import { addMessage } from '$lib/stores/gameState';
 
 const bunStatus = ['Bloated', 'Full', 'Fine', 'Hungry', 'Famished', 'Starving', 'Hibernating'];
 
@@ -8,7 +9,7 @@ function startHungerInterval(bun: Bun) {
         clearInterval(bun.id);
     }
 
-    const HUNGER_INTERVAL = 1000 * 60;
+    const HUNGER_INTERVAL = 1000 * 5;
 
     const intervalId = setInterval(() => {
         wallet.update((currentWallet) => {
@@ -53,4 +54,4 @@ function restartHungerInterval(bun: Bun) {
     startHungerInterval(bun);
 }
 
-export { startHungerInterval };
+export { startHungerInterval, restartHungerInterval };

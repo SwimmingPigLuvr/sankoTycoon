@@ -2,23 +2,23 @@
 <script lang="ts">
 	import * as itemData from '$lib/itemData';
 	import { bunBlasted, isReviving } from '$lib/stores/abilities';
-	import { addMessage, gameState, b } from '$lib/stores/gameState';
+	import { addMessage, gameState, b, restartHungerInterval } from '$lib/stores/gameState';
 	import { wallet, type Bun, type Item } from '$lib/stores/wallet';
 	import { cubicInOut } from 'svelte/easing';
 	import { fly, slide } from 'svelte/transition';
 
 	export let bun: Bun;
 	$: buns = $wallet?.nfts ?? [];
-	$: bunWallet = bun.wallet;
-	$: items = bunWallet.items.filter((items: Item) => items.quantity > 0);
-	$: bunId = bunWallet.bunId;
-	$: gold = bunWallet.gold;
+	$: bunWallet = bun?.wallet;
+	$: items = bunWallet?.items.filter((items: Item) => items.quantity > 0);
+	$: bunId = bunWallet?.bunId;
+	$: gold = bunWallet?.gold;
 
-	$: fruit = items.filter((items: Item) => items.type === 'fruit');
-	$: seeds = items.filter((items: Item) => items.type === 'seed');
-	$: witheredSeeds = items.filter((items: Item) => items.type === 'witheredSeed');
-	$: wearables = items.filter((items: Item) => items.type === 'wearable');
-	$: consumables = items.filter((items: Item) => items.type === 'consumable');
+	$: fruit = items?.filter((items: Item) => items.type === 'fruit') ?? [];
+	$: seeds = items?.filter((items: Item) => items.type === 'seed') ?? [];
+	$: witheredSeeds = items?.filter((items: Item) => items.type === 'witheredSeed') ?? [];
+	$: wearables = items?.filter((items: Item) => items.type === 'wearable') ?? [];
+	$: consumables = items?.filter((items: Item) => items.type === 'consumable') ?? [];
 
 	$: allItems = [...consumables, ...wearables, ...seeds, ...witheredSeeds, ...fruit];
 
