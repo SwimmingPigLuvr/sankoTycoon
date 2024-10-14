@@ -107,4 +107,8 @@ function addMessage(newMessage: string) {
     });
 }
 
-export { gameState, progressStep, addMessage }; // Export addMessage function
+function restartHungerInterval(bun: Bun) {
+
+}
+
+export { gameState, progressStep, addMessage, restartHungerInterval };

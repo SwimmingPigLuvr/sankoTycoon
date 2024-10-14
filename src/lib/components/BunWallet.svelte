@@ -7,8 +7,9 @@
 	import { cubicInOut } from 'svelte/easing';
 	import { fly, slide } from 'svelte/transition';
 
+	export let bun: Bun;
 	$: buns = $wallet?.nfts ?? [];
-	$: bunWallet = buns[$b].wallet;
+	$: bunWallet = bun.wallet;
 	$: items = bunWallet.items.filter((items: Item) => items.quantity > 0);
 	$: bunId = bunWallet.bunId;
 	$: gold = bunWallet.gold;
@@ -25,56 +26,155 @@
 	let bunBlastMessage: string | undefined;
 
 	function activateAbility(itemName: string) {
-		switch (itemName) {
-			case 'Bun Blaster':
-				// tell the user how much gold they made
-				wallet.update((currentWallet) => {
-					const blaster = buns[$b].wallet.items.find((item: Item) => item.name === 'Bun Blaster');
-					if (blaster) {
-						console.log('found the blaster');
-						blaster.quantity -= 1;
-					}
-					return currentWallet;
-				});
-				let startingGold = buns[$b].wallet.gold;
-				bunBlasted.set(true);
-				addMessage('Bun Blaster activated.');
-				setTimeout(() => {
-					bunBlasted.set(false);
-					addMessage('Bun Blaster effects have worn off.');
-					let endingGold = buns[$b].wallet.gold;
-					let goldMade = endingGold - startingGold;
-					addMessage(`total gold earned while blasted: ${goldMade}`);
-				}, 10000);
-				bunBlastMessage = undefined;
-				break;
-			case 'Bunzempic':
-				if (buns[$b].isHibernating) {
-					console.log('not hibernating');
+		// update wallet
+		wallet.update((currentWallet) => {
+			// find bun
+			const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
+			if (bunIndex === -1) {
+				console.error('bun not found');
+				return currentWallet;
+			}
+			const bunNft: Bun = currentWallet.nfts[bunIndex];
+
+			// handle item ability
+			switch (itemName) {
+				case 'Bun Blaster':
+					activateBunBlaster(bunNft);
 					break;
-				}
-				// update wallet
+				case 'Bunzempic':
+					narcanBun(bunNft);
+					break;
+				case 'Heart Fruit':
+				case 'Lumpy Fruit':
+				case 'Star Fruit':
+				case 'Round Fruit':
+				case 'Sqaure Fruit':
+					eatFruit(bunNft, itemName);
+					break;
+				default:
+					addMessage('ERROR: UNKNOWN ITEM.... Where did you get this???');
+					break;
+			}
+			return currentWallet;
+		});
+	}
+
+	function activateBunBlaster(bun: Bun) {
+		// find bun blaster in inventory
+		const blaster = bun.wallet.items.find((item: Item) => item.name === 'Blaster');
+		if (blaster && blaster.quantity > 0) {
+			// clear currentAbility message
+			currentAbility = undefined;
+			// decrement blaster by 1
+			blaster.quantity -= 1;
+
+			// check gold
+			let startingGold = bun.wallet.gold;
+			// activate bun blaster state
+			bunBlasted.set(true);
+			addMessage(`${bun.name} inhales an extremely deep breath of nitrous from the Bun Blaster.`);
+
+			// lasts 10s
+			setTimeout(() => {
+				bunBlasted.set(false);
+				addMessage('The effects from the Bun Blaster have worn off.');
+				let endingGold = bun.wallet.gold;
+				let profit = endingGold - startingGold;
+				addMessage(`Total Gold earned while blasted: ${profit}`);
+			}, 10000);
+		} else {
+			addMessage('No Bun Blaster detected. Consider buying one from the shop.');
+		}
+	}
+
+	function narcanBun(bun: Bun) {
+		if (!bun.isHibernating) {
+			addMessage('Cannot use bunzempic on bun that is not in hibernation.');
+			return;
+		}
+		// clear currentAbility message
+		currentAbility = undefined;
+
+		// find bunzempic
+		const bunzempicBottle = bun.wallet.items.find((item: Item) => item.name === 'Bunzempic');
+		if (bunzempicBottle && bunzempicBottle.quantity > 0) {
+			// decrement
+			bunzempicBottle.quantity -= 1;
+
+			// reset hunger level
+			bun.hungerLevel = 0;
+			// wake up bun
+			bun.isHibernating = false;
+			// start cool down period
+			bun.isCoolingDown = true;
+			addMessage(`${bun.name} is reviving...`);
+			// reset hunger
+			restartHungerInterval(bun);
+			const COOLDOWN_DURATION = 20000;
+
+			setTimeout(() => {
 				wallet.update((currentWallet) => {
-					const bunzempic = buns[$b].wallet.items.find((item: Item) => item.name === 'Bunzempic');
-					if (bunzempic) {
-						// decrement bunzempic quantity
-						bunzempic.quantity -= 1;
+					const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
+					if (bunIndex === -1) {
+						return currentWallet;
 					}
-					if (buns[$b].hungerLevel) {
-						buns[$b].hungerLevel = 5;
-					}
-					buns[$b].isHibernating = false;
+					const bunNft = currentWallet.nfts[bunIndex];
+					bunNft.isCoolingDown = false;
+					addMessage(`${bunNft.name} has been revived.`);
 					return currentWallet;
 				});
-				// start reviving
-				isReviving.set(true);
-				addMessage(`${buns[$b].name} has been revived.`);
-				setTimeout(() => {
-					// reviving complete
-					isReviving.set(false);
-				}, 10000);
-			default:
-				break;
+			}, COOLDOWN_DURATION);
+		} else {
+			addMessage('No Bunzempic left to use. Buy some from the shop');
+		}
+	}
+
+	function eatFruit(bun: Bun, fruitName: string) {
+		if (bun.isHibernating) {
+			addMessage('Cannot feed bun in hibernation. Use Bunzempic to revive');
+			return;
+		}
+		if (bun.isCoolingDown) {
+			addMessage(
+				`Cannot feed ${bun.name}. Wait until cool down period is over to be fully revived`
+			);
+			return;
+		}
+		const fruitItem = bun.wallet.items.find((item: Item) => item.name === fruitName);
+		if (fruitItem && fruitItem.quantity > 0) {
+			// decrement
+			fruitItem.quantity -= 0;
+			// reset hunger
+			bun.hungerLevel = 0;
+			restartHungerInterval(bun);
+
+			// handle fruit type
+			switch (fruitItem.fruitType) {
+				case 'heart':
+					bun.strength += 1;
+					addMessage('Hunger reduced. Strength +1.');
+					break;
+				case 'star':
+					bun.luck += 1;
+					addMessage('Hunger reduced. Luck +1.');
+					break;
+				case 'lumpy':
+					bun.stamina += 1;
+					addMessage('Hunger reduced. Stamina +1.');
+					break;
+				case 'round':
+					bun.speed += 1;
+					addMessage('Hunger reduced. Speed +1.');
+					break;
+				case 'square':
+					bun.industry += 1;
+					addMessage('Hunger reduced. Industry +1.');
+					break;
+				default:
+					break;
+			}
+		} else {
+			addMessage(`You do not have any ${fruitName}s.`);
 		}
 	}
 

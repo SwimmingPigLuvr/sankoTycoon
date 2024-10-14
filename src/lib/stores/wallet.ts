@@ -59,6 +59,7 @@ export interface Bun {
     farm: Plot[];
     hungerLevel: number;
     isHibernating: boolean;
+    isCoolingDown: boolean;
 }
 
 export interface Wallet {

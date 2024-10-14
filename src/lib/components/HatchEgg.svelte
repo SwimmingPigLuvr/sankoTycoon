@@ -4,6 +4,9 @@
 	import { wallet } from '$lib/stores/wallet';
 	import * as items from '$lib/itemData';
 	import Wallet from './Wallet.svelte';
+	import { startHungerInterval } from '$lib/stores/hungerState';
+
+	// implement random bun hatching based on rarity
 
 	let isHatching = false;
 	let hatched = false;
@@ -48,8 +51,9 @@
 		wallet: bunWallet,
 		imageUrl: '/images/buns/thumbs/Buns.png',
 		farm: Array(25).fill({ state: 'empty' }),
-		hungerLevel: 5,
-		isHibernating: false
+		hungerLevel: 0,
+		isHibernating: false,
+		isCoolingDown: false
 	};
 
 	let testBun: Bun = {
@@ -67,8 +71,9 @@
 		wallet: bunWallet2,
 		imageUrl: '/images/buns/thumbs/Snake.png',
 		farm: Array(25).fill({ state: 'empty' }),
-		hungerLevel: 5,
-		isHibernating: false
+		hungerLevel: 0,
+		isHibernating: false,
+		isCoolingDown: false
 	};
 
 	function hatchEgg() {
@@ -80,6 +85,12 @@
 			// replace egg with bun
 			wallet.update((wallet) => {
 				wallet.nfts = [starterBun, testBun];
+				wallet.nfts.forEach((bun: Bun) => {
+					if (!bun.isHibernating) {
+						startHungerInterval(bun);
+						console.log(`started hunger interval for ${bun.name}`);
+					}
+				});
 				return wallet;
 			});
 			// set currentBun

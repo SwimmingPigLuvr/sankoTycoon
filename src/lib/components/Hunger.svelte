@@ -3,32 +3,10 @@
 	import { onMount } from 'svelte';
 
 	export let bun: Bun;
-	$: hunger = bun.hungerLevel;
 	let showHungerLevel = false;
-	let bunStatus = ['Bloated', 'Full', 'Fine', 'Hungry', 'Famished', 'Starving', 'Hibernating'];
-	let statusIndex = 0;
+	const bunStatus = ['Bloated', 'Full', 'Fine', 'Hungry', 'Famished', 'Starving', 'Hibernating'];
 
-	onMount(() => {
-		startHungerInterval();
-	});
-
-	function startHungerInterval() {
-		setInterval(() => {
-			wallet.update((currrentWallet) => {
-				const bunIndex = currrentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
-				if (bunIndex === -1) {
-					return currrentWallet;
-				}
-				const bunNft: Bun = currrentWallet.nfts[bunIndex];
-				if (bunNft.hungerLevel !== -1) {
-					bunNft.hungerLevel -= 1;
-					statusIndex += 1;
-				}
-
-				return currrentWallet;
-			});
-		}, 1000);
-	}
+	$: statusIndex = bun.hungerLevel ?? 0;
 </script>
 
 <main>
@@ -39,8 +17,8 @@
 	>
 		{#if showHungerLevel || bunStatus[statusIndex] === 'Hibernating'}
 			<p
-				class="w-full bg-opacity-80 font-FinkHeavy text-white {bunStatus[statusIndex] ===
-				'Hibernating'
+				class="w-full bg-opacity-80 font-FinkHeavy text-white
+				{bunStatus[statusIndex] === 'Hibernating'
 					? 'bg-black'
 					: bunStatus[statusIndex] === 'Full'
 						? 'bg-green-600'
@@ -58,6 +36,7 @@
 				absolute bottom-1/2 p-1 left-0 z-30"
 			>
 				{bunStatus[statusIndex]}
+				{statusIndex}
 			</p>
 		{:else}
 			<img src="/ui/icons/hunger.png" class="z-20 w-8 absolute top-1 right-1" alt="hunger meter" />
