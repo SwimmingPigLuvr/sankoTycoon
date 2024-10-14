@@ -130,6 +130,7 @@
 	}
 
 	function eatFruit(bun: Bun, fruitName: string) {
+		console.log('eating fruit:', fruitName);
 		if (bun.isHibernating) {
 			addMessage('Cannot feed bun in hibernation. Use Bunzempic to revive');
 			return;

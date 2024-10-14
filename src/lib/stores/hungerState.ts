@@ -22,7 +22,6 @@ function startHungerInterval(bun: Bun) {
 
             // check if hibernating
             if (bunNft.isHibernating) {
-                console.log('bun hibernating skipping hunger increment');
                 return currentWallet;
             }
 
