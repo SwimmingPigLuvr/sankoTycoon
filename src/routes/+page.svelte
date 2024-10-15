@@ -38,8 +38,6 @@
 					<BunWallet bun={buns[$b]} />
 				</div>
 			{/if}
-			{#if currentStep === StepID.Bridge}
-				<Bridge />
 			{:else if currentStep === StepID.Mint}
 				<MintEgg />
 			{:else if currentStep === StepID.Farm}

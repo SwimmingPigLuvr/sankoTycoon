@@ -4,16 +4,22 @@
 	import { wallet } from '../stores/wallet';
 	import type { Token, Bun, Wallet } from '../stores/wallet';
 	import { fade, fly, scale } from 'svelte/transition';
-	import { activeBun, b } from '$lib/stores/gameState';
+	import { activeBun, b, gameState, StepID } from '$lib/stores/gameState';
 	import BunWallet from '$lib/components/BunWallet.svelte';
 	import Hunger from './Hunger.svelte';
 	import HatchEgg from './HatchEgg.svelte';
+	import Bridge from './Bridge.svelte';
 	$: network = $wallet?.network;
 	let tokens: Token[] = [];
 	let nfts: Bun[] = [];
 	$: tokens = $wallet?.tokens ?? [];
 	$: nfts = $wallet?.nfts ?? [];
 	let showBunWallet = false;
+
+	let currentStep: StepID;
+	const unsubscribe = gameState.subscribe((state) => {
+		currentStep = state.currentStep;
+	});
 
 	function openWallet() {
 		showBunWallet = true;
@@ -42,3 +48,7 @@
 		{/each}
 	</div>
 </main>
+
+{#if currentStep === StepID.Bridge}
+	<Bridge />
+{/if}
