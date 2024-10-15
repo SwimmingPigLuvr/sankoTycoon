@@ -189,7 +189,7 @@
 					return currentWallet;
 				});
 			}
-		}, 1000 * 5);
+		}, 1000 * 2.5);
 	}
 
 	function harvestFruit(index: number) {

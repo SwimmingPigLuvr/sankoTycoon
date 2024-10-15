@@ -37,7 +37,7 @@
 	}
 </script>
 
-<main class="space-y-0 bg-red-100 tracking-normal text-center w-40 flex flex-col items-center">
+<main class="space-y-0 tracking-normal text-center w-40 flex flex-col items-center">
 	<div class="">
 		<h1>Wallet</h1>
 		<p class="text-xs">{$wallet?.walletAddress}</p>

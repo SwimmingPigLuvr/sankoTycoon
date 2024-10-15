@@ -28,11 +28,11 @@
 
 <main class="p-2 font-mono">
 	<h1 class="-z-50 w-full text-right absolute bottom-2 right-2">Sanko Tycoon ©</h1>
-	<div class="flex flex-wrap gap-2">
-		<HeaderTerminal />
-		<GameClock />
+	<HeaderTerminal />
+	<GameClock />
+	<div class="flex space-x-3 justify-start">
 		<!-- bunWallet / farm / wallet -->
-		<div class="flex space-x-3 justify-center">
+		<div class="flex space-x-3 justify-center transform transition-all duration-1000 ease-in-out">
 			{#if buns}
 				<div class="w-1/3">
 					<BunWallet bun={buns[$b]} />
@@ -45,7 +45,7 @@
 					<Farm bun={$wallet?.nfts[$b]} />
 				</div>
 			{/if}
-			<div>
+			<div class="transform transition-all duration-1000 ease-in-out">
 				<Wallet />
 			</div>
 		</div>

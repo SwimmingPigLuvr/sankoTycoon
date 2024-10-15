@@ -22,7 +22,7 @@ export interface Item  {
     name: string;
     quantity: number;
     imgPath: string;
-    fruitType?: 'star' | 'heart' | 'round' | 'lumpy' | 'square';
+    fruitType?: 'star' | 'heart' | 'round' | 'lumpy' | 'square' | 'slop';
     buyPrice?: number;
     sellPrice?: number;
     ability?: string;
