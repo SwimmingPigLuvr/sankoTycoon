@@ -29,7 +29,7 @@
 <main>
 	<!-- clock -->
 	<button
-		class="italic clock-glow fixed top-4 right-2 flex rounded-xl p-2 px-4 bg-black text-red-500 text-6xl"
+		class="italic clock-glow fixed top-2 right-2 flex rounded-xl p-2 px-4 bg-black text-red-500 text-xl"
 	>
 		<p class="">{formatElapsedTime(elapsedTime).hours[0]}</p>
 		<p class="">{formatElapsedTime(elapsedTime).hours[1]}</p>

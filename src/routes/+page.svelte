@@ -27,14 +27,12 @@
 
 <main class="p-2 font-mono">
 	<h1 class="-z-50 w-full text-right absolute bottom-2 right-2">Sanko Tycoon ©</h1>
-	<div class="flex flex-col space-y-2">
+	<div class="flex flex-wrap gap-2">
 		<HeaderTerminal />
 		<GameClock />
 		<Wallet />
 		{#if currentStep === StepID.Bridge}
-			<div out:fade={{ duration: 2000 }}>
-				<Bridge />
-			</div>
+			<Bridge />
 		{:else if currentStep === StepID.Mint}
 			<MintEgg />
 		{:else if currentStep === StepID.Hatch}
@@ -42,7 +40,7 @@
 		{:else if currentStep === StepID.Farm}
 			<Farm bun={$wallet?.nfts[$b]} />
 		{/if}
-		<div class="absolute top-32 left-48">
+		<div class="">
 			{#if buns[$b]}
 				<!-- bun wallet -->
 				<Shop bun={buns[$b]} />

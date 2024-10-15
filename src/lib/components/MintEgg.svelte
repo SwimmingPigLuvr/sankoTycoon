@@ -3,7 +3,14 @@
 	// todo. mintegg. add egg to wallet
 	// mint success message
 	import { activeBun, progressStep } from '$lib/stores/gameState';
-	import { wallet, type Bun, type BunWallet, type Item, type Token } from '$lib/stores/wallet';
+	import {
+		wallet,
+		type Bun,
+		type BunWallet,
+		type Item,
+		type Plot,
+		type Token
+	} from '$lib/stores/wallet';
 
 	let isMinting = false;
 	let minted = false;
@@ -13,6 +20,8 @@
 		gold: 0,
 		items: []
 	};
+
+	let eggPlot: Plot[] = [];
 
 	let starterEgg: Bun = {
 		id: 1111,
@@ -27,7 +36,11 @@
 		type: 'Egg',
 		variety: 'Bun',
 		wallet: bunWallet,
-		imageUrl: '/images/eggs/natural.webp'
+		imageUrl: '/images/eggs/natural.webp',
+		farm: eggPlot,
+		hungerLevel: 0,
+		isHibernating: false,
+		isCoolingDown: false
 	};
 
 	function mintEgg() {

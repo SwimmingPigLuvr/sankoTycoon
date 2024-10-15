@@ -189,7 +189,7 @@
 					return currentWallet;
 				});
 			}
-		}, 10);
+		}, 1000 * 5);
 	}
 
 	function harvestFruit(index: number) {
@@ -291,7 +291,6 @@
 	}
 
 	function getFruitImage(type: string) {
-		console.log('type: ', type);
 		if (type === 'heart') {
 			return 'images/fruit/heart.png';
 		} else if (type === 'star') {
@@ -308,16 +307,10 @@
 	}
 </script>
 
-<main class="flex flex-col space-y-3" in:fade={{ delay: 100, duration: 250 }}>
+<main class="flex flex-col space-y-2" in:fade={{ delay: 100, duration: 250 }}>
 	<!-- Farm Grid -->
 	<div>
-		<div class="flex justify-between w-40 bg-lime-400">
-			<h2 class="font-FinkHeavy text-2xl text-left w-40">Farm</h2>
-			<!-- todo -->
-			<div class="flex justify-start bg-fuchsia-200 items-center px-1">
-				<img src={bun?.imageUrl} class="w-12 h-full" alt="" />
-			</div>
-		</div>
+		<h2 class="font-FinkHeavy text-xl text-center w-40">Farm</h2>
 		<div class="grid gap-0 grid-cols-5 grid-rows-5 w-40 h-40 border-black border-2">
 			<!-- plots -->
 			{#each plots as plot, index}

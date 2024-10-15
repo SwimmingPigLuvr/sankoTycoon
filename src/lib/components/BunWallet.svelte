@@ -108,11 +108,12 @@
 			// start cool down period
 			bun.isCoolingDown = true;
 			addMessage(`${bun.name} is reviving...`);
-			// reset hunger
-			restartHungerInterval(bun);
-			const COOLDOWN_DURATION = 20000;
+			const COOLDOWN_DURATION = 5000;
 
 			setTimeout(() => {
+				// reset hunger
+				restartHungerInterval(bun);
+				// update wallet
 				wallet.update((currentWallet) => {
 					const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
 					if (bunIndex === -1) {
@@ -186,19 +187,19 @@
 
 <main
 	in:fly={{ duration: 100, x: -10, easing: cubicInOut }}
-	class="w-full bg-yellow-200 p-1 flex flex-col border-gray-400 border-"
+	class="w-full flex flex-col border-gray-400 border-"
 >
 	{#if bunBlastMessage}
 		<p>{bunBlastMessage}</p>
 	{/if}
 	<!-- gold balance -->
-	<div class="flex space-x-1 p-1">
+	<div class="flex justify-center space-x-1 p-1">
 		<img src="/ui/icons/sankogold.png" class="h-4" alt="" />
 		<p class="text-xs">{gold}</p>
 	</div>
 	<!-- items, fruits, seeds -->
 	<div
-		class=" border-[1px] bg-gray-100 border-gray-400 overflow-y-auto overflow-x-hidden grid gap-0 grid-cols-4 grid-rows-4 w-full"
+		class="border-[1px] bg-gray-100 border-gray-400 overflow-y-auto overflow-x-hidden grid gap-0 grid-cols-4 grid-rows-3 w-full"
 	>
 		{#each allItems as item}
 			<button

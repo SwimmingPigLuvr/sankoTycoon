@@ -82,7 +82,7 @@
 	}
 </script>
 
-<main class="w-[41.5rem] rounded-xl p-2 border-sky-400 border-4 bg-sky-800 flex flex-col space-y-1">
+<main class="w-[97vw] absolute top-[540px] left-2 rounded-xl p-2 border-sky-400 border-4 bg-sky-800 flex flex-col space-y-1">
 	<div class="flex justify-between">
 		<!-- buy/sell buttons -->
 		<div class="flex space-x-1">

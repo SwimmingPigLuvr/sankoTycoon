@@ -49,7 +49,7 @@
 		type: 'Bun',
 		variety: 'Bun',
 		wallet: bunWallet,
-		imageUrl: '/images/buns/thumbs/Buns.png',
+		imageUrl: '/images/buns/Buns.webp',
 		farm: Array(25).fill({ state: 'empty' }),
 		hungerLevel: 0,
 		isHibernating: false,
