@@ -52,7 +52,7 @@
 			});
 			// set current bun
 			activeBun.set($wallet.nfts[0]);
-		}, 500);
+		}, 1111);
 	}
 </script>
 

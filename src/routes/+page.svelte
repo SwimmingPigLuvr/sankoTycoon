@@ -11,6 +11,7 @@
 	import Farm from '$lib/components/Farm.svelte';
 	import { wallet, type Bun } from '$lib/stores/wallet';
 	import Shop from '$lib/components/Shop.svelte';
+	import { fade } from 'svelte/transition';
 
 	let currentStep: StepID;
 	const unsubscribe = gameState.subscribe((state) => {
@@ -31,7 +32,9 @@
 		<GameClock />
 		<Wallet />
 		{#if currentStep === StepID.Bridge}
-			<Bridge />
+			<div out:fade={{ duration: 2000 }}>
+				<Bridge />
+			</div>
 		{:else if currentStep === StepID.Mint}
 			<MintEgg />
 		{:else if currentStep === StepID.Hatch}

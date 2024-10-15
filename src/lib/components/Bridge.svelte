@@ -4,6 +4,7 @@
 	import { gameState, progressStep } from '../stores/gameState';
 	import { onDestroy, onMount } from 'svelte';
 	import { wallet } from '../stores/wallet';
+	import { fade } from 'svelte/transition';
 
 	let isBridging = false;
 	let progress = 0;
@@ -29,7 +30,7 @@
 				});
 				progressStep();
 			}
-		}, 7);
+		}, 20);
 		// !todo mark bridge step as complete
 	}
 
