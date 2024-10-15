@@ -5,7 +5,9 @@
 	import { addMessage, gameState, b, restartHungerInterval } from '$lib/stores/gameState';
 	import { wallet, type Bun, type Item } from '$lib/stores/wallet';
 	import { cubicInOut } from 'svelte/easing';
-	import { fly, slide } from 'svelte/transition';
+	import { fade, fly, slide } from 'svelte/transition';
+	import Hunger from './Hunger.svelte';
+	import HatchEgg from './HatchEgg.svelte';
 
 	export let bun: Bun;
 	$: buns = $wallet?.nfts ?? [];
@@ -24,6 +26,17 @@
 
 	let currentAbility: string | undefined;
 	let bunBlastMessage: string | undefined;
+
+	// Modify the nextBun and prevBun functions to cycle through the nfts array
+	function nextBun() {
+		b.set(($b + 1) % buns.length); // Increment b and wrap around using modulo
+		console.log(`current bun: ${buns[$b].name} id #${buns[$b].id}`);
+	}
+
+	function prevBun() {
+		b.set(($b - 1 + buns.length) % buns.length); // Decrement b and wrap around using modulo to handle negative index
+		console.log(`current bun: ${buns[$b].name} id #${buns[$b].id}`);
+	}
 
 	function activateAbility(itemName: string) {
 		// update wallet
@@ -48,7 +61,7 @@
 				case 'Lumpy Fruit':
 				case 'Star Fruit':
 				case 'Round Fruit':
-				case 'Sqaure Fruit':
+				case 'Square Fruit':
 					eatFruit(bunNft, itemName);
 					break;
 				default:
@@ -145,7 +158,7 @@
 		const fruitItem = bun.wallet.items.find((item: Item) => item.name === fruitName);
 		if (fruitItem && fruitItem.quantity > 0) {
 			// decrement
-			fruitItem.quantity -= 0;
+			fruitItem.quantity -= 1;
 			// reset hunger
 			bun.hungerLevel = 0;
 			restartHungerInterval(bun);
@@ -187,45 +200,96 @@
 
 <main
 	in:fly={{ duration: 100, x: -10, easing: cubicInOut }}
-	class="w-full flex flex-col border-gray-400 border-"
+	class="w-full flex flex-col border-gray-400 border- max-w-40"
 >
-	{#if bunBlastMessage}
-		<p>{bunBlastMessage}</p>
-	{/if}
-	<!-- gold balance -->
-	<div class="flex justify-center space-x-1 p-1">
-		<img src="/ui/icons/sankogold.png" class="h-4" alt="" />
-		<p class="text-xs">{gold}</p>
-	</div>
-	<!-- items, fruits, seeds -->
-	<div
-		class="border-[1px] bg-gray-100 border-gray-400 overflow-y-auto overflow-x-hidden grid gap-0 grid-cols-4 grid-rows-3 w-full"
-	>
-		{#each allItems as item}
-			<button
-				on:mouseenter={() => (currentAbility = item.ability)}
-				on:mouseleave={() => (currentAbility = undefined)}
-				on:click={() => activateAbility(item.name)}
-				class="relative border-gray-400 border-[1px] hover:bg-gray-200 flex items-center justify-center"
-			>
-				<img src={item.imgPath} alt={item.name} class="h-8 w-auto" />
-				{#if item.quantity > 1}
-					<div
-						class="absolute w-2 h-2 top-0 right-0 bg-rose-600 rounded-none text-white flex items-center justify-center text-[0.4rem] text-center"
-					>
-						{item.quantity}
+	<div class="flex flex-wrap">
+		<div class="w-full flex flex-col">
+			{#if buns[$b]}
+				<h2 class="font-FinkHeavy text-xl text-center w-40">
+					{#if buns[$b].type === 'Egg'}
+						Eggs
+					{:else}
+						Buns
+					{/if}
+				</h2>
+				<!-- buns -->
+				<!-- active bun -->
+				<div class="w-full">
+					<button in:fade={{ duration: 1000, easing: cubicInOut }} class="relative">
+						<!-- hunger meter -->
+						{#if buns[$b].type === 'Bun'}
+							<div class="">
+								<Hunger bun={buns[$b]} />
+							</div>
+						{/if}
+						<img class="w-full m-auto" src={buns[$b].imageUrl} alt={buns[$b].name} />
+					</button>
+				</div>
+				<div class="flex justify-between items-center space-x-1">
+					<!-- left arrow -->
+					<button on:click={() => nextBun()}>
+						<img src="/ui/icons/arrow.png" class="w-8" alt="" />
+					</button>
+					<!-- bun info -->
+					<div class="flex flex-col space-y-1">
+						{#if buns[$b].type === 'Egg'}
+							<p class="text-xs">
+								{buns[$b].rarity} Egg
+							</p>
+							<HatchEgg />
+						{/if}
 					</div>
-				{/if}
-			</button>
-		{/each}
+					{#if buns[$b].type === 'Bun'}
+						<p class="text-xs">{buns[$b].name} #{buns[$b].id}</p>
+					{/if}
+					<!-- right arrow -->
+					<button on:click={() => prevBun()} class="">
+						<img src="/ui/icons/arrow.png" class="w-8 scale-[-100%]" alt="" />
+					</button>
+				</div>
+				{#if buns[$b].type === 'Bun'}
+					<!-- bun wallet -->
+					{#if bunBlastMessage}
+						<p>{bunBlastMessage}</p>
+					{/if}
+					<!-- gold balance -->
+					<div class="flex justify-center space-x-1 p-1">
+						<img src="/ui/icons/sankogold.png" class="h-4" alt="" />
+						<p class="text-xs">{gold}</p>
+					</div>
+					<!-- items, fruits, seeds -->
+					<div
+						class="border-[1px] bg-gray-100 border-gray-400 overflow-y-auto overflow-x-hidden grid gap-0 grid-cols-4 grid-rows-3 w-full"
+					>
+						{#each allItems as item}
+							<button
+								on:mouseenter={() => (currentAbility = item.ability)}
+								on:mouseleave={() => (currentAbility = undefined)}
+								on:click={() => activateAbility(item.name)}
+								class="relative border-gray-400 border-[1px] hover:bg-gray-200 flex items-center justify-center"
+							>
+								<img src={item.imgPath} alt={item.name} class="h-8 w-auto" />
+								{#if item.quantity > 1}
+									<div
+										class="absolute w-2 h-2 top-0 right-0 bg-rose-600 rounded-none text-white flex items-center justify-center text-[0.4rem] text-center"
+									>
+										{item.quantity}
+									</div>
+								{/if}
+							</button>
+						{/each}
 
-		{#each Array(16 - allItems.length) as _}
-			<div class="border-gray-400 border-[1px] hover:bg-gray-200"></div>
-		{/each}
-	</div>
-	{#if currentAbility}
-		<div class="w-full">
-			<p class="text-left text-xs w-full">{currentAbility}</p>
+						{#each Array(16 - allItems.length) as _}
+							<div class="border-gray-400 border-[1px] hover:bg-gray-200"></div>
+						{/each}
+					</div>
+					{#if currentAbility}
+						<div class="w-full">
+							<p class="text-left text-xs w-full">{currentAbility}</p>
+						</div>
+					{/if}
+				{/if}
+			{/if}
 		</div>
-	{/if}
+	</div>
 </main>

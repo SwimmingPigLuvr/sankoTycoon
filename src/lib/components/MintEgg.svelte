@@ -69,7 +69,7 @@
 	}
 </script>
 
-<main>
+<main class="w-full">
 	<div
 		class="border-slate-200 border-4 w-40 text-center mint-button rounded-xl font-FinkHeavy tracking-normal filter hue-rotate-90 flex flex-col"
 	>

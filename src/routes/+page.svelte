@@ -12,6 +12,7 @@
 	import { wallet, type Bun } from '$lib/stores/wallet';
 	import Shop from '$lib/components/Shop.svelte';
 	import { fade } from 'svelte/transition';
+	import BunWallet from '$lib/components/BunWallet.svelte';
 
 	let currentStep: StepID;
 	const unsubscribe = gameState.subscribe((state) => {
@@ -30,16 +31,26 @@
 	<div class="flex flex-wrap gap-2">
 		<HeaderTerminal />
 		<GameClock />
-		<Wallet />
-		{#if currentStep === StepID.Bridge}
-			<Bridge />
-		{:else if currentStep === StepID.Mint}
-			<MintEgg />
-		{:else if currentStep === StepID.Hatch}
-			<HatchEgg />
-		{:else if currentStep === StepID.Farm}
-			<Farm bun={$wallet?.nfts[$b]} />
-		{/if}
+		<!-- bunWallet / farm / wallet -->
+		<div class="flex space-x-3 justify-center">
+			{#if buns}
+				<div class="w-1/3">
+					<BunWallet bun={buns[$b]} />
+				</div>
+			{/if}
+			{#if currentStep === StepID.Bridge}
+				<Bridge />
+			{:else if currentStep === StepID.Mint}
+				<MintEgg />
+			{:else if currentStep === StepID.Farm}
+				<div>
+					<Farm bun={$wallet?.nfts[$b]} />
+				</div>
+			{/if}
+			<div>
+				<Wallet />
+			</div>
+		</div>
 		<div class="">
 			{#if buns[$b]}
 				<!-- bun wallet -->

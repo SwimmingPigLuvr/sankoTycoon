@@ -307,7 +307,7 @@
 	}
 </script>
 
-<main class="flex flex-col space-y-2" in:fade={{ delay: 100, duration: 250 }}>
+<main class="flex flex-col space-y-2 max-w-40" in:fade={{ delay: 100, duration: 250 }}>
 	<!-- Farm Grid -->
 	<div>
 		<h2 class="font-FinkHeavy text-xl text-center w-40">Farm</h2>

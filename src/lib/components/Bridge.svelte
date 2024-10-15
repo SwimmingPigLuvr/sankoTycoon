@@ -52,7 +52,7 @@
 	});
 </script>
 
-<main class="py-2">
+<main class="py-2 w-full">
 	{#if !hideBridge}
 		<div class="flex flex-col w-40">
 			<button
