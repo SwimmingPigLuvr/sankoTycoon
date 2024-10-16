@@ -13,6 +13,7 @@
 
 <main>
 	<button class="w-full">
+		<p class="text-xs uppercase tracking-widest p-[1px]">Hunger Level</p>
 		<p
 			class="w-full bg-opacity-100 text-sm font-FinkHeavy italic text-white
 				{bunStatus[statusIndex] === 'Hibernating'

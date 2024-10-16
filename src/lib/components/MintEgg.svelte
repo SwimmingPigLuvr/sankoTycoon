@@ -55,7 +55,7 @@
 		let cumulativeWeight = 0;
 
 		for (const egg of eggProbabilities) {
-			if (randomWeight < cumulativeWeight) {
+			if (randomWeight > cumulativeWeight) {
 				return egg;
 			}
 		}
