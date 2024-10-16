@@ -11,7 +11,7 @@
 	import Farm from '$lib/components/Farm.svelte';
 	import { wallet, type Bun } from '$lib/stores/wallet';
 	import Shop from '$lib/components/Shop.svelte';
-	import { fade } from 'svelte/transition';
+	import { fade, slide } from 'svelte/transition';
 	import BunWallet from '$lib/components/BunWallet.svelte';
 
 	let currentStep: StepID;
@@ -27,12 +27,11 @@
 </script>
 
 <main class="p-2 font-mono">
-	<h1 class="-z-50 w-full text-right absolute bottom-2 right-2">Sanko Tycoon ©</h1>
 	<HeaderTerminal />
 	<GameClock />
-	<div class="flex space-x-3 justify-start">
+	<div class="flex">
 		<!-- bunWallet / farm / wallet -->
-		<div class="flex space-x-3 justify-center transform transition-all duration-1000 ease-in-out">
+		<div class="flex p-2 space-x-3 justify-center transform transition-all duration-1000 ease-in-out">
 			{#if buns}
 				<div class="w-1/3">
 					<BunWallet bun={buns[$b]} />
@@ -55,6 +54,21 @@
 				<Shop bun={buns[$b]} />
 			{/if}
 		</div>
+	</div>
+	<h1 class="-z-50 w-full text-left absolute bottom-2 left-2">Sanko Tycoon ©</h1>
+	<div
+		in:slide={{ delay: 1500 }}
+		class=" text-white font-amsterdam-display fixed bottom-2 right-2 items-center -translate-y-1 flex-col"
+	>
+		<a
+			target="_blank"
+			rel="noopener noreferrer"
+			href="https://x.com/SwimmingPigLuvr"
+			class="text-xl flex-col text-center text-sky-300 flex p-2 hover:border-blue-700 border-[1px] border-transparent leading-5 rounded-xl"
+		>
+			<span class="">Swimming</span>
+			<span class="font-botch">𓃟🩵r</span>
+		</a>
 	</div>
 </main>
 

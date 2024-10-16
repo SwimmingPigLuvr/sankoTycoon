@@ -10,6 +10,8 @@
 	import HatchEgg from './HatchEgg.svelte';
 
 	export let bun: Bun;
+	let currentSection: 'eggs' | 'buns' = 'eggs';
+
 	$: buns = $wallet?.nfts ?? [];
 	$: bunWallet = bun?.wallet;
 	$: items = bunWallet?.items.filter((items: Item) => items.quantity > 0);
@@ -206,33 +208,33 @@
 	in:fly={{ duration: 100, x: -10, easing: cubicInOut }}
 	class="w-full justify-center flex flex-col border-gray-400 border- max-w-40"
 >
-	<div class="w-full justify-center items-center flex flex-col">
+	<div class="w-full justify-center items-center flex flex-col space-y-0">
 		{#if buns[$b]}
-			<h2 class="font-FinkHeavy text-xl text-center w-40">
-				{#if buns[$b].type === 'Egg'}
-					Eggs
-				{:else}
-					Buns
-				{/if}
-			</h2>
-			<!-- buns -->
-			<!-- active bun -->
-			<div class="w-full">
-				<button in:fade={{ duration: 1000, easing: cubicInOut }} class="relative">
-					<!-- hunger meter -->
-					{#if buns[$b].type === 'Bun'}
-						<div class="">
-							<Hunger bun={buns[$b]} />
-						</div>
-					{/if}
-					<img class="w-full m-auto" src={buns[$b].imageUrl} alt={buns[$b].name} />
-				</button>
-			</div>
-			<div class="flex justify-between items-center space-x-1">
+			<h2 class="flex px-2 justify-between font-FinkHeavy text-xl text-center w-40">
 				<!-- left arrow -->
 				<button on:click={() => nextBun()}>
 					<img src="/ui/icons/arrow.png" class="w-8" alt="" />
 				</button>
+				{#if buns[$b].type === 'Egg'}
+					<button
+						on:click={() => (currentSection = 'eggs')}
+						class={currentSection === 'eggs' ? 'text-pink-700' : ''}>Eggs</button
+					>
+				{/if}
+				{#if buns[$b].type === 'Bun'}
+					<button
+						on:click={() => (currentSection = 'buns')}
+						class={currentSection === 'eggs' ? '' : 'text-blue-700'}>Buns</button
+					>
+				{/if}
+				<!-- right arrow -->
+				<button on:click={() => prevBun()} class="">
+					<img src="/ui/icons/arrow.png" class="w-8 scale-[-100%]" alt="" />
+				</button>
+			</h2>
+			<!-- buns -->
+			<!-- active bun -->
+			<div class="flex justify-between items-center space-x-1">
 				<!-- bun info -->
 				<div class="flex flex-col items-center justify-center space-y-1">
 					{#if buns[$b].type === 'Egg'}
@@ -242,12 +244,16 @@
 						<HatchEgg />
 					{/if}
 				</div>
-				{#if buns[$b].type === 'Bun'}
-					<p class="text-xs">{buns[$b].name} #{buns[$b].id}</p>
-				{/if}
-				<!-- right arrow -->
-				<button on:click={() => prevBun()} class="">
-					<img src="/ui/icons/arrow.png" class="w-8 scale-[-100%]" alt="" />
+			</div>
+			<div class="w-full">
+				<button in:fade={{ duration: 1000, easing: cubicInOut }} class="relative">
+					<img class="w-40 m-auto" src={buns[$b].imageUrl} alt={buns[$b].name} />
+					<!-- hunger meter -->
+					{#if buns[$b].type === 'Bun'}
+						<div class="">
+							<Hunger bun={buns[$b]} />
+						</div>
+					{/if}
 				</button>
 			</div>
 			{#if buns[$b].type === 'Bun'}
@@ -255,10 +261,15 @@
 				{#if bunBlastMessage}
 					<p>{bunBlastMessage}</p>
 				{/if}
-				<!-- gold balance -->
-				<div class="flex justify-center space-x-1 p-1">
-					<img src="/ui/icons/sankogold.png" class="h-4" alt="" />
-					<p class="text-xs">{gold}</p>
+				<div class="flex justify-between w-full px-1 items-center">
+					{#if buns[$b].type === 'Bun'}
+						<p class="text-xs">{buns[$b].name} #{buns[$b].id}</p>
+					{/if}
+					<!-- gold balance -->
+					<div class="flex justify-center space-x-1 p-1">
+						<img src="/ui/icons/sankogold.png" class="h-4" alt="" />
+						<p class="text-xs">{gold}</p>
+					</div>
 				</div>
 				<!-- items, fruits, seeds -->
 				<div

@@ -5,7 +5,6 @@
 	import type { Token, Bun, Wallet } from '../stores/wallet';
 	import { fade, fly, scale } from 'svelte/transition';
 	import { activeBun, b, gameState, StepID } from '$lib/stores/gameState';
-	import BunWallet from '$lib/components/BunWallet.svelte';
 	import Hunger from './Hunger.svelte';
 	import HatchEgg from './HatchEgg.svelte';
 	import Bridge from './Bridge.svelte';
@@ -38,8 +37,8 @@
 </script>
 
 <main class="space-y-0 tracking-normal text-center w-40 flex flex-col items-center">
-	<div class="">
-		<h1>Wallet</h1>
+	<h1 class="text-xl">Wallet</h1>
+	<div class="w-full">
 		<p class="text-xs">{$wallet?.walletAddress}</p>
 		<hr class="w-full border-black bg-black" />
 		<p class="text-xs">ntwrk: {network}</p>

@@ -30,7 +30,7 @@
 									: bunStatus[statusIndex] === 'Starving'
 										? 'bg-red-600'
 										: ''} 
-				absolute top-1 left-0 z-30"
+				"
 		>
 			{bunStatus[statusIndex]}
 		</p>
