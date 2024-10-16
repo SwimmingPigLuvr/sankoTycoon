@@ -2,15 +2,53 @@
 	import * as items from '$lib/itemData';
 	// todo. mintegg. add egg to wallet
 	// mint success message
-	import { activeBun, progressStep } from '$lib/stores/gameState';
+	import { activeBun, addMessage, progressStep } from '$lib/stores/gameState';
 	import {
 		wallet,
 		type Bun,
+		type BunRarity,
+		type BunVariety,
 		type BunWallet,
 		type Item,
 		type Plot,
 		type Token
 	} from '$lib/stores/wallet';
+
+	// Egg rarities and probabilities
+	const eggProbabilities = [
+		// common
+		{ variety: 'Red', rarity: 'Common', weight: 735 },
+		{ variety: 'Blue', rarity: 'Common', weight: 562 },
+		{ variety: 'Green', rarity: 'Common', weight: 552 },
+		{ variety: 'Natural', rarity: 'Common', weight: 540 },
+		// uncommon
+		{ variety: 'Blue Star', rarity: 'Uncommon', weight: 419 },
+		{ variety: 'Sanko', rarity: 'Uncommon', weight: 306 },
+		{ variety: 'Purple', rarity: 'Uncommon', weight: 254 },
+		// rare
+		{ variety: 'Red Star', rarity: 'Rare', weight: 419 },
+		{ variety: 'Qualk', rarity: 'Rare', weight: 306 },
+		// rotten
+		{ variety: 'Rotten', rarity: 'Rotten', weight: 306 },
+		// moldy
+		{ variety: 'Moldy', rarity: 'Moldy', weight: 306 },
+		// superrare
+		{ variety: 'Gold', rarity: 'SuperRare', weight: 306 }
+	];
+
+	function getRandomEgg() {
+		const totalWeight = eggProbabilities.reduce((sum, egg) => egg.weight, 0);
+		const randomWeight = Math.floor(Math.random() * totalWeight);
+		let cumulativeWeight = 0;
+
+		for (const egg of eggProbabilities) {
+			if (randomWeight < cumulativeWeight) {
+				return egg;
+			}
+		}
+		// fallback
+		return eggProbabilities[eggProbabilities.length - 1];
+	}
 
 	let isMinting = false;
 	let minted = false;
@@ -23,9 +61,9 @@
 
 	let eggPlot: Plot[] = [];
 
-	let starterEgg: Bun = {
+	let natural: Bun = {
 		id: 1111,
-		name: 'Buns',
+		name: 'Natural',
 		industry: 0,
 		luck: 0,
 		speed: 0,
@@ -34,7 +72,7 @@
 		birthday: new Date(),
 		rarity: 'Common',
 		type: 'Egg',
-		variety: 'Bun',
+		variety: 'Buns',
 		wallet: bunWallet,
 		imageUrl: '/images/eggs/natural.webp',
 		farm: eggPlot,
@@ -43,28 +81,54 @@
 		isCoolingDown: false
 	};
 
+	let eggIdCounter = 1;
+
 	function mintEgg() {
-		// const audio = new Audio('sounds/mintEgg.wav');
-		// audio.play();
 		isMinting = true;
 		setTimeout(() => {
 			progressStep();
 			isMinting = false;
 			minted = true;
-			//todo push startEgg into wallet
-			//todo set dmt balance to 0
 			wallet.update((wallet) => {
-				wallet.nfts.push(starterEgg);
 				// set DMT value to 0
-				const tokenIndex = wallet.tokens.findIndex((token: Token) => token.name === 'DMT');
-				if (tokenIndex !== -1) {
-					wallet.tokens[tokenIndex].balance = 0;
+				const dmtToken = wallet.tokens.find((token: Token) => token.name === 'DMT');
+				if (!dmtToken || dmtToken.balance < 3) {
+					addMessage('Not enough $DMT.');
+					return wallet;
 				}
+				dmtToken.balance -= 3;
+
+				const egg = getRandomEgg();
+				const newEgg: Bun = {
+					id: Date.now(),
+					name: egg.variety,
+					industry: 0,
+					luck: 0,
+					speed: 0,
+					stamina: 0,
+					strength: 0,
+					birthday: new Date(),
+					rarity: egg.rarity as BunRarity,
+					type: 'Egg',
+					variety: egg.variety as BunVariety,
+					wallet: {
+						bunId: Date.now(),
+						gold: 0,
+						items: []
+					},
+					imageUrl: `/images/eggs/${egg.variety}.webp`,
+					farm: [],
+					hungerLevel: 0,
+					isHibernating: false,
+					isCoolingDown: false
+				};
+				// push new egg
+				wallet.nfts.push(newEgg);
+				// set current egg
+				activeBun.set(newEgg);
 
 				return wallet;
 			});
-			// set current bun
-			activeBun.set($wallet.nfts[0]);
 		}, 1111);
 	}
 </script>

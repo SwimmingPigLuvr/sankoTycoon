@@ -77,7 +77,7 @@
 
 	function activateBunBlaster(bun: Bun) {
 		// find bun blaster in inventory
-		const blaster = bun.wallet.items.find((item: Item) => item.name === 'Blaster');
+		const blaster = bun.wallet.items.find((item: Item) => item.name === 'Bun Blaster');
 		if (blaster && blaster.quantity > 0) {
 			// clear currentAbility message
 			currentAbility = undefined;
@@ -210,40 +210,35 @@
 >
 	<div class="w-full justify-center items-center flex flex-col space-y-0">
 		{#if buns[$b]}
-			<h2 class="flex px-2 justify-between font-FinkHeavy text-xl text-center w-40">
-				<!-- left arrow -->
-				<button on:click={() => nextBun()}>
-					<img src="/ui/icons/arrow.png" class="w-8" alt="" />
-				</button>
-				{#if buns[$b].type === 'Egg'}
-					<button
-						on:click={() => (currentSection = 'eggs')}
-						class={currentSection === 'eggs' ? 'text-pink-700' : ''}>Eggs</button
-					>
+			<div class="w-full flex px-2 justify-center space-x-4 font-FinkHeavy text-xl text-center">
+				{#if buns.length > 1}
+					<!-- left arrow -->
+					<button class="hover:scale-125" on:click={() => nextBun()}>
+						<img src="/ui/icons/arrow.png" class="w-8" alt="" />
+					</button>
+					{#if buns[$b].type === 'Egg'}
+						<button>Eggs</button>
+					{/if}
+					{#if buns[$b].type === 'Bun'}
+						<button>Buns</button>
+					{/if}
+					<!-- right arrow -->
+					<button on:click={() => prevBun()} class="hover:scale-125">
+						<img src="/ui/icons/arrow.png" class="w-8 scale-[-100%]" alt="" />
+					</button>
+				{:else}
+					{#if buns[$b].type === 'Egg'}
+						<button>Eggs</button>
+					{/if}
+					{#if buns[$b].type === 'Bun'}
+						<button>Buns</button>
+					{/if}
 				{/if}
-				{#if buns[$b].type === 'Bun'}
-					<button
-						on:click={() => (currentSection = 'buns')}
-						class={currentSection === 'eggs' ? '' : 'text-blue-700'}>Buns</button
-					>
-				{/if}
-				<!-- right arrow -->
-				<button on:click={() => prevBun()} class="">
-					<img src="/ui/icons/arrow.png" class="w-8 scale-[-100%]" alt="" />
-				</button>
-			</h2>
+			</div>
 			<!-- buns -->
 			<!-- active bun -->
 			<div class="flex justify-between items-center space-x-1">
 				<!-- bun info -->
-				<div class="flex flex-col items-center justify-center space-y-1">
-					{#if buns[$b].type === 'Egg'}
-						<p class="text-xs text-center">
-							{buns[$b].rarity} Egg
-						</p>
-						<HatchEgg />
-					{/if}
-				</div>
 			</div>
 			<div class="w-full">
 				<button in:fade={{ duration: 1000, easing: cubicInOut }} class="relative">
@@ -255,6 +250,14 @@
 						</div>
 					{/if}
 				</button>
+				<div class="flex flex-col items-center justify-center space-y-1">
+					{#if buns[$b].type === 'Egg'}
+						<p class="text-xs text-center">
+							{buns[$b].rarity} Egg
+						</p>
+						<HatchEgg />
+					{/if}
+				</div>
 			</div>
 			{#if buns[$b].type === 'Bun'}
 				<!-- bun wallet -->

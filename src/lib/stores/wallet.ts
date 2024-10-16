@@ -35,11 +35,64 @@ export interface BunWallet {
     items: Item[];
 }
 
-type BunRarity = 'Common' | 'Uncommon' | 'Rare' | 'Rotten' | 'SuperRare' | 'Moldy';
+export type BunRarity = 'Common' | 'Uncommon' | 'Rare' | 'Rotten' | 'SuperRare' | 'Moldy';
 
-type BunType = 'Egg' | 'Bun';
+export type BunType = 'Egg' | 'Bun';
 
-type BunVariety = 'Spirit' | 'Pipe' | 'Angel' | 'Goldie' | 'Dev' | 'Moldy' | 'Qualk' | 'Gold' | 'RaceCar' | 'Joker' | 'Ket' | 'Mini' | 'Kev' | 'Pup' | 'Tux' | 'Sanko' | 'Snake' | 'Star' | 'Rotten' | 'Chikki' | 'Silver' | 'Cowboy' | 'Nebula' | 'Purr' | 'Bricks' | 'Hippy' | 'Confetti' | 'Bunzilian' | 'Cream' | 'Wood' | 'SuperBun' | 'Gorli' | 'Earthy' | 'Cloudy' | 'Yeti' | 'Lava' | 'Sproto' | 'Crystal' | 'Leathy' | 'Detec' | 'Geeny' | 'Galxy' | 'Fire' | 'Peppermint' | 'Glass' | 'Bomber' | 'Tomat' | 'Natural' | 'Turtly' | 'Driftwood' | 'Choi' | 'Turni' | 'Lemuh' | 'Strawbie' | 'Buns' | 'Red' | 'Lime' | 'Orange' | 'Purple' | 'Green' | 'Blue' | 'Bun';
+export type BunVariety =
+    | 'Strawbie'
+    | 'Orange'
+    | 'Lemuh'
+    | 'Lime'
+    | 'Buns'
+    | 'Blue'
+    | 'Choi'
+    | 'Turni'
+    | 'Driftwood'
+    | 'Turtly'
+    | 'Purple'
+    | 'Tomat'
+    | 'Bomber'
+    | 'Peppermint'
+    | 'Glass'
+    | 'Crystal'
+    | 'Green'
+    | 'Cloudy'
+    | 'Wood'
+    | 'Earthy'
+    | 'Confetti'
+    | 'Cream'
+    | 'Fire'
+    | 'Geeny'
+    | 'Yeti'
+    | 'Galxy'
+    | 'Lava'
+    | 'Gorli'
+    | 'Bunzilian'
+    | 'Bricks'
+    | 'Purr'
+    | 'Nebula'
+    | 'Tux'
+    | 'Pup'
+    | 'Detec'
+    | 'SuperBun'
+    | 'Cowboy'
+    | 'Silver'
+    | 'Chikki'
+    | 'Mini'
+    | 'Leathy'
+    | 'Sproto'
+    | 'Hippy'
+    | 'Snake'
+    | 'Ket'
+    | 'Joker'
+    | 'Kev'
+    | 'Pipe'
+    | 'RaceCar'
+    | 'Dev'
+    | 'Goldie'
+    | 'Angel'
+    | 'Spirit';
 
 
 export interface Bun {
