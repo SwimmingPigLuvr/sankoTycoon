@@ -252,8 +252,11 @@
 				</button>
 				<div class="flex flex-col items-center justify-center space-y-1">
 					{#if buns[$b].type === 'Egg'}
+						<p class="text-sm font-FinkHeavy text-center">
+							{buns[$b].name} Egg
+						</p>
 						<p class="text-xs text-center">
-							{buns[$b].rarity} Egg
+							{buns[$b].rarity}
 						</p>
 						<HatchEgg />
 					{/if}

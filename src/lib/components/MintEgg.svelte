@@ -14,6 +14,19 @@
 		type Token
 	} from '$lib/stores/wallet';
 
+	let nextEggId = 1; // first egg
+	let totalEggsRemaining = 4444;
+
+	function mintEggHandler() {
+		isMinting = true;
+		setTimeout(() => {
+			progressStep();
+			mintEgg();
+			isMinting = false;
+			minted = true;
+		}, 1111);
+	}
+
 	// Egg rarities and probabilities
 	const eggProbabilities = [
 		// common
@@ -26,18 +39,18 @@
 		{ variety: 'Sanko', rarity: 'Uncommon', weight: 306 },
 		{ variety: 'Purple', rarity: 'Uncommon', weight: 254 },
 		// rare
-		{ variety: 'Red Star', rarity: 'Rare', weight: 419 },
-		{ variety: 'Qualk', rarity: 'Rare', weight: 306 },
+		{ variety: 'Red Star', rarity: 'Rare', weight: 200 },
+		{ variety: 'Qualk', rarity: 'Rare', weight: 150 },
 		// rotten
-		{ variety: 'Rotten', rarity: 'Rotten', weight: 306 },
+		{ variety: 'Rotten', rarity: 'Rotten', weight: 100 },
 		// moldy
-		{ variety: 'Moldy', rarity: 'Moldy', weight: 306 },
+		{ variety: 'Moldy', rarity: 'Moldy', weight: 50 },
 		// superrare
-		{ variety: 'Gold', rarity: 'SuperRare', weight: 306 }
+		{ variety: 'Gold', rarity: 'SuperRare', weight: 25 }
 	];
 
 	function getRandomEgg() {
-		const totalWeight = eggProbabilities.reduce((sum, egg) => egg.weight, 0);
+		const totalWeight = eggProbabilities.reduce((sum, egg) => sum + egg.weight, 0);
 		const randomWeight = Math.floor(Math.random() * totalWeight);
 		let cumulativeWeight = 0;
 
@@ -84,52 +97,54 @@
 	let eggIdCounter = 1;
 
 	function mintEgg() {
-		isMinting = true;
-		setTimeout(() => {
-			progressStep();
-			isMinting = false;
-			minted = true;
-			wallet.update((wallet) => {
-				// set DMT value to 0
-				const dmtToken = wallet.tokens.find((token: Token) => token.name === 'DMT');
-				if (!dmtToken || dmtToken.balance < 3) {
-					addMessage('Not enough $DMT.');
-					return wallet;
-				}
-				dmtToken.balance -= 3;
-
-				const egg = getRandomEgg();
-				const newEgg: Bun = {
-					id: Date.now(),
-					name: egg.variety,
-					industry: 0,
-					luck: 0,
-					speed: 0,
-					stamina: 0,
-					strength: 0,
-					birthday: new Date(),
-					rarity: egg.rarity as BunRarity,
-					type: 'Egg',
-					variety: egg.variety as BunVariety,
-					wallet: {
-						bunId: Date.now(),
-						gold: 0,
-						items: []
-					},
-					imageUrl: `/images/eggs/${egg.variety}.webp`,
-					farm: [],
-					hungerLevel: 0,
-					isHibernating: false,
-					isCoolingDown: false
-				};
-				// push new egg
-				wallet.nfts.push(newEgg);
-				// set current egg
-				activeBun.set(newEgg);
-
+		// check if eggs left
+		if (totalEggsRemaining <= 0) {
+			addMessage('no eggs left to mint. buy more eggs n buns from sudoswap');
+		}
+		wallet.update((wallet) => {
+			// set DMT value to 0
+			const dmtToken = wallet.tokens.find((token: Token) => token.name === 'DMT');
+			if (!dmtToken || dmtToken.balance < 3) {
+				addMessage('Not enough $DMT.');
 				return wallet;
-			});
-		}, 1111);
+			}
+			dmtToken.balance -= 3;
+
+			const egg = getRandomEgg();
+			const newEgg: Bun = {
+				id: nextEggId,
+				name: egg.variety,
+				industry: 0,
+				luck: 0,
+				speed: 0,
+				stamina: 0,
+				strength: 0,
+				birthday: new Date(),
+				rarity: egg.rarity as BunRarity,
+				type: 'Egg',
+				variety: egg.variety as BunVariety,
+				wallet: {
+					bunId: nextEggId,
+					gold: 0,
+					items: []
+				},
+				imageUrl: `/images/eggs/${egg.variety}.webp`,
+				farm: [],
+				hungerLevel: 0,
+				isHibernating: false,
+				isCoolingDown: false
+			};
+			// push new egg
+			wallet.nfts.push(newEgg);
+			// set current egg
+			activeBun.set(newEgg);
+
+			// update egg count
+			nextEggId += 1;
+			totalEggsRemaining -= 1;
+
+			return wallet;
+		});
 	}
 </script>
 
@@ -139,13 +154,13 @@
 	>
 		<p class="text-2xl text-blue-700">Mint Eggs</p>
 		<p class="text-lg text-black">Generation 1</p>
-		<p class="text-lg text-black">Remaining 4444 / 4444</p>
+		<p class="text-lg text-black">Remaining {totalEggsRemaining} / 4444</p>
 		<p class="text-lg text-black">1 Egg: <span class="text-blue-700">3 DMT</span></p>
 
 		<button
 			class="w-full p-1 rounded-lg text-lime-700 hover:bg-yellow-300 bg-yellow-100"
 			disabled={isMinting}
-			on:click={mintEgg}
+			on:click={mintEggHandler}
 		>
 			{#if isMinting}
 				<!-- Adding spinner -->

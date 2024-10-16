@@ -5,15 +5,24 @@
 	import * as items from '$lib/itemData';
 	import Wallet from './Wallet.svelte';
 	import { startHungerInterval } from '$lib/stores/hungerState';
-	import { v4 as uuidv4 } from 'uuid';
 
 	// implement random bun hatching based on rarity
+
+	function hatchEggHandler() {
+		isHatching = true;
+		setTimeout(() => {
+			progressStep();
+			hatchEgg($activeBun);
+			isHatching = false;
+			hatched = true;
+		}, 2222);
+	}
 
 	let isHatching = false;
 	let hatched = false;
 
-	let bunWallet: BunWallet = {
-		bunId: 1111,
+	let starterWallet: BunWallet = {
+		bunId: 0,
 		gold: 10,
 		items: [...Object.values(items)]
 	};
@@ -64,7 +73,7 @@
 			stamina: stats.stamina,
 			strength: stats.strength,
 			birthday: new Date(),
-			wallet: bunWallet,
+			wallet: starterWallet,
 			farm: Array(25).fill({ state: 'empty' }),
 			hungerLevel: 0,
 			isHibernating: false,
@@ -76,15 +85,74 @@
 	const bunProbabilitiesByRarity: { [rarity: string]: { variety: string; weight: number }[] } = {
 		Common: [
 			{ variety: 'Strawbie', weight: 103 },
-			{ variety: 'Orange', weight: 101 }
-			// Add other common bun varieties with their weights
+			{ variety: 'Orange', weight: 101 },
+			{ variety: 'Lemuh', weight: 100 },
+			{ variety: 'Lime', weight: 99 },
+			{ variety: 'Buns', weight: 99 },
+			{ variety: 'Blue', weight: 97 },
+			{ variety: 'Choi', weight: 89 },
+			{ variety: 'Turni', weight: 88 },
+			{ variety: 'Driftwood', weight: 86 },
+			{ variety: 'Turtly', weight: 85 },
+			{ variety: 'Purple', weight: 84 },
+			{ variety: 'Tomat', weight: 82 },
+			{ variety: 'Bomber', weight: 80 },
+			{ variety: 'Peppermint', weight: 78 },
+			{ variety: 'Glass', weight: 77 },
+			{ variety: 'Crystal', weight: 71 },
+			{ variety: 'Green', weight: 70 },
+			{ variety: 'Cloudy', weight: 70 },
+			{ variety: 'Wood', weight: 68 },
+			{ variety: 'Earthy', weight: 67 },
+			{ variety: 'Confetti', weight: 65 },
+			{ variety: 'Cream', weight: 65 }
 		],
+
 		Uncommon: [
 			{ variety: 'Fire', weight: 77 },
-			{ variety: 'Geeny', weight: 74 }
-			// Add other uncommon bun varieties with their weights
+			{ variety: 'Geeny', weight: 74 },
+			{ variety: 'Yeti', weight: 73 },
+			{ variety: 'Galxy', weight: 68 },
+			{ variety: 'Lava', weight: 65 },
+			{ variety: 'Gorli', weight: 65 },
+			{ variety: 'Bunzilian', weight: 61 },
+			{ variety: 'Bricks', weight: 58 },
+			{ variety: 'Purr', weight: 58 },
+			{ variety: 'Nebula', weight: 51 },
+			{ variety: 'Tux', weight: 44 },
+			{ variety: 'Pup', weight: 42 }
+		],
+
+		Rare: [
+			{ variety: 'Detec', weight: 69 },
+			{ variety: 'SuperBun', weight: 66 },
+			{ variety: 'Cowboy', weight: 53 },
+			{ variety: 'Silver', weight: 49 },
+			{ variety: 'Chikki', weight: 46 },
+			{ variety: 'Mini', weight: 38 }
+		],
+
+		Rotten: [
+			{ variety: 'Leathy', weight: 70 },
+			{ variety: 'Sproto', weight: 66 },
+			{ variety: 'Hippy', weight: 62 },
+			{ variety: 'Snake', weight: 45 },
+			{ variety: 'Ket', weight: 35 }
+		],
+
+		Moldy: [
+			{ variety: 'Joker', weight: 39 },
+			{ variety: 'Kev', weight: 36 },
+			{ variety: 'Pipe', weight: 13 }
+		],
+
+		SuperRare: [
+			{ variety: 'RaceCar', weight: 29 },
+			{ variety: 'Dev', weight: 21 },
+			{ variety: 'Goldie', weight: 15 },
+			{ variety: 'Angel', weight: 14 },
+			{ variety: 'Spirit', weight: 6 }
 		]
-		// Add other rarities
 	};
 
 	// Base stats per rarity
@@ -118,59 +186,53 @@
 	}
 
 	function hatchEgg(egg: Bun) {
-		isHatching = true;
-		setTimeout(() => {
-			progressStep();
-			isHatching = false;
-			hatched = true;
-			// replace egg with bun
-			wallet.update((wallet) => {
-				// remove egg from wallet
-				wallet.nfts = wallet.nfts.filter((nft: Bun) => nft.id !== egg.id);
+		// replace egg with bun
+		wallet.update((wallet) => {
+			// remove egg from wallet
+			wallet.nfts = wallet.nfts.filter((nft: Bun) => nft.id !== egg.id);
 
-				// generate random bun
-				const bun = getRandomBun(egg.rarity);
+			// generate random bun
+			const bun = getRandomBun(egg.rarity);
 
-				// get stats
-				const stats = rarityStats[egg.rarity];
+			// get stats
+			const stats = rarityStats[egg.rarity];
 
-				const newBun: Bun = {
-					id: uuidv4(),
-					name: bun.variety,
-					industry: stats.industry,
-					luck: stats.luck,
-					speed: stats.speed,
-					stamina: stats.stamina,
-					strength: stats.strength,
-					birthday: new Date(),
-					rarity: egg.rarity,
-					type: 'Bun',
-					variety: bun.variety as BunVariety,
-					wallet: {
-						bunId: uuidv4(),
-						gold: 0,
-						items: []
-					},
-					imageUrl: `/images/buns/${bun.variety}.webp`,
-					farm: Array(25).fill({ state: 'empty' }),
-					hungerLevel: 0,
-					isCoolingDown: false,
-					isHibernating: false
-				};
+			const newBun: Bun = {
+				id: egg.id,
+				name: bun.variety,
+				industry: stats.industry,
+				luck: stats.luck,
+				speed: stats.speed,
+				stamina: stats.stamina,
+				strength: stats.strength,
+				birthday: new Date(),
+				rarity: egg.rarity,
+				type: 'Bun',
+				variety: bun.variety as BunVariety,
+				wallet: {
+					bunId: egg.id,
+					gold: 10,
+					...starterWallet
+				},
+				imageUrl: `/images/buns/${bun.variety}.webp`,
+				farm: Array(25).fill({ state: 'empty' }),
+				hungerLevel: 0,
+				isCoolingDown: false,
+				isHibernating: false
+			};
 
-				wallet.nfts.push(newBun);
+			wallet.nfts.push(newBun);
 
-				if (!newBun.isHibernating) {
-					startHungerInterval(newBun);
-				}
+			if (!newBun.isHibernating) {
+				startHungerInterval(newBun);
+			}
 
-				activeBun.set(newBun);
+			activeBun.set(newBun);
 
-				return wallet;
-			});
-			// set currentBun
-			activeBun.set(buns);
-		}, 3000);
+			return wallet;
+		});
+		// set currentBun
+		activeBun.set(buns);
 
 		if (egg.type !== 'Egg') {
 			alert("cannot hatch this because it's not an egg");
@@ -271,7 +333,7 @@
 		rarity: 'Common',
 		type: 'Bun',
 		variety: 'Buns',
-		wallet: bunWallet,
+		wallet: starterWallet,
 		imageUrl: '/images/buns/Buns.webp',
 		farm: Array(25).fill({ state: 'empty' }),
 		hungerLevel: 0,
@@ -302,7 +364,7 @@
 
 <main>
 	<button
-		on:click={hatchEgg}
+		on:click={hatchEggHandler}
 		class="w-40 bg-black text-white rounded-full border-sky-500 hover:border-fuchsia-500 border-4 p-1 font-FinkHeavy"
 	>
 		{#if isHatching}
