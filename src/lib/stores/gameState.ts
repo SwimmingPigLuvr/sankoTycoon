@@ -107,8 +107,4 @@ function addMessage(newMessage: string) {
     });
 }
 
-function restartHungerInterval(bun: Bun) {
-
-}
-
-export { gameState, progressStep, addMessage, restartHungerInterval };
+export { gameState, progressStep, addMessage };

@@ -35,11 +35,11 @@
 		{ variety: 'Green', rarity: 'Common', weight: 552 },
 		{ variety: 'Natural', rarity: 'Common', weight: 540 },
 		// uncommon
-		{ variety: 'Blue Star', rarity: 'Uncommon', weight: 419 },
+		{ variety: 'BlueStar', rarity: 'Uncommon', weight: 419 },
 		{ variety: 'Sanko', rarity: 'Uncommon', weight: 306 },
 		{ variety: 'Purple', rarity: 'Uncommon', weight: 254 },
 		// rare
-		{ variety: 'Red Star', rarity: 'Rare', weight: 200 },
+		{ variety: 'RedStar', rarity: 'Rare', weight: 200 },
 		{ variety: 'Qualk', rarity: 'Rare', weight: 150 },
 		// rotten
 		{ variety: 'Rotten', rarity: 'Rotten', weight: 100 },
@@ -55,7 +55,8 @@
 		let cumulativeWeight = 0;
 
 		for (const egg of eggProbabilities) {
-			if (randomWeight > cumulativeWeight) {
+			cumulativeWeight += egg.weight;
+			if (randomWeight < cumulativeWeight) {
 				return egg;
 			}
 		}

@@ -1,13 +1,14 @@
 <!-- $lib/components/BunWallet.svelte -->
 <script lang="ts">
 	import * as itemData from '$lib/itemData';
-	import { bunBlasted, isReviving } from '$lib/stores/abilities';
-	import { addMessage, gameState, b, restartHungerInterval } from '$lib/stores/gameState';
+	import { autoFeederOn, bunBlasted, isReviving } from '$lib/stores/abilities';
+	import { addMessage, gameState, b } from '$lib/stores/gameState';
 	import { wallet, type Bun, type Item } from '$lib/stores/wallet';
 	import { cubicInOut } from 'svelte/easing';
 	import { fade, fly, slide } from 'svelte/transition';
 	import Hunger from './Hunger.svelte';
 	import HatchEgg from './HatchEgg.svelte';
+	import { restartHungerInterval } from '$lib/stores/hungerState';
 
 	export let bun: Bun;
 	let currentSection: 'eggs' | 'buns' = 'eggs';
@@ -196,6 +197,19 @@
 			}
 		} else {
 			addMessage(`You do not have any ${fruitName}s.`);
+		}
+	}
+
+	$: if ($autoFeederOn && buns[$b]) {
+		const bun = buns[$b];
+		if (bun.hungerLevel >= 5) {
+			const wallet = bun.wallet;
+			const anyFruit = wallet.items.find(
+				(item: Item) => item.type === 'fruit' && item.quantity > 0
+			);
+			if (anyFruit) {
+				eatFruit(bun, anyFruit.name);
+			}
 		}
 	}
 
