@@ -5,7 +5,7 @@
 	import Wallet from '../lib/components/Wallet.svelte';
 	import GameClock from '../lib/components/GameClock.svelte';
 	import MintEgg from '../lib/components/MintEgg.svelte';
-	import { activeBun, gameState, StepID, b } from '../lib/stores/gameState';
+	import { activeBun, gameState, StepID, b, sendModalOpen } from '../lib/stores/gameState';
 	import { onDestroy } from 'svelte';
 	import HatchEgg from '$lib/components/HatchEgg.svelte';
 	import Farm from '$lib/components/Farm.svelte';
@@ -13,6 +13,8 @@
 	import Shop from '$lib/components/Shop.svelte';
 	import { fade, slide } from 'svelte/transition';
 	import BunWallet from '$lib/components/BunWallet.svelte';
+	import SendModal from '$lib/components/SendModal.svelte';
+	import Toasts from '$lib/components/Toasts.svelte';
 
 	let currentStep: StepID;
 	const unsubscribe = gameState.subscribe((state) => {
@@ -26,12 +28,18 @@
 	$: buns = $wallet?.nfts ?? [];
 </script>
 
+<div class="fixed left-1/2 -translate-x-1/2 z-50 p-2">
+	<Toasts />
+</div>
+
 <main class="p-2 font-mono">
 	<HeaderTerminal />
 	<GameClock />
 	<div class="flex">
 		<!-- bunWallet / farm / wallet -->
-		<div class="flex p-2 space-x-3 justify-center transform transition-all duration-1000 ease-in-out">
+		<div
+			class="flex p-2 space-x-3 justify-center transform transition-all duration-1000 ease-in-out"
+		>
 			{#if buns}
 				<div class="w-1/3">
 					<BunWallet bun={buns[$b]} />
@@ -70,6 +78,12 @@
 			<span class="font-botch">𓃟🩵r</span>
 		</a>
 	</div>
+
+	{#if $sendModalOpen}
+		<button class="fixed top-0 left-0">
+			<SendModal />
+		</button>
+	{/if}
 </main>
 
 <style>

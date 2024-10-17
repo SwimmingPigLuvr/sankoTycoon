@@ -4,11 +4,12 @@
 	import { wallet } from '../stores/wallet';
 	import type { Token, Bun, Wallet } from '../stores/wallet';
 	import { fade, fly, scale } from 'svelte/transition';
-	import { activeBun, b, gameState, StepID } from '$lib/stores/gameState';
+	import { activeBun, b, gameState, sendModalOpen, StepID } from '$lib/stores/gameState';
 	import Hunger from './Hunger.svelte';
 	import HatchEgg from './HatchEgg.svelte';
 	import Bridge from './Bridge.svelte';
 	import Abilities from './Abilities.svelte';
+	import SendModal from './SendModal.svelte';
 	$: network = $wallet?.network;
 	let tokens: Token[] = [];
 	let nfts: Bun[] = [];
@@ -49,12 +50,16 @@
 			<button
 				on:mouseenter={() => (showOptions[index] = true)}
 				on:mouseleave={() => (showOptions[index] = false)}
-				class="text-3xl w-full h-10 "
+				class="text-3xl w-full h-10"
 			>
 				{#if showOptions[index]}
-					<div class=" rounded-xl w-full h-10 bg-fuchsia-100 text-xl flex justify-center space-x-4 items-center">
+					<div
+						class=" rounded-xl w-full h-10 border-blue-700 border-2 text-xl flex justify-center space-x-4 items-center"
+					>
 						<!-- send -->
-						<button class="hover:text-rose-500">send</button>
+						<button on:click={() => sendModalOpen.set(true)} class="hover:text-rose-500"
+							>send</button
+						>
 						<!-- swap -->
 						<button class="hover:text-rose-500">swap</button>
 					</div>
@@ -68,6 +73,7 @@
 		<Bridge />
 	{/if}
 </main>
+
 
 <div>
 	<Abilities />

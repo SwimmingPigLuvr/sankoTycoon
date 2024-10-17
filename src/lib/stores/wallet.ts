@@ -109,6 +109,7 @@ export interface Bun {
     variety: BunVariety;
     wallet: BunWallet;
     imageUrl: string;
+    thumbUrl: string;
     farm: Plot[];
     hungerLevel: number;
     isHibernating: boolean;

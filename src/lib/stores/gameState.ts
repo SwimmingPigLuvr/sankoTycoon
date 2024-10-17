@@ -4,6 +4,7 @@ import type { Bun } from '/$lib/stores/wallet';
 
 export const activeBun = writable<Bun>();
 export const b = writable<number>(0);
+export const sendModalOpen = writable<boolean>(false);
 
 export enum StepID {
     Bridge = 0,
@@ -107,4 +108,6 @@ function addMessage(newMessage: string) {
     });
 }
 
-export { gameState, progressStep, addMessage };
+const toasts = writable<string[]>([]);
+
+export { gameState, progressStep, addMessage, toasts };

@@ -52,6 +52,7 @@
 		name: BunVariety,
 		rarity: BunRarity,
 		imageUrl: string,
+		thumbUrl: string,
 		stats: {
 			industry: number;
 			luck: number;
@@ -68,6 +69,7 @@
 			type: 'Bun',
 			variety: name,
 			imageUrl,
+			thumbUrl,
 			industry: stats.industry,
 			luck: stats.luck,
 			speed: stats.speed,
@@ -207,6 +209,7 @@
 			bun.variety as BunVariety,
 			egg.rarity,
 			`/images/buns/${bun.variety}.webp`,
+			`/images/buns/thumbs/${bun.variety}.png`,
 			stats,
 			{
 				type: 'Bun',
@@ -311,6 +314,7 @@
 			index + 1,
 			name,
 			rarity as BunRarity,
+			`/images/buns/${name}.webp`,
 			`/images/buns/thumbs/${name}.png`,
 			stats
 		);
