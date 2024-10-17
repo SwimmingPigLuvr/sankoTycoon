@@ -8,12 +8,15 @@
 	import Hunger from './Hunger.svelte';
 	import HatchEgg from './HatchEgg.svelte';
 	import Bridge from './Bridge.svelte';
+	import Abilities from './Abilities.svelte';
 	$: network = $wallet?.network;
 	let tokens: Token[] = [];
 	let nfts: Bun[] = [];
 	$: tokens = $wallet?.tokens ?? [];
 	$: nfts = $wallet?.nfts ?? [];
 	let showBunWallet = false;
+
+	let showOptions: boolean[] = [];
 
 	let currentStep: StepID;
 	const unsubscribe = gameState.subscribe((state) => {
@@ -42,12 +45,30 @@
 		<p class="text-xs">{$wallet?.walletAddress}</p>
 		<hr class="w-full border-black bg-black" />
 		<p class="text-xs">ntwrk: {network}</p>
-		{#each tokens as token}
-			<p class="text-3xl">{token.balance} {token.name}</p>
+		{#each tokens as token, index}
+			<button
+				on:mouseenter={() => (showOptions[index] = true)}
+				on:mouseleave={() => (showOptions[index] = false)}
+				class="text-3xl w-full h-10 "
+			>
+				{#if showOptions[index]}
+					<div class=" rounded-xl w-full h-10 bg-fuchsia-100 text-xl flex justify-center space-x-4 items-center">
+						<!-- send -->
+						<button class="hover:text-rose-500">send</button>
+						<!-- swap -->
+						<button class="hover:text-rose-500">swap</button>
+					</div>
+				{:else}
+					{token.balance} {token.name}
+				{/if}
+			</button>
 		{/each}
 	</div>
+	{#if currentStep === StepID.Bridge}
+		<Bridge />
+	{/if}
 </main>
 
-{#if currentStep === StepID.Bridge}
-	<Bridge />
-{/if}
+<div>
+	<Abilities />
+</div>

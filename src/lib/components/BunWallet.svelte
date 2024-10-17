@@ -3,7 +3,7 @@
 	import * as itemData from '$lib/itemData';
 	import { autoFeederOn, bunBlasted, isReviving } from '$lib/stores/abilities';
 	import { addMessage, gameState, b } from '$lib/stores/gameState';
-	import { wallet, type Bun, type Item } from '$lib/stores/wallet';
+	import { wallet, type Bun, type Item, type Token } from '$lib/stores/wallet';
 	import { cubicInOut } from 'svelte/easing';
 	import { fade, fly, slide } from 'svelte/transition';
 	import Hunger from './Hunger.svelte';
@@ -12,6 +12,8 @@
 
 	export let bun: Bun;
 	let currentSection: 'eggs' | 'buns' = 'eggs';
+
+	let showWithdrawGold = false;
 
 	$: buns = $wallet?.nfts ?? [];
 	$: bunWallet = bun?.wallet;
@@ -69,7 +71,6 @@
 					eatFruit(bunNft, itemName);
 					break;
 				default:
-					addMessage('ERROR: UNKNOWN ITEM.... Where did you get this???');
 					break;
 			}
 			return currentWallet;
@@ -216,6 +217,21 @@
 	// todo
 	// if the items have a quantity of more than 1 then they still only take up 1 grid but later on i will add
 	// an icon showing the quantity
+	function withdrawGold() {
+		wallet.update((wallet) => {
+			const bun = wallet.nfts[$b];
+			const amount = bun.wallet.gold;
+			const goldToken = wallet.tokens.find((token: Token) => token.name === 'GOLD');
+			if (amount >= 0) {
+				bun.wallet.gold = 0;
+				if (goldToken) {
+					goldToken.balance += amount;
+				}
+				addMessage(`${bun.name} transfered ${amount} GOLD to main wallet.`);
+			}
+			return wallet;
+		});
+	}
 </script>
 
 <main
@@ -281,15 +297,31 @@
 				{#if bunBlastMessage}
 					<p>{bunBlastMessage}</p>
 				{/if}
-				<div class="flex justify-between w-full px-1 items-center">
+				<div class="flex relative justify-between w-full px-1 items-center">
 					{#if buns[$b].type === 'Bun'}
 						<p class="text-xs">{buns[$b].name} #{buns[$b].id}</p>
 					{/if}
 					<!-- gold balance -->
-					<div class="flex justify-center space-x-1 p-1">
-						<img src="/ui/icons/sankogold.png" class="h-4" alt="" />
-						<p class="text-xs">{gold}</p>
-					</div>
+					<button
+						on:mouseenter={() => (showWithdrawGold = true)}
+						on:mouseleave={() => (showWithdrawGold = false)}
+						on:click={() => withdrawGold()}
+						class="hover:bg-slate-100 rounded-full px-2 flex justify-center space-x-1 p-1 w-8"
+					>
+						{#if showWithdrawGold}
+							<img src="/ui/icons/send-red.svg" class="h-4" alt="" />
+						{:else}
+							<img src="/ui/icons/sankogold.png" class="h-4" alt="" />
+							<p class="text-xs">{gold}</p>
+						{/if}
+					</button>
+					{#if showWithdrawGold}
+						<p
+							class="rounded border-black absolute text-sm bg-white p-2 text-black border-dashed border-2 text- right-0 -bottom-10 z-20 font-FinkHeavy"
+						>
+							send to wallet
+						</p>
+					{/if}
 				</div>
 				<!-- items, fruits, seeds -->
 				<div

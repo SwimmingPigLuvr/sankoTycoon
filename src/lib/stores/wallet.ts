@@ -131,6 +131,10 @@ const starterWallet: Wallet = {
             name: 'DMT',
             balance: 3,
         },
+        {
+            name: 'GOLD',
+            balance: 20,
+        },
     ],
     nfts: [], // No NFTs
 };

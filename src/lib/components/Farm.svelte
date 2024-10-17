@@ -7,10 +7,9 @@
 	import { fade } from 'svelte/transition';
 	import { gameState, b } from '$lib/stores/gameState';
 	import { onMount } from 'svelte';
-	import { oneClickFarmingEnabled } from '$lib/stores/abilities';
+	import { click2plantEnabled, totalTreesPlanted } from '$lib/stores/abilities';
 
 	export let bun: Bun;
-
 
 	$: bunWallet = bun?.wallet ?? { bunId: 777, gold: 0, items: [itemData.hardHat] };
 
@@ -136,6 +135,7 @@
 					plantedAt: Date.now(),
 					isWithered: selectedSeed?.type === 'witheredSeed'
 				};
+				totalTreesPlanted.update((total) => (total += 1));
 
 				// trigger reactivity
 				bunNft.farm = [...bunNft.farm];
@@ -308,7 +308,7 @@
 		return 'images/items/Bunzempic.png'; // Return undefined if no known fruit type is found.
 	}
 
-	$: if ($oneClickFarmingEnabled && selectedSeed && selectedPlotIndex) {
+	$: if ($click2plantEnabled && selectedSeed && selectedPlotIndex) {
 		plantSeed();
 	}
 </script>
