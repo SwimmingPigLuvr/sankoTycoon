@@ -1,8 +1,10 @@
 <script lang="ts">
 	import {
 		autoFeederOn,
+		autoFeederPurchased,
 		click2plantEnabled,
 		click2plantPurchased,
+		totalFruitsEaten,
 		totalTreesPlanted
 	} from '$lib/stores/abilities';
 	import { addMessage, b } from '$lib/stores/gameState';
@@ -44,21 +46,23 @@
 </script>
 
 <main class="flex flex-col space-y-2 w-40">
-	<!-- auto feeder -->
-	<div class="text-xs border-2 border-black p-2 flex justify-between relative">
-		<p>Auto Feeder</p>
-		<!-- Button to toggle the autoFeederOn store value -->
-		<button
-			class="{$autoFeederOn ? 'bg-lime-400' : 'bg-red-400'} h-full w-12 absolute right-0 top-0"
-			on:click={toggleAutoFeeder}
-		>
-			{#if $autoFeederOn}
-				On
-			{:else}
-				Off
-			{/if}
-		</button>
-	</div>
+	{#if $totalFruitsEaten >= 10}
+		<!-- auto feeder -->
+		<div class="text-xs border-2 border-black p-2 flex justify-between relative">
+			<p>Auto Feeder</p>
+			<!-- Button to toggle the autoFeederOn store value -->
+			<button
+				class="{$autoFeederOn ? 'bg-lime-400' : 'bg-red-400'} h-full w-12 absolute right-0 top-0"
+				on:click={toggleAutoFeeder}
+			>
+				{#if $autoFeederOn}
+					On
+				{:else}
+					Off
+				{/if}
+			</button>
+		</div>
+	{/if}
 	<!-- one click planting -->
 	<!-- shows up once user plants 10 trees -->
 	{#if $totalTreesPlanted >= 10}
