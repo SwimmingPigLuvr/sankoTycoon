@@ -110,8 +110,8 @@ function addMessage(newMessage: string) {
 
 const toasts = writable<{ id: string, message: string }[]>([]);
 
+let nextToastId = 0;
 function addToast(message: string) {
-    let nextToastId = 0;
     toasts.update((toasts) => {
         // need to create a toast id?
         nextToastId += 1;

@@ -33,11 +33,34 @@
 				addToast('failed to copy address');
 			});
 	}
+
+	// find the gold / dmt balances
+	$: senderGoldBalance = isBun(sendingWallet)
+		? sendingWallet.wallet.gold
+		: (sendingWallet.tokens.find((token: Token) => token.name.toLowerCase() === 'gold')?.balance ??
+			0);
+
+	$: receiverGoldBalance = isBun(receivingWallet)
+		? receivingWallet.wallet.gold
+		: (receivingWallet.tokens.find((token: Token) => token.name.toLowerCase() === 'gold')
+				?.balance ?? 0);
+
+	$: senderDmtBalance = isBun(sendingWallet)
+		? 0
+		: (sendingWallet.tokens.find((token: Token) => token.name === 'DMT')?.balance ?? 0);
+
+	$: receiverDmtBalance = isBun(receivingWallet)
+		? 0
+		: (receivingWallet.tokens.find((token: Token) => token.name === 'DMT')?.balance ?? 0);
 </script>
 
-<main class="font-FinkHeavy w-screen h-screen bg-black bg-opacity-25">
+<button
+	on:click|preventDefault={() => sendModalOpen.set(false)}
+	class="font-FinkHeavy w-screen h-screen bg-black bg-opacity-25"
+>
 	<!-- modal -->
-	<div
+	<button
+		on:click|stopPropagation
 		class="items-center send-modal fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col space-y-3 m-auto p-4 rounded-xl border-blue-600 border-4"
 	>
 		<div class="flex justify-between space-x-3">
@@ -45,13 +68,15 @@
 			<div class="flex flex-col space-y-1">
 				<!-- select sender -->
 				<button
-					class="p-1 flex justify-between rounded-lg bg-gray-200 border-gray-500 border-2 space-x-2 items-center"
+					class="p-1 px-2 flex justify-between rounded-lg bg-gray-200 border-gray-500 border-2 space-x-1 items-center"
 				>
+					<!-- img -->
 					<img
 						class="w-8"
 						src={isBun(sendingWallet) ? sendingWallet.thumbUrl : 'ui/icons/wallet.svg'}
 						alt=""
 					/>
+					<!-- wallet info -->
 					<div class="flex flex-col leading-4 text-left">
 						<p>{isBun(sendingWallet) ? sendingWallet.name : 'My Wallet'}</p>
 						<p class="flex items-start space-x-1 text-gray-500 text-xs">
@@ -61,7 +86,35 @@
 							>
 						</p>
 					</div>
+					<!-- dropdown icon -->
+					<img class="w-4" src="/ui/icons/chevron-down.svg" alt="" />
 				</button>
+
+				<!-- wallet contents -->
+				<div>
+					<!-- token balance -->
+
+					<div class="flex">
+						<!-- main wallet -->
+						{#if !isBun(sendingWallet)}
+							<!-- dmt balance -->
+							<div class="px-2 p-1 flex bg-gray-200 border-gray-500 border-2">
+								<img class="w-4" src="/ui/icons/dmt.png" alt="" />
+								<p>{senderDmtBalance}</p>
+							</div>
+						{/if}
+						<!-- any bun's wallet -->
+						{#if isBun(sendingWallet)}
+							<!-- buns gold balance -->
+							<div class="px-2 p-1 flex bg-gray-200 border-2 border-gray-500">
+								<img class="w-4" src="/ui/icons/sankogold.png" alt="" />
+								<p>{senderGoldBalance}</p>
+							</div>
+						{/if}
+					</div>
+					<!-- items grid -->
+					<div></div>
+				</div>
 			</div>
 			<!-- receiver -->
 		</div>
@@ -89,8 +142,8 @@
 				alt=""
 			/>
 		</button>
-	</div>
-</main>
+	</button>
+</button>
 
 <style>
 	.send-modal {
