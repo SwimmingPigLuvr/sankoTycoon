@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { activeBun, b, sendModalOpen, toasts } from '$lib/stores/gameState';
+	import { activeBun, addToast, b, sendModalOpen, toasts } from '$lib/stores/gameState';
 	import {
 		wallet,
 		type Bun,
@@ -25,12 +25,12 @@
 			.writeText(address)
 			.then(() => {
 				// Push the "Copied address" message into the toasts store if successful
-				toasts.update((currentToasts) => [...currentToasts, 'Copied address']);
+				addToast('copied address');
 			})
 			.catch((error) => {
 				// Handle the error if the clipboard operation fails
 				console.error('Failed to copy address:', error);
-				toasts.update((currentToasts) => [...currentToasts, 'Failed to copy address']);
+				addToast('failed to copy address');
 			});
 	}
 </script>

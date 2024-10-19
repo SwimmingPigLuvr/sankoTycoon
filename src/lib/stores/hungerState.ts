@@ -5,8 +5,9 @@ const bunStatus = ['Bloated', 'Full', 'Fine', 'Hungry', 'Famished', 'Starving', 
 
 function startHungerInterval(bun: Bun) {
     // clear existing interval
-    if (bun.id) {
-        clearInterval(bun.id);
+    if (bun.hungerIntervalId) {
+        console.log(`clearing hunger interval for ${bun.name} #${bun.id}`);
+        clearInterval(bun.hungerIntervalId);
     }
 
     const HUNGER_INTERVAL = 1000 * 5;
@@ -29,6 +30,8 @@ function startHungerInterval(bun: Bun) {
             bunNft.hungerLevel += 1;
             bunNft.hungerLevel = Math.min(bunNft.hungerLevel, bunStatus.length - 1);
 
+            console.log(`${bun.name}'s hunger level increased to ${bun.hungerLevel}`);
+
             // hibernation after starvation
             if (bunNft.hungerLevel === bunStatus.length -1) {
                 bunNft.isHibernating = true;
@@ -38,16 +41,34 @@ function startHungerInterval(bun: Bun) {
             return currentWallet;
         });
     }, HUNGER_INTERVAL);
+
+    // store interval in bun object
+    bun.hungerIntervalId = intervalId
+    console.log('started hunger interval id #:', intervalId);
 }
 
 function restartHungerInterval(bun: Bun) {
     // clear interval
-    if (bun.id) {
-        clearInterval(bun.id);
+    if (bun.hungerIntervalId) {
+        console.log('clearing existing hunger interval for', bun.name);
+        clearInterval(bun.hungerIntervalId);
+        bun.hungerIntervalId = undefined;
     }
 
-    // reset hunger
-    bun.hungerLevel = 0;
+    // reset hungerlevel in wallet
+    wallet.update((currentWallet) => {
+        const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
+        if (bunIndex === -1) {
+            console.error('bun not found');
+            return currentWallet;
+        }
+        const bunNft: Bun = currentWallet.nfts[bunIndex];
+        // reset hunger level to 0
+        bunNft.hungerLevel = 0;
+        console.log('reset hunger level for', bun.name);
+        return currentWallet
+
+    })
 
     // restart interval
     startHungerInterval(bun);

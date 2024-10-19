@@ -150,68 +150,86 @@
 
 	function eatFruit(bun: Bun, fruitName: string) {
 		console.log('eating fruit:', fruitName);
-		if (bun.isHibernating) {
-			addMessage('Cannot feed bun in hibernation. Use Bunzempic to revive');
-			return;
-		}
-		if (bun.isCoolingDown) {
-			addMessage(
-				`Cannot feed ${bun.name}. Wait until cool down period is over to be fully revived`
-			);
-			return;
-		}
-		const fruitItem = bun.wallet.items.find((item: Item) => item.name === fruitName);
-		if (fruitItem && fruitItem.quantity > 0) {
-			// decrement
-			fruitItem.quantity -= 1;
-			// reset hunger
-			bun.hungerLevel = 0;
-			restartHungerInterval(bun);
 
-			// handle fruit type
-			switch (fruitItem.fruitType) {
-				case 'heart':
-					bun.strength += 1;
-					addMessage('Hunger reduced. Strength +1.');
-					break;
-				case 'star':
-					bun.luck += 1;
-					addMessage('Hunger reduced. Luck +1.');
-					break;
-				case 'lumpy':
-					bun.stamina += 1;
-					addMessage('Hunger reduced. Stamina +1.');
-					break;
-				case 'round':
-					bun.speed += 1;
-					addMessage('Hunger reduced. Speed +1.');
-					break;
-				case 'square':
-					bun.industry += 1;
-					addMessage('Hunger reduced. Industry +1.');
-					break;
-				case 'slop':
-					addMessage('Hunger reduced.');
-					break;
-				default:
-					break;
+		// wallet update
+		wallet.update((currentWallet) => {
+			const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
+			if (bunIndex === -1) {
+				console.error('bun not found');
+				return currentWallet;
 			}
+			const bunNft: Bun = currentWallet.nfts[bunIndex];
 
-			// add to total fruits eaten
-			totalFruitsEaten.update((total) => (total += 1));
-		} else {
-			addMessage(`You do not have any ${fruitName}s.`);
-		}
+			if (bunNft.isHibernating) {
+				addMessage('Cannot feed bun in hibernation. Use Bunzempic to revive');
+				return currentWallet;
+			}
+			if (bunNft.isCoolingDown) {
+				addMessage(
+					`Cannot feed ${bun.name}. Wait until cool down period is over to be fully revived`
+				);
+				return currentWallet;
+			}
+			const fruitItem = bun.wallet.items.find((item: Item) => item.name === fruitName);
+
+			// check if the fruit exists and that the quantity is > 0
+			if (fruitItem && fruitItem.quantity > 0) {
+				// decrement
+				fruitItem.quantity -= 1;
+				// reset hunger
+				bunNft.hungerLevel = 0;
+				restartHungerInterval(bunNft);
+
+				// handle fruit type
+				switch (fruitItem.fruitType) {
+					case 'heart':
+						bunNft.strength += 1;
+						addMessage('Hunger reduced. Strength +1.');
+						break;
+					case 'star':
+						bunNft.luck += 1;
+						addMessage('Hunger reduced. Luck +1.');
+						break;
+					case 'lumpy':
+						bunNft.stamina += 1;
+						addMessage('Hunger reduced. Stamina +1.');
+						break;
+					case 'round':
+						bunNft.speed += 1;
+						addMessage('Hunger reduced. Speed +1.');
+						break;
+					case 'square':
+						bunNft.industry += 1;
+						addMessage('Hunger reduced. Industry +1.');
+						break;
+					case 'slop':
+						addMessage('Hunger reduced.');
+						break;
+					default:
+						break;
+				}
+
+				// add to total fruits eaten
+				totalFruitsEaten.update((total) => (total += 1));
+				return currentWallet;
+			} else {
+				addMessage(`You do not have any ${fruitName}s.`);
+				return currentWallet;
+			}
+		});
 	}
 
+	// check if autofeeder is enabled
 	$: if ($autoFeederOn && buns[$b]) {
 		const bun = buns[$b];
+		// only use when bun is starving
 		if (bun.hungerLevel >= 5) {
 			const wallet = bun.wallet;
 			const anyFruit = wallet.items.find(
 				(item: Item) => item.type === 'fruit' && item.quantity > 0
 			);
 			if (anyFruit) {
+				console.log('auto feeder activated');
 				eatFruit(bun, anyFruit.name);
 			}
 		}

@@ -24,7 +24,7 @@
 			mintEgg();
 			isMinting = false;
 			minted = true;
-		}, 1111);
+		}, 333);
 	}
 
 	// Egg rarities and probabilities

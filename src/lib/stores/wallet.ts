@@ -114,6 +114,7 @@ export interface Bun {
     hungerLevel: number;
     isHibernating: boolean;
     isCoolingDown: boolean;
+    hungerIntervalId?: number;
 }
 
 export interface Wallet {

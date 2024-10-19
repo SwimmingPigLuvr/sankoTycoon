@@ -108,6 +108,16 @@ function addMessage(newMessage: string) {
     });
 }
 
-const toasts = writable<string[]>([]);
+const toasts = writable<{ id: string, message: string }[]>([]);
 
-export { gameState, progressStep, addMessage, toasts };
+function addToast(message: string) {
+    let nextToastId = 0;
+    toasts.update((toasts) => {
+        // need to create a toast id?
+        nextToastId += 1;
+        toasts.unshift({ id: nextToastId, message });
+        return toasts;
+    });
+}
+
+export { gameState, progressStep, addMessage, toasts, addToast };

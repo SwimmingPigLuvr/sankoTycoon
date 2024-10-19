@@ -15,7 +15,7 @@
 			hatchEgg($activeBun);
 			isHatching = false;
 			hatched = true;
-		}, 2222);
+		}, 333);
 	}
 
 	let isHatching = false;
