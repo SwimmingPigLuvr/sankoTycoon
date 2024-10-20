@@ -22,6 +22,7 @@
 	let hatched = false;
 
 	let starterWallet: BunWallet = {
+		address: generateMockEthereumAddress(),
 		bunId: 0,
 		gold: 10,
 		items: [...Object.values(items)]

@@ -12,7 +12,8 @@
 	$: buns = $wallet.nfts;
 
 	let showItemName = false;
-	let openWalletSelection = false;
+	let openSenderSelection = false;
+	let openReceiverSelection = false;
 
 	let sendingWallet: Wallet | Bun = $wallet;
 	let receivingWallet: Wallet | Bun = $activeBun;
@@ -56,18 +57,46 @@
 		? 0
 		: (receivingWallet.tokens.find((token: Token) => token.name === 'DMT')?.balance ?? 0);
 
-	$: senderItems = isBun(sendingWallet) ? sendingWallet.wallet.items : sendingWallet.items;
+	$: senderItems = isBun(sendingWallet)
+		? sendingWallet.wallet.items.filter((item: Item) => item.quantity > 0)
+		: sendingWallet.items.filter((item: Item) => item.quantity > 0);
 
 	$: senderNfts = isBun(sendingWallet) ? [] : [...sendingWallet.nfts];
 	$: receiverNfts = isBun(receivingWallet) ? [] : [...receivingWallet.nfts];
 
-	$: receiverItems = isBun(receivingWallet) ? receivingWallet.wallet.items : receivingWallet.items;
+	$: receiverItems = isBun(receivingWallet)
+		? receivingWallet.wallet.items.filter((item: Item) => item.quantity > 0)
+		: receivingWallet.items.filter((item: Item) => item.quantity > 0);
 
-	$: senderAddress = isBun(sendingWallet) ? sendingWallet.walletAddress : sendingWallet.
+	$: senderAddress = isBun(sendingWallet)
+		? sendingWallet.wallet.address
+		: sendingWallet.walletAddress;
+
+	$: recipientAddress = isBun(receivingWallet)
+		? receivingWallet.wallet.address
+		: receivingWallet.walletAddress;
+
+	function handleOutsideClicks() {
+		sendModalOpen.set(false);
+		openSenderSelection = false;
+		openReceiverSelection = false;
+	}
+
+	function handleInsideClicks() {
+		openSenderSelection = false;
+		openReceiverSelection = false;
+	}
+
+	function swapSender() {
+		let tempSender = sendingWallet;
+		let tempRecipient = receivingWallet;
+		receivingWallet = tempSender;
+		sendingWallet = tempRecipient;
+	}
 </script>
 
 <button
-	on:click|preventDefault={() => sendModalOpen.set(false)}
+	on:click|preventDefault={handleOutsideClicks}
 	class="font-FinkHeavy w-screen h-screen bg-black bg-opacity-25"
 >
 	<!-- modal -->
@@ -79,28 +108,35 @@
 			<!-- sender -->
 			<div class="flex flex-col items-center space-y-1">
 				<!-- select sender -->
+				<!-- clicking anywhere but this button and the div that it opens should set openSenderSelection to false -->
+
 				<button
-					on:click={() => (openWalletSelection = true)}
+					on:click={() => {
+						openSenderSelection = true;
+						openReceiverSelection = false;
+					}}
 					class="relative hover:bg-gray-300 p-1 px-2 flex justify-between rounded-lg bg-gray-200 border-gray-500 border-2 space-x-1 items-center"
 				>
-					{#if openWalletSelection}
+					{#if openSenderSelection}
 						<div
 							class="absolute -bottom-32 left-1/2 -translate-y-2 -translate-x-1/2 w-80 z-40 bg-yellow-200 rounded-xl text-sm p-1 flex space-x-3"
 						>
-							<div
+							<button
+								on:click={() => (sendingWallet = $wallet)}
 								class="p-2 rounded-lg w-20 border-2 border-transparent hover:border-gray-500 flex items-center flex-col space-y-0"
 							>
 								<img class="w-10" src="ui/icons/wallet.svg" alt="wallet icon" />
 								<p>My Wallet</p>
-							</div>
+							</button>
 							{#each buns as bun}
-								<div
+								<button
+									on:click={() => (sendingWallet = bun)}
 									class="p-2 w-20 rounded-lg border-2 border-transparent hover:border-gray-500 flex items-center flex-col space-y-0"
 								>
 									<img class="w-10" src={bun.thumbUrl} alt={bun.name} />
 									<p>{bun.name}</p>
 									<p>#{bun.id}</p>
-								</div>
+								</button>
 							{/each}
 						</div>
 					{/if}
@@ -113,12 +149,13 @@
 					<!-- wallet info -->
 					<div class="flex flex-col leading-4 text-left">
 						<p>{isBun(sendingWallet) ? sendingWallet.name : 'My Wallet'}</p>
-						<p class="flex items-start space-x-1 text-gray-500 text-xs">
-							{sendingWallet.walletAddress}
-							<button on:click={() => copyAddress(sendingWallet.walletAddress)}
-								><img class="w-3" src="/ui/icons/copy.svg" alt="" /></button
-							>
-						</p>
+						<button
+							on:click|stopPropagation={() => copyAddress(senderAddress)}
+							class="flex items-start space-x-1 text-gray-500 text-xs"
+						>
+							{senderAddress}
+							<button><img class="w-3" src="/ui/icons/copy.svg" alt="" /></button>
+						</button>
 					</div>
 					<!-- dropdown icon -->
 					<img class="w-4" src="/ui/icons/chevron-down.svg" alt="" />
@@ -148,7 +185,9 @@
 						<!-- any bun's wallet -->
 						{#if isBun(sendingWallet)}
 							<!-- buns gold balance -->
-							<div class="px-2 p-1 flex bg-gray-200 border-2 border-gray-500">
+							<div
+								class="px-2 p-1 items-center space-x-1 flex bg-gray-200 border-2 border-gray-500"
+							>
 								<img class="w-4" src="/ui/icons/sankogold.png" alt="" />
 								<p>{senderGoldBalance}</p>
 							</div>
@@ -165,7 +204,6 @@
 								on:click={() => (payload = item)}
 								class="relative border-gray-500 border-[1px] hover:bg-gray-200 flex items-center justify-center"
 							>
-								<p>test</p>
 								<img src={item.imgPath} alt={item.name} class="h-8 w-auto" />
 								{#if item.quantity > 1}
 									<div
@@ -185,48 +223,54 @@
 									on:click={() => (payload = item)}
 									class="relative border-gray-500 border-[1px] hover:bg-gray-200 flex items-center justify-center"
 								>
-									<p>test</p>
 									<img src={item.thumbUrl} alt={item.name} class="h-8 w-auto" />
 								</button>
 							{/each}
 						{/if}
 
-						{#each Array(8 - senderItems.length) as _}
+						{#each Array(Math.max(0, 8 - senderItems.length)) as _}
 							<div class="border-gray-500 border-[1px] hover:bg-gray-200"></div>
 						{/each}
 					</div>
 				</div>
 			</div>
-			<img
-				src="/ui/icons/arrow.png"
-				class="scale-[-100%] hover:filter hover:brightness-[75%] translate-y-9 w-8 h-6"
-				alt=""
-			/>
+			<button on:click={() => swapSender()}>
+				<img
+					src="/ui/icons/arrow.png"
+					class="scale-[-100%] hover:filter hover:brightness-[75%] translate-y-9 w-8 h-6"
+					alt=""
+				/>
+			</button>
 			<!-- receiver -->
 			<div class="flex flex-col items-center space-y-1">
 				<!-- select receiver -->
 				<button
-					on:click={() => (openWalletSelection = true)}
+					on:click={() => {
+						openReceiverSelection = true;
+						openSenderSelection = false;
+					}}
 					class="relative hover:bg-gray-300 p-1 px-2 flex justify-between rounded-lg bg-gray-200 border-gray-500 border-2 space-x-1 items-center"
 				>
-					{#if openWalletSelection}
+					{#if openReceiverSelection}
 						<div
 							class="absolute -bottom-32 left-1/2 -translate-y-2 -translate-x-1/2 w-80 z-40 bg-yellow-200 rounded-xl text-sm p-1 flex space-x-3"
 						>
-							<div
+							<button
+								on:click={() => (receivingWallet = $wallet)}
 								class="p-2 rounded-lg w-20 border-2 border-transparent hover:border-gray-500 flex items-center flex-col space-y-0"
 							>
 								<img class="w-10" src="ui/icons/wallet.svg" alt="wallet icon" />
 								<p>My Wallet</p>
-							</div>
+							</button>
 							{#each buns as bun}
-								<div
+								<button
+									on:click={() => (receivingWallet = bun)}
 									class="p-2 w-20 rounded-lg border-2 border-transparent hover:border-gray-500 flex items-center flex-col space-y-0"
 								>
 									<img class="w-10" src={bun.thumbUrl} alt={bun.name} />
 									<p>{bun.name}</p>
 									<p>#{bun.id}</p>
-								</div>
+								</button>
 							{/each}
 						</div>
 					{/if}
@@ -239,12 +283,13 @@
 					<!-- wallet info -->
 					<div class="flex flex-col leading-4 text-left">
 						<p>{isBun(receivingWallet) ? receivingWallet.name : 'My Wallet'}</p>
-						<p class="flex items-start space-x-1 text-gray-500 text-xs">
-							{receivingWallet.walletAddress}
-							<button on:click={() => copyAddress(receivingWallet.walletAddress)}
-								><img class="w-3" src="/ui/icons/copy.svg" alt="" /></button
-							>
-						</p>
+						<button
+							on:click|stopPropagation={() => copyAddress(recipientAddress)}
+							class="flex items-start space-x-1 text-gray-500 text-xs"
+						>
+							{recipientAddress}
+							<button><img class="w-3" src="/ui/icons/copy.svg" alt="" /></button>
+						</button>
 					</div>
 					<!-- dropdown icon -->
 					<img class="w-4" src="/ui/icons/chevron-down.svg" alt="" />
@@ -274,7 +319,9 @@
 						<!-- any bun's wallet -->
 						{#if isBun(receivingWallet)}
 							<!-- buns gold balance -->
-							<div class="px-2 p-1 flex bg-gray-200 border-2 border-gray-500">
+							<div
+								class="px-2 p-1 items-center space-x-1 flex bg-gray-200 border-2 border-gray-500"
+							>
 								<img class="w-4" src="/ui/icons/sankogold.png" alt="" />
 								<p>{receiverGoldBalance}</p>
 							</div>
@@ -291,7 +338,6 @@
 								on:click={() => (payload = item)}
 								class="relative border-gray-500 border-[1px] hover:bg-gray-200 flex items-center justify-center"
 							>
-								<p>test</p>
 								<img src={item.imgPath} alt={item.name} class="h-8 w-auto" />
 								{#if item.quantity > 1}
 									<div
@@ -303,7 +349,7 @@
 							</button>
 						{/each}
 
-						{#if isBun(receiverItems)}
+						{#if isBun(receivingWallet)}
 							{#each receiverNfts as item}
 								<button
 									on:mouseenter={() => (showItemName = true)}
@@ -311,13 +357,12 @@
 									on:click={() => (payload = item)}
 									class="relative border-gray-500 border-[1px] hover:bg-gray-200 flex items-center justify-center"
 								>
-									<p>test</p>
 									<img src={item.thumbUrl} alt={item.name} class="h-8 w-auto" />
 								</button>
 							{/each}
 						{/if}
 
-						{#each Array(8 - receiverItems.length) as _}
+						{#each Array(Math.max(0, 8 - receiverItems.length)) as _}
 							<div class="border-gray-500 border-[1px] hover:bg-gray-200"></div>
 						{/each}
 					</div>
