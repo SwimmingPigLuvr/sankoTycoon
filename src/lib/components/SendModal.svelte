@@ -6,8 +6,11 @@
 		type Item,
 		type Token,
 		type Wallet,
-		type BunWallet
+		type BunWallet,
+		truncateEthAddress
 	} from '$lib/stores/wallet';
+	import { backIn, backOut, cubicInOut } from 'svelte/easing';
+	import { scale } from 'svelte/transition';
 
 	$: buns = $wallet.nfts;
 
@@ -101,6 +104,8 @@
 >
 	<!-- modal -->
 	<button
+		in:scale={{ duration: 500, easing: backOut }}
+		out:scale={{ duration: 500, easing: backIn }}
 		on:click|stopPropagation
 		class="items-center w-[500px] send-modal fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col space-y-3 m-auto p-4 rounded-xl border-blue-600 border-4"
 	>
@@ -153,7 +158,7 @@
 							on:click|stopPropagation={() => copyAddress(senderAddress)}
 							class="flex items-start space-x-1 text-gray-500 text-xs"
 						>
-							{senderAddress}
+							{truncateEthAddress(senderAddress)}
 							<button><img class="w-3" src="/ui/icons/copy.svg" alt="" /></button>
 						</button>
 					</div>
@@ -287,7 +292,7 @@
 							on:click|stopPropagation={() => copyAddress(recipientAddress)}
 							class="flex items-start space-x-1 text-gray-500 text-xs"
 						>
-							{recipientAddress}
+							{truncateEthAddress(recipientAddress ?? '0x0187de236e3fb50b')}
 							<button><img class="w-3" src="/ui/icons/copy.svg" alt="" /></button>
 						</button>
 					</div>

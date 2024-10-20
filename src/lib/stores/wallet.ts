@@ -126,9 +126,28 @@ export interface Wallet {
     items: Item[];
 }
 
+// Generate a mock Ethereum wallet address
+export function generateEthAddress() {
+        const hexCharacters = '0123456789abcdefABCDEF';
+        let address = '0x';
+        for (let i = 0; i < 16; i++) {
+                address += hexCharacters[Math.floor(Math.random() * 16)];
+        }
+        return address;
+}
+
+// Function to truncate the middle of the Ethereum address
+export function truncateEthAddress(address: string): string {
+    if (address.length <= 10) {
+        // If the address is too short to truncate, return it as is
+        return address;
+    }
+    return `${address.slice(0, 5)}...${address.slice(-3)}`;
+}
+
 // Define the starterWallet object with only 3 $DMT
 const starterWallet: Wallet = {
-    walletAddress: '0x4251b...239B3', // generate random address for them, let them use a .DMT address in the future
+    walletAddress: generateEthAddress(),
     network: 'Arbitrum',
     tokens: [
         {

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { activeBun, progressStep } from '$lib/stores/gameState';
 	import type { Bun, BunVariety, BunType, BunRarity, BunWallet, Item } from '$lib/stores/wallet';
-	import { wallet } from '$lib/stores/wallet';
+	import { generateEthAddress, wallet } from '$lib/stores/wallet';
 	import * as items from '$lib/itemData';
 	import Wallet from './Wallet.svelte';
 	import { startHungerInterval } from '$lib/stores/hungerState';
@@ -22,24 +22,14 @@
 	let hatched = false;
 
 	let starterWallet: BunWallet = {
-		address: generateMockEthereumAddress(),
+		address: generateEthAddress(),
 		bunId: 0,
 		gold: 10,
 		items: [...Object.values(items)]
 	};
 
-	// Generate a mock Ethereum wallet address
-	function generateMockEthereumAddress() {
-		const hexCharacters = '0123456789ABCDEF';
-		let address = '0x';
-		for (let i = 0; i < 40; i++) {
-			address += hexCharacters[Math.floor(Math.random() * 16)];
-		}
-		return address;
-	}
-
 	let bunWallet2: BunWallet = {
-		address: generateMockEthereumAddress(),
+		address: generateEthAddress(),
 		bunId: 2222,
 		gold: 100,
 		items: Object.values(items).map((item) => ({
@@ -226,6 +216,7 @@
 			{
 				type: 'Bun',
 				wallet: {
+					address: generateEthAddress(),
 					bunId: egg.id,
 					gold: 10,
 					items: [...starterWallet.items]
