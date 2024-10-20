@@ -27,7 +27,18 @@
 		items: [...Object.values(items)]
 	};
 
+	// Generate a mock Ethereum wallet address
+	function generateMockEthereumAddress() {
+		const hexCharacters = '0123456789ABCDEF';
+		let address = '0x';
+		for (let i = 0; i < 40; i++) {
+			address += hexCharacters[Math.floor(Math.random() * 16)];
+		}
+		return address;
+	}
+
 	let bunWallet2: BunWallet = {
+		address: generateMockEthereumAddress(),
 		bunId: 2222,
 		gold: 100,
 		items: Object.values(items).map((item) => ({

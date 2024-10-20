@@ -30,6 +30,7 @@ export interface Item  {
 }
 
 export interface BunWallet {
+    address: string;
     bunId: number;
     gold: number;
     items: Item[];
@@ -122,6 +123,7 @@ export interface Wallet {
     walletAddress: string;
     tokens: Token[];
     nfts: Bun[];
+    items: Item[];
 }
 
 // Define the starterWallet object with only 3 $DMT
@@ -139,6 +141,7 @@ const starterWallet: Wallet = {
         },
     ],
     nfts: [], // No NFTs
+    items: [], // No items
 };
 
 export const wallet = writable<Wallet>(starterWallet);
