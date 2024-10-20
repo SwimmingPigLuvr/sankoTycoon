@@ -178,7 +178,6 @@ export const addItemToWallet = (bunIndex: number, newItem: Item) => {
         } else {
             bun.wallet.items.push({ ...newItem });
         }
-        console.log(`Added ${newItem.name} to Bun ${bun.id}. New quantity: ${newItem.quantity}`);
         return wallet;
     });
 };
@@ -194,7 +193,6 @@ export const subtractItemFromWallet = (bunIndex: number, itemToSubtract: Item) =
         if (existingItem && existingItem.quantity > 0) {
             existingItem.quantity -= 1;
         }
-        console.log(`${bun.name} used ${itemToSubtract.name}. New quantity: ${itemToSubtract.quantity}`);
         return wallet;
     });
 };
@@ -203,12 +201,6 @@ export const subtractItemFromWallet = (bunIndex: number, itemToSubtract: Item) =
 export const updateGold = (bunIndex: number, amount: number) => {
     wallet.update((wallet) => {
         wallet.nfts[bunIndex].wallet.gold += amount;
-        if (amount > 0) {
-            console.log(`added ${amount} gold to ${wallet.nfts[bunIndex].name}'s wallet`);
-        }
-        if (amount < 0) {
-            console.log(`subtracted ${amount} gold from ${wallet.nfts[bunIndex].name}'s wallet`);
-        }
         return wallet;
     })
 }

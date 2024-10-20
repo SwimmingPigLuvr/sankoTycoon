@@ -83,7 +83,6 @@
 	let selectedPlotIndex: number | null = null;
 
 	function selectPlot(index: number) {
-		console.log('selected plot: ', index);
 		selectedPlotIndex = index;
 	}
 
@@ -195,7 +194,6 @@
 	}
 
 	function harvestFruit(index: number) {
-		console.log('harvesting fruit');
 		const plot = plots[index];
 		if (plot.fruitsReady && plot.fruitsReady > 0) {
 			// update bunWallet
@@ -220,7 +218,6 @@
 				// add fruit to wallet
 				if (fruit && plot.fruitsReady) {
 					fruit.quantity += plot.fruitsReady;
-					console.log('adding fruits to wallet: ', plot.fruitsReady);
 				}
 
 				// update plot
@@ -233,7 +230,6 @@
 					// add witheredSeeds to bunWallet
 					if (!plot.isWithered) {
 						if (witheredSeed) {
-							console.log('adding witheredSeed to bunwallet: ', witheredSeed.fruitType);
 							witheredSeed.quantity += 1;
 						}
 					}

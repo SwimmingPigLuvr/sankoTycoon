@@ -2,10 +2,13 @@
 	import {
 		autoFeederOn,
 		autoFeederPurchased,
+		autoSellerOn,
+		autoSellerPurchased,
 		click2plantEnabled,
 		click2plantPurchased,
 		totalFruitsEaten,
-		totalTreesPlanted
+		totalFruitsSold,
+		totalTreesPlanted,
 	} from '$lib/stores/abilities';
 	import { addMessage, b } from '$lib/stores/gameState';
 	import { wallet, type Token } from '$lib/stores/wallet';
@@ -14,6 +17,11 @@
 	// Function to toggle the autoFeederOn store
 	function toggleAutoFeeder() {
 		autoFeederOn.update((value) => !value);
+	}
+
+	// Function to toggle the autoSellerOn store
+	function toggleAutoSeller() {
+		autoSellerOn.update((value) => !value);
 	}
 
 	// Function to toggle the autoFeederOn store
@@ -46,8 +54,8 @@
 </script>
 
 <main class="flex flex-col space-y-2 w-40">
+	<!-- auto feeder -->
 	{#if $totalFruitsEaten >= 10}
-		<!-- auto feeder -->
 		<div class="text-xs border-2 border-black p-2 flex justify-between relative">
 			<p>Auto Feeder</p>
 			<!-- Button to toggle the autoFeederOn store value -->
@@ -56,6 +64,22 @@
 				on:click={toggleAutoFeeder}
 			>
 				{#if $autoFeederOn}
+					On
+				{:else}
+					Off
+				{/if}
+			</button>
+		</div>
+	{/if}
+	<!-- auto Seller -->
+	{#if $totalFruitsSold >= 50}
+		<div class="text-xs border-2 border-black p-2 flex justify-between relative">
+			<p>Auto Seller</p>
+			<button
+				class="{$autoSellerOn ? 'bg-lime-400' : 'bg-red-400'} h-full w-12 absolute right-0 top-0"
+				on:click={toggleAutoSeller}
+			>
+				{#if $autoSellerOn}
 					On
 				{:else}
 					Off

@@ -21,9 +21,6 @@
 			if (progress >= 100) {
 				clearInterval(interval);
 				isBridging = false;
-				console.log('bridge complete');
-				console.log('changing network from arb to sanko');
-				console.log('upadating wallet');
 				wallet.update((wallet) => {
 					wallet.network = 'Sanko';
 					return wallet;

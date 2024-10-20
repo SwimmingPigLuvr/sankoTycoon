@@ -6,7 +6,6 @@ const bunStatus = ['Bloated', 'Full', 'Fine', 'Hungry', 'Famished', 'Starving', 
 function startHungerInterval(bun: Bun) {
     // clear existing interval
     if (bun.hungerIntervalId) {
-        console.log(`clearing hunger interval for ${bun.name} #${bun.id}`);
         clearInterval(bun.hungerIntervalId);
     }
 
@@ -30,7 +29,6 @@ function startHungerInterval(bun: Bun) {
             bunNft.hungerLevel += 1;
             bunNft.hungerLevel = Math.min(bunNft.hungerLevel, bunStatus.length - 1);
 
-            console.log(`${bun.name}'s hunger level increased to ${bun.hungerLevel}`);
 
             // hibernation after starvation
             if (bunNft.hungerLevel === bunStatus.length -1) {
@@ -44,13 +42,11 @@ function startHungerInterval(bun: Bun) {
 
     // store interval in bun object
     bun.hungerIntervalId = intervalId
-    console.log('started hunger interval id #:', intervalId);
 }
 
 function restartHungerInterval(bun: Bun) {
     // clear interval
     if (bun.hungerIntervalId) {
-        console.log('clearing existing hunger interval for', bun.name);
         clearInterval(bun.hungerIntervalId);
         bun.hungerIntervalId = undefined;
     }
@@ -65,7 +61,6 @@ function restartHungerInterval(bun: Bun) {
         const bunNft: Bun = currentWallet.nfts[bunIndex];
         // reset hunger level to 0
         bunNft.hungerLevel = 0;
-        console.log('reset hunger level for', bun.name);
         return currentWallet
 
     })

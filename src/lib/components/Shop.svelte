@@ -1,7 +1,7 @@
 <!-- $lib/components/Shop.svelte -->
 <script lang="ts">
 	import * as allItems from '$lib/itemData';
-	import { bunBlasted } from '$lib/stores/abilities';
+	import { autoSellerOn, bunBlasted, sellSpeed, totalFruitsSold } from '$lib/stores/abilities';
 	import { gameState, b } from '$lib/stores/gameState';
 	import {
 		addItemToWallet,
@@ -11,8 +11,11 @@
 		type Bun,
 		type Item
 	} from '$lib/stores/wallet';
+	import { onDestroy } from 'svelte';
 	import { cubicInOut } from 'svelte/easing';
 	import { fade } from 'svelte/transition';
+
+	let autoSellInterval: ReturnType<typeof setInterval> | null = null;
 
 	let showDescription: boolean[] = [];
 	let currentDescription: string | undefined;
@@ -79,10 +82,46 @@
 		if (newItem.sellPrice) {
 			updateGold(bunIndex, newItem.sellPrice);
 		}
+		totalFruitsSold.update((total) => (total += 1));
 	}
+
+	// check if autofeeder is enabled
+	$: {
+		if ($autoSellerOn && buns[$b]) {
+			const bun = buns[$b];
+			// clear old interval
+			if (autoSellInterval) {
+				clearInterval(autoSellInterval);
+			}
+
+			autoSellInterval = setInterval(() => {
+				const wallet = bun.wallet;
+				const anyFruit = wallet.items.find(
+					(item: Item) => item.type === 'fruit' && item.quantity > 0
+				);
+				if (anyFruit) {
+					console.log('auto seller sold: ', anyFruit.name);
+					sellItem($b, anyFruit);
+				}
+			}, $sellSpeed);
+		} else {
+			if (autoSellInterval) {
+				clearInterval(autoSellInterval);
+				autoSellInterval = null;
+			}
+		}
+	}
+
+	onDestroy(() => {
+		if (autoSellInterval) {
+			clearInterval(autoSellInterval);
+		}
+	});
 </script>
 
-<main class="max-w-[540px] absolute top-[640px] left-2 rounded-xl p-2 border-sky-400 border-4 bg-sky-800 flex flex-col space-y-1">
+<main
+	class="max-w-[540px] absolute top-[640px] left-2 rounded-xl p-2 border-sky-400 border-4 bg-sky-800 flex flex-col space-y-1"
+>
 	<div class="flex justify-between">
 		<!-- buy/sell buttons -->
 		<div class="flex space-x-1">
