@@ -7,7 +7,7 @@
 	import { fade } from 'svelte/transition';
 	import { gameState, b } from '$lib/stores/gameState';
 	import { onMount } from 'svelte';
-	import { click2plantEnabled, totalTreesPlanted } from '$lib/stores/abilities';
+	import { click2plant, totalTreesPlanted, type Click2plant } from '$lib/stores/abilities';
 
 	export let bun: Bun;
 
@@ -304,7 +304,9 @@
 		return 'images/items/Bunzempic.png'; // Return undefined if no known fruit type is found.
 	}
 
-	$: if ($click2plantEnabled && selectedSeed && selectedPlotIndex) {
+	// if click 2 plant has been purchased and enabled
+	// plant a seed whenever the plot and seed are selected
+	$: if ($click2plant.enabled && $click2plant.level === 1 && selectedSeed && selectedPlotIndex) {
 		plantSeed();
 	}
 </script>

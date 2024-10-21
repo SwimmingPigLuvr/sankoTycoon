@@ -1,7 +1,7 @@
 <!-- $lib/components/BunWallet.svelte -->
 <script lang="ts">
 	import * as itemData from '$lib/itemData';
-	import { autoFeederOn, bunBlasted, isReviving, totalFruitsEaten } from '$lib/stores/abilities';
+	import { bunBlasted, isReviving, totalFruitsEaten } from '$lib/stores/abilities';
 	import { addMessage, gameState, b } from '$lib/stores/gameState';
 	import { wallet, type Bun, type Item, type Token } from '$lib/stores/wallet';
 	import { cubicInOut } from 'svelte/easing';

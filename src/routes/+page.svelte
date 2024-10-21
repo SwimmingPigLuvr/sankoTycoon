@@ -66,7 +66,7 @@
 	<h1 class="-z-50 w-full text-left absolute bottom-2 left-2">Sanko Tycoon ©</h1>
 	<div
 		in:slide={{ delay: 1500 }}
-		class=" text-white font-amsterdam-display fixed bottom-2 right-2 items-center -translate-y-1 flex-col"
+		class="-z-10 font-amsterdam-display fixed bottom-2 right-2 items-center -translate-y-1 flex-col"
 	>
 		<a
 			target="_blank"

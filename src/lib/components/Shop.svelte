@@ -1,7 +1,7 @@
 <!-- $lib/components/Shop.svelte -->
 <script lang="ts">
 	import * as allItems from '$lib/itemData';
-	import { autoSellerOn, bunBlasted, sellSpeed, totalFruitsSold } from '$lib/stores/abilities';
+	import { autoSeller, type AutoSeller, bunBlasted, totalFruitsSold } from '$lib/stores/abilities';
 	import { gameState, b } from '$lib/stores/gameState';
 	import {
 		addItemToWallet,
@@ -85,32 +85,44 @@
 		totalFruitsSold.update((total) => (total += 1));
 	}
 
-	// check if autofeeder is enabled
-	$: {
-		if ($autoSellerOn && buns[$b]) {
-			const bun = buns[$b];
-			// clear old interval
-			if (autoSellInterval) {
-				clearInterval(autoSellInterval);
+	function startAutoSellerInterval() {
+		// Clear existing interval if any
+		if (autoSellInterval) {
+			clearInterval(autoSellInterval);
+		}
+		// Start the interval
+		autoSellInterval = setInterval(() => {
+			if (buns[$b]) {
+				const bun = buns[$b];
+				if ($autoSeller.enabled) {
+					const wallet = bun.wallet;
+					const anyFruit = wallet.items.find(
+						(item: Item) => item.type === 'fruit' && item.quantity > 0
+					);
+					if (anyFruit) {
+						console.log('Auto seller sold:', anyFruit.name);
+						sellItem($b, anyFruit);
+					}
+				}
 			}
+		}, $autoSeller.rate);
+	}
 
-			autoSellInterval = setInterval(() => {
+	autoSellInterval = setInterval(() => {
+		if (buns[$b]) {
+			const bun = buns[$b];
+			if ($autoSeller.enabled) {
 				const wallet = bun.wallet;
 				const anyFruit = wallet.items.find(
 					(item: Item) => item.type === 'fruit' && item.quantity > 0
 				);
 				if (anyFruit) {
-					console.log('auto seller sold: ', anyFruit.name);
+					console.log(`🤖 SOLD ${anyFruit.name} AUTOMATICALLY`);
 					sellItem($b, anyFruit);
 				}
-			}, $sellSpeed);
-		} else {
-			if (autoSellInterval) {
-				clearInterval(autoSellInterval);
-				autoSellInterval = null;
 			}
 		}
-	}
+	}, $autoSeller.rate);
 
 	onDestroy(() => {
 		if (autoSellInterval) {
@@ -120,7 +132,7 @@
 </script>
 
 <main
-	class="max-w-[540px] absolute top-[640px] left-2 rounded-xl p-2 border-sky-400 border-4 bg-sky-800 flex flex-col space-y-1"
+	class="w-[99%] absolute top-[640px] left-1/2 -translate-x-1/2 rounded-xl p-2 border-sky-400 border-4 bg-sky-800 flex flex-col space-y-1"
 >
 	<div class="flex justify-between">
 		<!-- buy/sell buttons -->

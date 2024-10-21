@@ -6,16 +6,50 @@ export const bunBlasted = writable<boolean>(false);
 // cool down period after reviving bun
 export const isReviving = writable<boolean>(false);
 
-export const click2plantPurchased = writable<boolean>(true);
-export const click2plantEnabled = writable<boolean>(true);
-export const totalTreesPlanted = writable<number>(10);
+export interface Click2plant {
+    purchased: boolean;
+    enabled: boolean;
+    level: number;
+}
 
-export const autoFeederPurchased = writable<boolean>(true);
-export const autoFeederOn = writable<boolean>(true);
-export const totalFruitsEaten = writable<number>(10);
+const myClick2plant: Click2plant = {
+    purchased: false,
+    enabled: false,
+    level: 0,
+}
 
-export const totalFruitsSold = writable<number>(50);
-export const autoSellerPurchased = writable<boolean>(true);
-export const autoSellerOn = writable<boolean>(true);
-export const sellSpeed = writable<number>(2000);
+export const click2plant = writable<Click2plant>(myClick2plant);
+export const totalTreesPlanted = writable<number>(0);
+
+// auto feed your buns
+export interface AutoFeeder {
+    enabled: boolean;
+    purchased: boolean;
+}
+const myAutoFeeder: AutoFeeder = {
+    enabled: false,
+    purchased: false,
+}
+
+export const autoFeeder = writable<AutoFeeder>(myAutoFeeder);
+export const totalFruitsEaten = writable<number>(0);
+
+
+// auto sell those fruits
+export interface AutoSeller {
+    rate: number;
+    enabled: boolean;
+    purchased: boolean;
+    level: number;
+}
+
+const myAutoSeller: AutoSeller = {
+    rate: 2000,
+    enabled: false,
+    purchased: false,
+    level: 0,
+}
+
+export const autoSeller = writable<AutoSeller>(myAutoSeller);
+export const totalFruitsSold = writable<number>(0);
 

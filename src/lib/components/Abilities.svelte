@@ -1,14 +1,12 @@
 <script lang="ts">
 	import {
-		autoFeederOn,
-		autoFeederPurchased,
-		autoSellerOn,
-		autoSellerPurchased,
-		click2plantEnabled,
-		click2plantPurchased,
+		autoFeeder,
+		autoSeller,
+		click2plant,
+		type Click2plant,
 		totalFruitsEaten,
 		totalFruitsSold,
-		totalTreesPlanted,
+		totalTreesPlanted
 	} from '$lib/stores/abilities';
 	import { addMessage, b } from '$lib/stores/gameState';
 	import { wallet, type Token } from '$lib/stores/wallet';
@@ -16,17 +14,46 @@
 
 	// Function to toggle the autoFeederOn store
 	function toggleAutoFeeder() {
-		autoFeederOn.update((value) => !value);
+		autoFeeder.update((feeder) => {
+			feeder.enabled = !feeder.enabled;
+			return feeder;
+		});
 	}
 
-	// Function to toggle the autoSellerOn store
+	// Function to toggle the autoSeller enabled
 	function toggleAutoSeller() {
-		autoSellerOn.update((value) => !value);
+		autoSeller.update((autoSeller) => {
+			autoSeller.enabled = !autoSeller.enabled;
+			return autoSeller;
+		});
 	}
 
 	// Function to toggle the autoFeederOn store
 	function toggleOneClick() {
-		click2plantEnabled.update((value) => !value);
+		click2plant.update((c2p) => {
+			c2p.enabled = !c2p;
+			return c2p;
+		});
+	}
+
+	function buyAutoFeeder() {
+		// not sure how much gold this should cost
+		wallet.update((wallet) => {
+			const goldToken = wallet.tokens.find((token: Token) => token.name === 'GOLD');
+			if (goldToken && goldToken.balance >= 20) {
+				goldToken.balance -= 20;
+
+				// set stores
+				autoFeeder.update((feeder) => {
+					feeder.purchased = true;
+					feeder.enabled = true;
+					return feeder;
+				});
+			}
+
+			return wallet;
+		});
+		addMessage(`${$wallet.nfts[$b].name} bought AUTOFEEDER™️ for 20 GOLD`);
 	}
 
 	function buyClick2Plant() {
@@ -37,8 +64,12 @@
 				goldToken.balance -= 20;
 
 				// set click to plant stores to true
-				click2plantPurchased.set(true);
-				click2plantEnabled.set(true);
+				click2plant.update((c2p) => {
+					c2p.purchased = true;
+					c2p.enabled = true;
+					c2p.level = 1;
+					return c2p;
+				});
 			} else {
 				addMessage('not enough GOLD');
 			}
@@ -60,10 +91,10 @@
 			<p>Auto Feeder</p>
 			<!-- Button to toggle the autoFeederOn store value -->
 			<button
-				class="{$autoFeederOn ? 'bg-lime-400' : 'bg-red-400'} h-full w-12 absolute right-0 top-0"
+				class="{$autoFeeder.enabled ? 'bg-lime-400' : 'bg-red-400'} h-full w-12 absolute right-0 top-0"
 				on:click={toggleAutoFeeder}
 			>
-				{#if $autoFeederOn}
+				{#if $autoFeeder.enabled}
 					On
 				{:else}
 					Off
@@ -76,10 +107,12 @@
 		<div class="text-xs border-2 border-black p-2 flex justify-between relative">
 			<p>Auto Seller</p>
 			<button
-				class="{$autoSellerOn ? 'bg-lime-400' : 'bg-red-400'} h-full w-12 absolute right-0 top-0"
+				class="{$autoSeller.enabled
+					? 'bg-lime-400'
+					: 'bg-red-400'} h-full w-12 absolute right-0 top-0"
 				on:click={toggleAutoSeller}
 			>
-				{#if $autoSellerOn}
+				{#if $autoSeller.enabled}
 					On
 				{:else}
 					Off
@@ -91,7 +124,7 @@
 	<!-- shows up once user plants 10 trees -->
 	{#if $totalTreesPlanted >= 10}
 		<!-- if not purchased yet -->
-		{#if !$click2plantPurchased}
+		{#if !$click2plant.purchased}
 			<button
 				disabled={goldBalance < 20}
 				on:click={() => buyClick2Plant()}
@@ -104,17 +137,17 @@
 				<p class="text-left">Plants seeds with one less click</p>
 			</button>
 		{/if}
-		{#if $click2plantPurchased}
+		{#if $click2plant.purchased}
 			<div class="text-xs border-2 border-black p-2 flex justify-between relative">
 				<p>click2plant</p>
 				<!-- Button to toggle the autoFeederOn store value -->
 				<button
-					class="{$click2plantEnabled
+					class="{$click2plant.enabled
 						? 'bg-lime-400'
 						: 'bg-red-400'} h-full w-12 absolute right-0 top-0"
 					on:click={toggleOneClick}
 				>
-					{#if $click2plantEnabled}
+					{#if $click2plant.enabled}
 						On
 					{:else}
 						Off
