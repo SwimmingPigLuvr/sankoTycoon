@@ -156,7 +156,7 @@ const starterWallet: Wallet = {
         },
         {
             name: 'GOLD',
-            balance: 20,
+            balance: 10,
         },
     ],
     nfts: [], // No NFTs

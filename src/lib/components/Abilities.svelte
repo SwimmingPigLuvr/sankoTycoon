@@ -29,7 +29,7 @@
 	}
 
 	// Function to toggle the autoFeederOn store
-	function toggleOneClick() {
+	function toggleC2P() {
 		click2plant.update((c2p) => {
 			c2p.enabled = !c2p;
 			return c2p;
@@ -40,8 +40,8 @@
 		// not sure how much gold this should cost
 		wallet.update((wallet) => {
 			const goldToken = wallet.tokens.find((token: Token) => token.name === 'GOLD');
-			if (goldToken && goldToken.balance >= 20) {
-				goldToken.balance -= 20;
+			if (goldToken && goldToken.balance >= 10) {
+				goldToken.balance -= 10;
 
 				// set stores
 				autoFeeder.update((feeder) => {
@@ -56,18 +56,43 @@
 		addMessage(`${$wallet.nfts[$b].name} bought AUTOFEEDER™️ for 20 GOLD`);
 	}
 
-	function buyClick2Plant() {
-		// subtract 20 GOLD from wallet
+	$: autoSellerPrice = ($autoSeller.level + 1) * 3;
+
+	function buyAutoSeller() {
+		// not sure how much gold this should cost
 		wallet.update((wallet) => {
 			const goldToken = wallet.tokens.find((token: Token) => token.name === 'GOLD');
-			if (goldToken && goldToken.balance >= 20) {
-				goldToken.balance -= 20;
+			if (goldToken && goldToken.balance >= autoSellerPrice) {
+				goldToken.balance -= autoSellerPrice;
+
+				// set stores
+				autoSeller.update((seller) => {
+					seller.purchased = true;
+					seller.enabled = true;
+					return seller;
+				});
+			}
+
+			return wallet;
+		});
+		addMessage(`${$wallet.nfts[$b].name} bought AUTOSELLER™️ for ${autoSellerPrice} GOLD`);
+	}
+
+	$: c2pPrice = ($click2plant.level + 1) * 2;
+	function buyClick2Plant() {
+		// subtract 20 GOLD from wallet
+		// set price based on level
+		// Calculate price based on the level
+		wallet.update((wallet) => {
+			const goldToken = wallet.tokens.find((token: Token) => token.name === 'GOLD');
+			if (goldToken && goldToken.balance >= c2pPrice) {
+				goldToken.balance -= c2pPrice;
 
 				// set click to plant stores to true
 				click2plant.update((c2p) => {
 					c2p.purchased = true;
 					c2p.enabled = true;
-					c2p.level = 1;
+					c2p.level += 1;
 					return c2p;
 				});
 			} else {
@@ -76,7 +101,7 @@
 
 			return wallet;
 		});
-		addMessage(`${$wallet.nfts[$b].name} bought 1 click planting for 20 GOLD`);
+		addMessage(`${$wallet.nfts[$b].name} enabled click2plant™️  level ${$click2plant.level}`);
 	}
 
 	// wallet balance
@@ -86,53 +111,86 @@
 
 <main class="flex flex-col space-y-2 w-40">
 	<!-- auto feeder -->
-	{#if $totalFruitsEaten >= 10}
-		<div class="text-xs border-2 border-black p-2 flex justify-between relative">
-			<p>Auto Feeder</p>
-			<!-- Button to toggle the autoFeederOn store value -->
+	{#if $totalFruitsEaten >= 0}
+		{#if !$autoFeeder.purchased}
 			<button
-				class="{$autoFeeder.enabled ? 'bg-lime-400' : 'bg-red-400'} h-full w-12 absolute right-0 top-0"
-				on:click={toggleAutoFeeder}
+				disabled={goldBalance < 10}
+				on:click={() => buyAutoFeeder()}
+				class="disabled:bg-gray-400 bg-sky-400 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
 			>
-				{#if $autoFeeder.enabled}
-					On
-				{:else}
-					Off
-				{/if}
+				<div class="flex justify-around w-full">
+					<p class="text-white">autoFeeder</p>
+					<p class="text-amber-300">10 GOLD</p>
+				</div>
+				<p class="text-left">Feeds your Bun so you can worry about more important things.</p>
 			</button>
-		</div>
+		{/if}
+		{#if $autoFeeder.purchased}
+			<div class="text-xs border-2 border-black p-2 flex justify-between relative">
+				<p>Auto Feeder</p>
+				<!-- Button to toggle the autoFeederOn store value -->
+				<button
+					class="{$autoFeeder.enabled
+						? 'bg-lime-400'
+						: 'bg-red-400'} h-full w-12 absolute right-0 top-0"
+					on:click={toggleAutoFeeder}
+				>
+					{#if $autoFeeder.enabled}
+						On
+					{:else}
+						Off
+					{/if}
+				</button>
+			</div>
+		{/if}
 	{/if}
 	<!-- auto Seller -->
-	{#if $totalFruitsSold >= 50}
-		<div class="text-xs border-2 border-black p-2 flex justify-between relative">
-			<p>Auto Seller</p>
+	{#if $totalFruitsSold >= 0}
+		{#if !$autoSeller.purchased}
 			<button
-				class="{$autoSeller.enabled
-					? 'bg-lime-400'
-					: 'bg-red-400'} h-full w-12 absolute right-0 top-0"
-				on:click={toggleAutoSeller}
+				disabled={goldBalance < autoSellerPrice}
+				on:click={() => buyAutoSeller()}
+				class="disabled:bg-gray-400 bg-sky-400 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
 			>
-				{#if $autoSeller.enabled}
-					On
-				{:else}
-					Off
-				{/if}
+				<div class="flex justify-around w-full">
+					<p class="text-white">autoSeller</p>
+					<p class="text-amber-300">{autoSellerPrice} GOLD</p>
+				</div>
+				<p class="text-left">Sells fruit for you</p>
 			</button>
-		</div>
+		{/if}
+		{#if $autoSeller.purchased}
+			<div class="text-xs border-2 border-black p-2 flex justify-between relative">
+				<p>Auto Seller</p>
+				<button
+					class="{$autoSeller.enabled
+						? 'bg-lime-400'
+						: 'bg-red-400'} h-full w-12 absolute right-0 top-0"
+					on:click={toggleAutoSeller}
+				>
+					{#if $autoSeller.enabled}
+						On
+					{:else}
+						Off
+					{/if}
+				</button>
+			</div>
+		{/if}
 	{/if}
+
 	<!-- one click planting -->
 	<!-- shows up once user plants 10 trees -->
-	{#if $totalTreesPlanted >= 10}
+	{#if $totalTreesPlanted >= 0}
 		<!-- if not purchased yet -->
 		{#if !$click2plant.purchased}
 			<button
-				disabled={goldBalance < 20}
+				disabled={goldBalance < c2pPrice}
 				on:click={() => buyClick2Plant()}
 				class="disabled:bg-gray-400 bg-sky-400 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
 			>
 				<div class="flex justify-around w-full">
 					<p class="text-white">click2plant</p>
-					<p class="text-amber-300">20 GOLD</p>
+					<p class="text-amber-300">{c2pPrice} GOLD</p>
 				</div>
 				<p class="text-left">Plants seeds with one less click</p>
 			</button>
@@ -145,7 +203,7 @@
 					class="{$click2plant.enabled
 						? 'bg-lime-400'
 						: 'bg-red-400'} h-full w-12 absolute right-0 top-0"
-					on:click={toggleOneClick}
+					on:click={toggleC2P}
 				>
 					{#if $click2plant.enabled}
 						On
@@ -154,6 +212,19 @@
 					{/if}
 				</button>
 			</div>
+		{/if}
+		{#if $click2plant.level === 1}
+			<button
+				disabled={goldBalance < c2pPrice}
+				on:click={() => buyClick2Plant()}
+				class="-translate-y-3 disabled:bg-gray-400 bg-sky-300 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
+			>
+				<div class="flex justify-around w-full">
+					<p class="text-white">level 2</p>
+					<p class="text-amber-300">{c2pPrice} GOLD</p>
+				</div>
+				<p class="text-left">Plants seeds with one less click</p>
+			</button>
 		{/if}
 	{/if}
 </main>

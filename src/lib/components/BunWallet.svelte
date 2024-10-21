@@ -1,7 +1,7 @@
 <!-- $lib/components/BunWallet.svelte -->
 <script lang="ts">
 	import * as itemData from '$lib/itemData';
-	import { bunBlasted, isReviving, totalFruitsEaten } from '$lib/stores/abilities';
+	import { autoFeeder, bunBlasted, isReviving, totalFruitsEaten } from '$lib/stores/abilities';
 	import { addMessage, gameState, b } from '$lib/stores/gameState';
 	import { wallet, type Bun, type Item, type Token } from '$lib/stores/wallet';
 	import { cubicInOut } from 'svelte/easing';
@@ -220,7 +220,7 @@
 	}
 
 	// check if autofeeder is enabled
-	$: if ($autoFeederOn && buns[$b]) {
+	$: if ($autoFeeder.enabled && buns[$b]) {
 		const bun = buns[$b];
 		// only use when bun is starving
 		if (bun.hungerLevel >= 5) {

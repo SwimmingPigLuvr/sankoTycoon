@@ -309,6 +309,14 @@
 	$: if ($click2plant.enabled && $click2plant.level === 1 && selectedSeed && selectedPlotIndex) {
 		plantSeed();
 	}
+
+	$: if ($click2plant.enabled && $click2plant.level === 2 && selectedPlotIndex) {
+		// Select the first available seed from allAvailableSeeds if it exists
+		selectedSeed = allAvailableSeeds.length > 0 ? allAvailableSeeds[0] : undefined;
+
+		// then plant the seed
+		plantSeed();
+	}
 </script>
 
 <main class="flex flex-col space-y-2 max-w-40" in:fade={{ delay: 100, duration: 250 }}>
