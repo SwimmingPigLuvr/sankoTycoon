@@ -358,9 +358,11 @@
 							<img src={item.imgPath} alt={item.name} class="h-8 w-auto" />
 							{#if item.quantity > 1}
 								<div
-									class="absolute w-2 h-2 top-0 right-0 bg-rose-600 rounded-none text-white flex items-center justify-center text-[0.4rem] text-center"
+									class="absolute w-3 h-3 top-0 right-0 bg-rose-600 rounded-full text-white flex items-center justify-center text-[0.6rem] text-center font-FinkHeavy"
 								>
-									{item.quantity}
+									<p class="m-auto">
+										{item.quantity}
+									</p>
 								</div>
 							{/if}
 						</button>

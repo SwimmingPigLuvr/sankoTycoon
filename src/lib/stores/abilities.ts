@@ -6,6 +6,20 @@ export const bunBlasted = writable<boolean>(false);
 // cool down period after reviving bun
 export const isReviving = writable<boolean>(false);
 
+export interface AutoHarvest {
+    purchased: boolean;
+    enabled: boolean;
+    level: number;
+}
+
+const myAutoHarvest: AutoHarvest = {
+    purchased: false,
+    enabled: false,
+    level: 0,
+}
+export const autoHarvest = writable<AutoHarvest>(myAutoHarvest);
+export const totalFruitHarvested = writable<number>(0);
+
 export interface Click2plant {
     purchased: boolean;
     enabled: boolean;

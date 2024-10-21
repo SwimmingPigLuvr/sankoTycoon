@@ -1,9 +1,11 @@
 <script lang="ts">
 	import {
 		autoFeeder,
+		autoHarvest,
 		autoSeller,
 		click2plant,
 		type Click2plant,
+		totalFruitHarvested,
 		totalFruitsEaten,
 		totalFruitsSold,
 		totalTreesPlanted
@@ -28,11 +30,19 @@
 		});
 	}
 
-	// Function to toggle the autoFeederOn store
+	// Function to toggle the click2plant store
 	function toggleC2P() {
 		click2plant.update((c2p) => {
-			c2p.enabled = !c2p;
+			c2p.enabled = !c2p.enabled;
 			return c2p;
+		});
+	}
+
+	// Function to toggle the autoharvest store
+	function toggleAutoHarvest() {
+		autoHarvest.update((ah) => {
+			ah.enabled = !ah.enabled;
+			return ah;
 		});
 	}
 
@@ -51,9 +61,9 @@
 				});
 			}
 
+			addMessage(`bought AUTOFEEDER™️ for 20 GOLD`);
 			return wallet;
 		});
-		addMessage(`${$wallet.nfts[$b].name} bought AUTOFEEDER™️ for 20 GOLD`);
 	}
 
 	$: autoSellerPrice = ($autoSeller.level + 1) * 3;
@@ -75,7 +85,7 @@
 
 			return wallet;
 		});
-		addMessage(`${$wallet.nfts[$b].name} bought AUTOSELLER™️ for ${autoSellerPrice} GOLD`);
+		addMessage(`bought AUTOSELLER™️ for ${autoSellerPrice} GOLD`);
 	}
 
 	$: c2pPrice = ($click2plant.level + 1) * 2;
@@ -101,7 +111,25 @@
 
 			return wallet;
 		});
-		addMessage(`${$wallet.nfts[$b].name} enabled click2plant™️  level ${$click2plant.level}`);
+		addMessage(`enabled click2plant™️  level ${$click2plant.level}`);
+	}
+
+	$: autoHarvestPrice = ($autoHarvest.level + 1) * 5;
+	function buyAutoHarvest() {
+		wallet.update((wallet) => {
+			const goldToken = wallet.tokens.find((token: Token) => token.name === 'GOLD');
+			if (goldToken && goldToken.balance >= autoHarvestPrice) {
+				goldToken.balance -= autoHarvestPrice;
+				autoHarvest.update((ah) => {
+					ah.purchased = true;
+					ah.enabled = true;
+					ah.level += 1;
+					return ah;
+				});
+			}
+			return wallet;
+		});
+		addMessage(`${$wallet.nfts[$b].name} enabled autoHARVEST™️  level ${$autoHarvest.level}`);
 	}
 
 	// wallet balance
@@ -118,7 +146,7 @@
 				on:click={() => buyAutoFeeder()}
 				class="disabled:bg-gray-400 bg-sky-400 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
 			>
-				<div class="flex justify-around w-full">
+				<div class="flex justify-between w-full">
 					<p class="text-white">autoFeeder</p>
 					<p class="text-amber-300">10 GOLD</p>
 				</div>
@@ -152,7 +180,7 @@
 				on:click={() => buyAutoSeller()}
 				class="disabled:bg-gray-400 bg-sky-400 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
 			>
-				<div class="flex justify-around w-full">
+				<div class="flex justify-between w-full">
 					<p class="text-white">autoSeller</p>
 					<p class="text-amber-300">{autoSellerPrice} GOLD</p>
 				</div>
@@ -188,7 +216,7 @@
 				on:click={() => buyClick2Plant()}
 				class="disabled:bg-gray-400 bg-sky-400 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
 			>
-				<div class="flex justify-around w-full">
+				<div class="flex justify-between w-full">
 					<p class="text-white">click2plant</p>
 					<p class="text-amber-300">{c2pPrice} GOLD</p>
 				</div>
@@ -219,11 +247,60 @@
 				on:click={() => buyClick2Plant()}
 				class="-translate-y-3 disabled:bg-gray-400 bg-sky-300 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
 			>
-				<div class="flex justify-around w-full">
+				<div class="flex justify-between w-full">
 					<p class="text-white">level 2</p>
 					<p class="text-amber-300">{c2pPrice} GOLD</p>
 				</div>
 				<p class="text-left">Plants seeds with one less click</p>
+			</button>
+		{/if}
+	{/if}
+
+	<!-- auto harvest -->
+	{#if $totalFruitHarvested >= 0}
+		<!-- if not purchased yet -->
+		{#if !$autoHarvest.purchased}
+			<button
+				disabled={goldBalance < autoHarvestPrice}
+				on:click={() => buyAutoHarvest()}
+				class="disabled:bg-gray-400 bg-sky-400 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
+			>
+				<div class="flex justify-between w-full">
+					<p class="text-white">autoHARVEST™️</p>
+					<p class="text-amber-300">{autoHarvestPrice} GOLD</p>
+				</div>
+				<p class="text-left">select plot to harvest fruit</p>
+			</button>
+		{/if}
+		{#if $autoHarvest.purchased}
+			<div class="text-xs border-2 border-black p-2 flex justify-between relative">
+				<p>autoHARVEST™️</p>
+				<!-- Button to toggle the autoFeederOn store value -->
+				<button
+					class="{$autoHarvest.enabled
+						? 'bg-lime-400'
+						: 'bg-red-400'} h-full w-12 absolute right-0 top-0"
+					on:click={toggleAutoHarvest}
+				>
+					{#if $autoHarvest.enabled}
+						On
+					{:else}
+						Off
+					{/if}
+				</button>
+			</div>
+		{/if}
+		{#if $autoHarvest.level === 1}
+			<button
+				disabled={goldBalance < autoHarvestPrice}
+				on:click={() => buyAutoHarvest()}
+				class="-translate-y-3 disabled:bg-gray-400 bg-sky-300 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
+			>
+				<div class="flex justify-between w-full">
+					<p class="text-white">level 2</p>
+					<p class="text-amber-300">{autoHarvestPrice} GOLD</p>
+				</div>
+				<p class="text-left">harvest fruit automatically</p>
 			</button>
 		{/if}
 	{/if}

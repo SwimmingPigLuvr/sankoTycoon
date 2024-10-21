@@ -7,7 +7,13 @@
 	import { fade } from 'svelte/transition';
 	import { gameState, b } from '$lib/stores/gameState';
 	import { onMount } from 'svelte';
-	import { click2plant, totalTreesPlanted, type Click2plant } from '$lib/stores/abilities';
+	import {
+		autoHarvest,
+		click2plant,
+		totalFruitHarvested,
+		totalTreesPlanted,
+		type Click2plant
+	} from '$lib/stores/abilities';
 
 	export let bun: Bun;
 
@@ -241,6 +247,7 @@
 				// reassign farm to trigger reactivity
 				bunNft.farm = [...bunNft.farm];
 
+				totalFruitHarvested.update((total) => (total += 1));
 				return currentWallet;
 			});
 		}
@@ -304,19 +311,45 @@
 		return 'images/items/Bunzempic.png'; // Return undefined if no known fruit type is found.
 	}
 
-	// if click 2 plant has been purchased and enabled
-	// plant a seed whenever the plot and seed are selected
+	// c2p lvl 1
 	$: if ($click2plant.enabled && $click2plant.level === 1 && selectedSeed && selectedPlotIndex) {
 		plantSeed();
 	}
 
-	$: if ($click2plant.enabled && $click2plant.level === 2 && selectedPlotIndex) {
-		// Select the first available seed from allAvailableSeeds if it exists
-		selectedSeed = allAvailableSeeds.length > 0 ? allAvailableSeeds[0] : undefined;
-
-		// then plant the seed
-		plantSeed();
+	// c2p lvl 2
+	$: if (
+		$click2plant.enabled &&
+		$click2plant.level === 2 &&
+		selectedPlotIndex !== null &&
+		selectedPlotIndex !== undefined
+	) {
+		const currentPlot = plots[selectedPlotIndex];
+		if (currentPlot.state === 'empty') {
+			selectedSeed = allAvailableSeeds.length > 0 ? allAvailableSeeds[0] : undefined;
+			if (selectedSeed) {
+				// then plant the seed
+				plantSeed();
+			}
+		}
 	}
+
+	// autoHarvest lvl 1
+	$: if (
+		$autoHarvest.enabled &&
+		$autoHarvest.level === 1 &&
+		selectedPlotIndex !== null &&
+		selectedPlotIndex !== undefined
+	) {
+		const currentPlot = plots[selectedPlotIndex];
+		if (
+			currentPlot.state === 'planted' &&
+			currentPlot.fruitsReady != null &&
+			currentPlot.fruitsReady > 0
+		) {
+			harvestFruit(selectedPlotIndex);
+		}
+	}
+	// autoHarvest lvl 2
 </script>
 
 <main class="flex flex-col space-y-2 max-w-40" in:fade={{ delay: 100, duration: 250 }}>
