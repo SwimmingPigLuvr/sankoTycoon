@@ -62,6 +62,8 @@
 			}
 
 			addMessage(`bought AUTOFEEDER™️ for 20 GOLD`);
+			const audio = new Audio('sounds/purchase.mp3');
+			audio.play();
 			return wallet;
 		});
 	}
@@ -79,13 +81,19 @@
 				autoSeller.update((seller) => {
 					seller.purchased = true;
 					seller.enabled = true;
+					// increase level
+					seller.level += 1;
+					// double selling frequency
+					seller.rate /= 2;
 					return seller;
 				});
 			}
 
+			addMessage(`bought AUTOSELLER™️ for ${autoSellerPrice} GOLD`);
+			const audio = new Audio('sounds/purchase.mp3');
+			audio.play();
 			return wallet;
 		});
-		addMessage(`bought AUTOSELLER™️ for ${autoSellerPrice} GOLD`);
 	}
 
 	$: c2pPrice = ($click2plant.level + 1) * 2;
@@ -109,9 +117,11 @@
 				addMessage('not enough GOLD');
 			}
 
+			addMessage(`enabled click2plant™️  level ${$click2plant.level}`);
+			const audio = new Audio('sounds/purchase.mp3');
+			audio.play();
 			return wallet;
 		});
-		addMessage(`enabled click2plant™️  level ${$click2plant.level}`);
 	}
 
 	$: autoHarvestPrice = ($autoHarvest.level + 1) * 5;
@@ -127,9 +137,11 @@
 					return ah;
 				});
 			}
+			addMessage(`enabled autoHARVEST™️  level ${$autoHarvest.level}`);
+			const audio = new Audio('sounds/purchase.mp3');
+			audio.play();
 			return wallet;
 		});
-		addMessage(`${$wallet.nfts[$b].name} enabled autoHARVEST™️  level ${$autoHarvest.level}`);
 	}
 
 	// wallet balance
@@ -137,7 +149,7 @@
 	$: goldBalance = gold?.balance ?? 0;
 </script>
 
-<main class="flex flex-col space-y-2 w-40">
+<main class="flex flex-col space-y-1 w-40 h-80 overflow-y-auto overflow-x-hidden">
 	<!-- auto feeder -->
 	{#if $totalFruitsEaten >= 0}
 		{#if !$autoFeeder.purchased}
@@ -148,7 +160,10 @@
 			>
 				<div class="flex justify-between w-full">
 					<p class="text-white">autoFeeder</p>
-					<p class="text-amber-300">10 GOLD</p>
+					<div class="absolute px-1 top-1 right-1 flex items-center space-x-1">
+						<img src="/ui/icons/sankogold.png" class="w-4" alt="" />
+						<p class="font-FinkHeavy text-sm text-yellow-300">10</p>
+					</div>
 				</div>
 				<p class="text-left">Feeds your Bun so you can worry about more important things.</p>
 			</button>
@@ -182,7 +197,10 @@
 			>
 				<div class="flex justify-between w-full">
 					<p class="text-white">autoSeller</p>
-					<p class="text-amber-300">{autoSellerPrice} GOLD</p>
+					<div class="absolute px-1 top-1 right-1 flex items-center space-x-1">
+						<img src="/ui/icons/sankogold.png" class="w-4" alt="" />
+						<p class="font-FinkHeavy text-sm text-yellow-300">{autoSellerPrice}</p>
+					</div>
 				</div>
 				<p class="text-left">Sells fruit for you</p>
 			</button>
@@ -204,6 +222,22 @@
 				</button>
 			</div>
 		{/if}
+		{#if $autoSeller.level >= 1}
+			<button
+				disabled={goldBalance < autoSellerPrice}
+				on:click={() => buyAutoSeller()}
+				class="-translate-y-3 disabled:bg-gray-400 bg-sky-300 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
+			>
+				<div class="flex justify-between w-full">
+					<p class="text-white">level {$autoSeller.level + 1}</p>
+					<div class="absolute px-1 top-1 right-1 flex items-center space-x-1">
+						<img src="/ui/icons/sankogold.png" class="w-4" alt="" />
+						<p class="font-FinkHeavy text-sm text-yellow-300">{autoSellerPrice}</p>
+					</div>
+				</div>
+				<p class="text-left">increase auto sell rate</p>
+			</button>
+		{/if}
 	{/if}
 
 	<!-- one click planting -->
@@ -218,7 +252,10 @@
 			>
 				<div class="flex justify-between w-full">
 					<p class="text-white">click2plant</p>
-					<p class="text-amber-300">{c2pPrice} GOLD</p>
+					<div class="absolute px-1 top-1 right-1 flex items-center space-x-1">
+						<img src="/ui/icons/sankogold.png" class="w-4" alt="" />
+						<p class="font-FinkHeavy text-sm text-yellow-300">{c2pPrice}</p>
+					</div>
 				</div>
 				<p class="text-left">Plants seeds with one less click</p>
 			</button>
@@ -249,7 +286,10 @@
 			>
 				<div class="flex justify-between w-full">
 					<p class="text-white">level 2</p>
-					<p class="text-amber-300">{c2pPrice} GOLD</p>
+					<div class="absolute px-1 top-1 right-1 flex items-center space-x-1">
+						<img src="/ui/icons/sankogold.png" class="w-4" alt="" />
+						<p class="font-FinkHeavy text-sm text-yellow-300">{c2pPrice}</p>
+					</div>
 				</div>
 				<p class="text-left">Plants seeds with one less click</p>
 			</button>
@@ -267,7 +307,10 @@
 			>
 				<div class="flex justify-between w-full">
 					<p class="text-white">autoHARVEST™️</p>
-					<p class="text-amber-300">{autoHarvestPrice} GOLD</p>
+					<div class="absolute px-1 top-1 right-1 flex items-center space-x-1">
+						<img src="/ui/icons/sankogold.png" class="w-4" alt="" />
+						<p class="font-FinkHeavy text-sm text-yellow-300">{autoHarvestPrice}</p>
+					</div>
 				</div>
 				<p class="text-left">select plot to harvest fruit</p>
 			</button>

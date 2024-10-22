@@ -85,44 +85,30 @@
 		totalFruitsSold.update((total) => (total += 1));
 	}
 
-	function startAutoSellerInterval() {
-		// Clear existing interval if any
-		if (autoSellInterval) {
-			clearInterval(autoSellInterval);
-		}
-		// Start the interval
-		autoSellInterval = setInterval(() => {
-			if (buns[$b]) {
-				const bun = buns[$b];
-				if ($autoSeller.enabled) {
+	$: {
+		if ($autoSeller.enabled) {
+			if (autoSellInterval) {
+				clearInterval(autoSellInterval);
+			}
+			autoSellInterval = setInterval(() => {
+				if (buns[$b]) {
+					const bun = buns[$b];
 					const wallet = bun.wallet;
 					const anyFruit = wallet.items.find(
-						(item: Item) => item.type === 'fruit' && item.quantity > 0
+						(item: Item) => item.type === 'fruit' && item.quantity > 1
 					);
 					if (anyFruit) {
-						console.log('Auto seller sold:', anyFruit.name);
 						sellItem($b, anyFruit);
 					}
 				}
-			}
-		}, $autoSeller.rate);
-	}
-
-	autoSellInterval = setInterval(() => {
-		if (buns[$b]) {
-			const bun = buns[$b];
-			if ($autoSeller.enabled) {
-				const wallet = bun.wallet;
-				const anyFruit = wallet.items.find(
-					(item: Item) => item.type === 'fruit' && item.quantity > 0
-				);
-				if (anyFruit) {
-					console.log(`🤖 SOLD ${anyFruit.name} AUTOMATICALLY`);
-					sellItem($b, anyFruit);
-				}
+			}, $autoSeller.rate);
+		} else {
+			if (autoSellInterval) {
+				clearInterval(autoSellInterval);
+				autoSellInterval = null;
 			}
 		}
-	}, $autoSeller.rate);
+	}
 
 	onDestroy(() => {
 		if (autoSellInterval) {

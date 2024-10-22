@@ -5,8 +5,8 @@
 	import Wallet from './Wallet.svelte';
 	import * as itemData from '$lib/itemData';
 	import { fade } from 'svelte/transition';
-	import { gameState, b } from '$lib/stores/gameState';
-	import { onMount } from 'svelte';
+	import { gameState, b, addMessage } from '$lib/stores/gameState';
+	import { onDestroy, onMount } from 'svelte';
 	import {
 		autoHarvest,
 		click2plant,
@@ -14,6 +14,7 @@
 		totalTreesPlanted,
 		type Click2plant
 	} from '$lib/stores/abilities';
+	import HeaderTerminal from './HeaderTerminal.svelte';
 
 	export let bun: Bun;
 
@@ -334,9 +335,10 @@
 	}
 
 	// autoHarvest lvl 1
+	// select plot to harvest fruit
 	$: if (
 		$autoHarvest.enabled &&
-		$autoHarvest.level === 1 &&
+		$autoHarvest.level >= 1 &&
 		selectedPlotIndex !== null &&
 		selectedPlotIndex !== undefined
 	) {
@@ -349,7 +351,39 @@
 			harvestFruit(selectedPlotIndex);
 		}
 	}
+
+	let autoHarvestInterval: ReturnType<typeof setInterval> | null = null;
+	function attemptAutoHarvest() {
+		if ($autoHarvest.enabled && $autoHarvest.level === 2) {
+			const index = plots.findIndex((plot) => plot.fruitsReady != null && plot.fruitsReady > 0);
+			if (index !== -1) {
+				harvestFruit(index);
+				addMessage(`autoHARVESTED fruit from plot index ${index}`);
+			}
+		}
+	}
 	// autoHarvest lvl 2
+	// harvest fruit on an interval
+	// select the plot index for the user
+	// if the plot has any fruits ready then harvest those
+	// Start the interval when auto-harvest is enabled
+	$: if ($autoHarvest.enabled && $autoHarvest.level >= 2) {
+		if (!autoHarvestInterval) {
+			autoHarvestInterval = setInterval(attemptAutoHarvest, 1000); // Harvest every 2 seconds
+		}
+	} else {
+		if (autoHarvestInterval) {
+			clearInterval(autoHarvestInterval);
+			autoHarvestInterval = null;
+		}
+	}
+
+	// Clean up on component destroy
+	onDestroy(() => {
+		if (autoHarvestInterval) {
+			clearInterval(autoHarvestInterval);
+		}
+	});
 </script>
 
 <main class="flex flex-col space-y-2 max-w-40" in:fade={{ delay: 100, duration: 250 }}>
