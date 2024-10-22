@@ -90,18 +90,33 @@
 			if (autoSellInterval) {
 				clearInterval(autoSellInterval);
 			}
+
+			let interval = 1000; // 1s
+			let fruitsPerInterval = $autoSeller.rate;
+			if ($autoSeller.rate <= 1) {
+				interval = (1 / $autoSeller.rate) * 1000;
+				fruitsPerInterval = 1;
+			} else {
+				interval = 1000;
+				fruitsPerInterval = $autoSeller.rate;
+			}
+
 			autoSellInterval = setInterval(() => {
 				if (buns[$b]) {
 					const bun = buns[$b];
 					const wallet = bun.wallet;
-					const anyFruit = wallet.items.find(
-						(item: Item) => item.type === 'fruit' && item.quantity > 1
-					);
-					if (anyFruit) {
-						sellItem($b, anyFruit);
+					for (let i = 0; i < fruitsPerInterval; i++) {
+						const anyFruit = wallet.items.find(
+							(item: Item) => item.type === 'fruit' && item.quantity > 1
+						);
+						if (anyFruit) {
+							sellItem($b, anyFruit);
+						} else {
+							break;
+						}
 					}
 				}
-			}, $autoSeller.rate);
+			}, interval);
 		} else {
 			if (autoSellInterval) {
 				clearInterval(autoSellInterval);

@@ -5,6 +5,7 @@
 		autoSeller,
 		click2plant,
 		type Click2plant,
+		farmtek,
 		totalFruitHarvested,
 		totalFruitsEaten,
 		totalFruitsSold,
@@ -68,7 +69,7 @@
 		});
 	}
 
-	$: autoSellerPrice = ($autoSeller.level + 1) * 3;
+	$: autoSellerPrice = ($autoSeller.level + 1) * (5 * ($autoSeller.level + 1));
 
 	function buyAutoSeller() {
 		// not sure how much gold this should cost
@@ -84,7 +85,7 @@
 					// increase level
 					seller.level += 1;
 					// double selling frequency
-					seller.rate /= 2;
+					seller.rate *= 2;
 					return seller;
 				});
 			}
@@ -147,9 +148,41 @@
 	// wallet balance
 	$: gold = $wallet.tokens.find((token: Token) => token.name === 'GOLD');
 	$: goldBalance = gold?.balance ?? 0;
+
+	let showFarmtekInfo = false;
 </script>
 
 <main class="flex flex-col space-y-1 w-40 h-80 overflow-y-auto overflow-x-hidden">
+	{#if !$farmtek.purchased}
+		<button
+			on:mouseenter={() => (showFarmtekInfo = true)}
+			on:mouseleave={() => (showFarmtekInfo = false)}
+			class="w-full relative"
+		>
+			{#if showFarmtekInfo}
+				<div
+					class="p-2 flex flex-col justify-around space-y-1 absolute items-center w-full h-full bg-blue-700 bg-opacity-25 backdrop-blur"
+				>
+					<p class="text-white font-black font-sans -tracking-wide text-2xl">FARMTEK</p>
+					<div class=" flex items-center justify-center space-x-1">
+						<div class="px-1 flex items-center space-x-1">
+							<img src="/ui/icons/dmt.png" class="w-4" alt="" />
+							<p class="font-FinkHeavy text-sm text-white">9.9</p>
+						</div>
+						<p class="text-white">/</p>
+						<div class="px-1 flex items-center space-x-1">
+							<img src="/ui/icons/bunsanto.webp" class="w-4" alt="" />
+							<p class="font-FinkHeavy text-sm text-white">4.2m</p>
+						</div>
+					</div>
+					<p class="font-mono text-xs px-2 text-white -tracking-wider">
+						p2p automated farming protocol
+					</p>
+				</div>
+			{/if}
+			<img class="w-40 h-auto" src="/images/tools/farmtek-disc.png" alt="" />
+		</button>
+	{/if}
 	<!-- auto feeder -->
 	{#if $totalFruitsEaten >= 0}
 		{#if !$autoFeeder.purchased}
