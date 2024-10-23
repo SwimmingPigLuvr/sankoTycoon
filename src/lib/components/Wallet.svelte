@@ -74,7 +74,8 @@
 	{/if}
 </main>
 
-
-<div>
-	<Abilities />
-</div>
+{#if nfts[$b] && nfts[$b].type === 'Bun'}
+	<div>
+		<Abilities />
+	</div>
+{/if}

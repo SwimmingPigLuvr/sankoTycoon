@@ -14,9 +14,11 @@
 <main class="p-2 w-40">
 	<h1 class="text-xl font-serif italic -tracking-widest">Dashboard</h1>
 	<div class="font-mono text-xs w-full">
-		<p class="flex justify-between">
-			<span>sell rate</span> <span>{$autoSeller.rate / 1000}s</span>
-		</p>
+		{#if $autoSeller.purchased}
+			<p class="flex justify-between">
+				<span>sell rate</span> <span>{$autoSeller.rate / 1}s</span>
+			</p>
+		{/if}
 		<p class="flex justify-between"><span>trees planted</span> <span>{$totalTreesPlanted}</span></p>
 		<p class="flex justify-between">
 			<span>fruit sold</span> <span>{$totalFruitsSold}</span>
