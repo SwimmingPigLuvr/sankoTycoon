@@ -597,7 +597,7 @@ export const heartSeed: item = {
 export const starSeed: item = {
     type: 'seed',
     name: 'Star Seed',
-    quantity: 1,
+    quantity: 0,
     imgPath: '/images/seeds/StarSeed.png',
     fruitType: 'star',
     buyPrice: 4.75,
@@ -607,7 +607,7 @@ export const starSeed: item = {
 export const lumpySeed: item = {
     type: 'seed',
     name: 'Lumpy Seed',
-    quantity: 1,
+    quantity: 0,
     imgPath: '/images/seeds/LumpySeed.png',
     fruitType: 'lumpy',
     buyPrice: 4.75,
@@ -617,7 +617,7 @@ export const lumpySeed: item = {
 export const roundSeed: item = {
     type: 'seed',
     name: 'Round Seed',
-    quantity: 1,
+    quantity: 0,
     imgPath: '/images/seeds/RoundSeed.png',
     fruitType: 'round',
     buyPrice: 4.75,
@@ -627,7 +627,7 @@ export const roundSeed: item = {
 export const squareSeed: item = {
     type: 'seed',
     name: 'Square Seed',
-    quantity: 1,
+    quantity: 0,
     imgPath: '/images/seeds/SquareSeed.png',
     fruitType: 'square',
     buyPrice: 4.75,

@@ -16,6 +16,7 @@
 	import SendModal from '$lib/components/SendModal.svelte';
 	import Toasts from '$lib/components/Toasts.svelte';
 	import Dashboard from '$lib/components/Dashboard.svelte';
+	import { showDashboard } from '$lib/stores/abilities';
 
 	let currentStep: StepID;
 	const unsubscribe = gameState.subscribe((state) => {
@@ -63,7 +64,9 @@
 				<Shop bun={buns[$b]} />
 			{/if}
 		</div>
+		{#if $showDashboard}
 			<Dashboard />
+		{/if}
 	</div>
 	<h1 class="-z-50 w-full text-left absolute bottom-2 left-2">Sanko Tycoon ©</h1>
 	<div

@@ -152,27 +152,37 @@
 
 	$: dmt = $wallet.tokens.find((token: Token) => token.name === 'DMT');
 	$: dmtBalance = dmt?.balance ?? 0;
+	$: santo = $wallet.tokens.find((token: Token) => token.name === 'SANTO');
+	$: santoBalance = santo?.balance ?? 0;
 
-	function buyFarmtek() {
+	let showFarmtekInfo = false;
+	$: farmtekPrice = { dmt: 9.9, santo: 4200000 };
+
+	function buyFarmtek(tokenName: string) {
 		wallet.update((wallet) => {
-			const dmtToken = wallet.tokens.find((token: Token) => token.name === 'DMT');
-			if (dmtToken && dmtToken.balance >= farmtekPrice) {
-				dmtToken.balance -= farmtekPrice;
+			const token = wallet.tokens.find((t: Token) => t.name === tokenName);
+			let price: number;
+			if (tokenName === 'DMT') {
+				price = farmtekPrice.dmt;
+			} else if (tokenName === 'SANTO') {
+				price = farmtekPrice.santo;
+			} else {
+				return wallet;
+			}
+			if (token && token.balance >= price) {
+				token.balance -= price;
 				farmtek.update((ft) => {
 					ft.purchased = true;
 					ft.enabled = true;
 					return ft;
 				});
-				addMessage(`bought FARMTEK for ${farmtekPrice}`);
+				addMessage(`bought FARMTEK for ${price} ${tokenName}`);
 				const audio = new Audio('sounds/purchase.mp3');
 				audio.play();
 			}
 			return wallet;
 		});
 	}
-
-	let showFarmtekInfo = false;
-	$: farmtekPrice = 9.9;
 </script>
 
 <main class="flex flex-col space-y-1 w-40 h-80 overflow-y-auto overflow-x-hidden">
@@ -185,10 +195,8 @@
 			class="w-full relative"
 		>
 			{#if showFarmtekInfo}
-				<button
-					on:click={() => buyFarmtek()}
-					disabled={dmtBalance < farmtekPrice}
-					class="p-2 flex flex-col justify-around space-y-1 absolute items-center w-full h-full bg-black bg-opacity-75 backdrop-blur"
+				<div
+					class="z-50 p-2 flex flex-col justify-around space-y-1 absolute items-center w-full h-full bg-black bg-opacity-100"
 				>
 					<div class="">
 						<p class="font-black font-sans -tracking-wide text-2xl text-lime-700 leading-4">
@@ -197,23 +205,35 @@
 						<p class="font-sans -tracking-wide text-sm text-yellow-500">by Bunsanto©️</p>
 					</div>
 					<div class=" flex items-center justify-around space-x-1">
-						<div class="px-1 flex items-center space-x-1">
+						<button
+							on:click={() => buyFarmtek('DMT')}
+							disabled={dmtBalance > farmtekPrice.dmt}
+							class="hover:bg-white rounded-full px-1 flex items-center space-x-1"
+						>
 							<img src="/ui/icons/dmt.png" class="w-5" alt="" />
 							<p class="font-FinkHeavy text-md text-white">9.9</p>
-						</div>
+						</button>
 						<p class="text-white font-FinkHeavy text-md">/</p>
-						<div class="px-1 flex items-center space-x-1">
-							<img src="/ui/icons/bunsanto.webp" class="w-5 rounded" alt="" />
+						<button
+							on:click={() => buyFarmtek('SANTO')}
+							disabled={santoBalance > farmtekPrice.santo}
+							class="hover:bg-white rounded-full px-1 flex items-center space-x-1"
+						>
+							<img src="/ui/icons/bunsanto.webp" class="w-5 rounded-full" alt="" />
 							<p class="font-FinkHeavy text-sm text-white">4.2M</p>
-						</div>
+						</button>
 					</div>
 					<p class="font-mono text-xs px-2 -tracking-wider text-white leading-4">
 						p2p automated farming protocol
 					</p>
-				</button>
+				</div>
 			{/if}
 			<img
-				class="w-40 h-auto {!$farmtek.purchased && farmtekPrice > dmtBalance ? 'filter grayscale' : 'grayscale-0'}"
+				class="w-40 h-auto {!$farmtek.purchased &&
+				dmtBalance < farmtekPrice.dmt &&
+				santoBalance < farmtekPrice.santo
+					? 'filter grayscale'
+					: 'grayscale-0'}"
 				src="/images/tools/farmtek-disc.png"
 				alt=""
 			/>

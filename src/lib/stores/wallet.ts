@@ -5,6 +5,7 @@ import { writable } from "svelte/store";
 export interface Token {
     name: string;
     balance: number;
+    iconUrl: string;
 }
 
 export interface Plot {
@@ -152,12 +153,19 @@ const starterWallet: Wallet = {
     tokens: [
         {
             name: 'DMT',
-            balance: 3,
+            balance: 300000000,
+            iconUrl: '/ui/icons/dmt.png',
         },
         {
             name: 'GOLD',
-            balance: 10,
+            balance: 1000,
+            iconUrl: '/ui/icons/sankogold.png',
         },
+        {
+            name: 'SANTO',
+            balance: 4200000000,
+            iconUrl: '/ui/icons/bunsanto.webp',
+        }
     ],
     nfts: [], // No NFTs
     items: [], // No items

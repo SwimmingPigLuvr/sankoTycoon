@@ -9,8 +9,8 @@
 		type BunWallet,
 		truncateEthAddress
 	} from '$lib/stores/wallet';
-	import { backIn, backOut, cubicInOut } from 'svelte/easing';
-	import { scale } from 'svelte/transition';
+	import { backIn, backOut, cubicInOut, cubicOut, elasticInOut, elasticOut } from 'svelte/easing';
+	import { fade, scale } from 'svelte/transition';
 
 	$: buns = $wallet.nfts;
 
@@ -100,14 +100,16 @@
 
 <button
 	on:click|preventDefault={handleOutsideClicks}
-	class="font-FinkHeavy w-screen h-screen bg-black bg-opacity-25"
+	in:fade={{duration: 100}}
+	out:fade={{duration: 100}}
+	class="font-FinkHeavy w-screen h-screen bg-black bg-opacity-50"
 >
 	<!-- modal -->
 	<button
-		in:scale={{ duration: 500, easing: backOut }}
+		in:scale={{ duration: 250, easing: cubicInOut  }}
 		out:scale={{ duration: 500, easing: backIn }}
 		on:click|stopPropagation
-		class="items-center w-[500px] send-modal fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col space-y-3 m-auto p-4 rounded-xl border-blue-600 border-4"
+		class="items-center w-[500px] send-modal fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col space-y-3 m-auto p-4 rounded-xl border-blue-600 border-4"
 	>
 		<div class="flex justify-between items-center space-x-3">
 			<!-- sender -->
@@ -239,13 +241,15 @@
 					</div>
 				</div>
 			</div>
-			<button on:click={() => swapSender()}>
-				<img
-					src="/ui/icons/arrow.png"
-					class="scale-[-100%] hover:filter hover:brightness-[75%] translate-y-9 w-8 h-6"
-					alt=""
-				/>
-			</button>
+			<div>
+				<button on:click={() => swapSender()}>
+					<img
+						src="/ui/icons/arrow.png"
+						class="scale-[-100%] hover:filter hover:brightness-[75%] translate-y-9 w-8 h-6"
+						alt=""
+					/>
+				</button>
+			</div>
 			<!-- receiver -->
 			<div class="flex flex-col items-center space-y-1">
 				<!-- select receiver -->
