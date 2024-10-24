@@ -253,6 +253,7 @@ export const yellowHat: Item = {
     name: 'Yellow Hat',
     quantity: 0,
     imgPath: 'images/items/wearables/hats/YellowHat.png',
+    description: 'This is a happy yellow hat.'
 };
 
 // glasses
@@ -289,6 +290,9 @@ export const funkyGlasses: Item = {
     name: "Funky Glasses",
     quantity: 0,
     imgPath: 'images/items/wearables/glasses/FunkyGlasses.png',
+    buyPrice: 8,
+    description: "Free you mind and you Bun will follow.",
+    ability: "View realtime insights on your grow operations.",
 };
 
 export const greenStarGlasses: Item = {

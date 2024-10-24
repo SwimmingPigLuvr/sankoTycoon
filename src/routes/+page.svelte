@@ -9,7 +9,7 @@
 	import { onDestroy } from 'svelte';
 	import HatchEgg from '$lib/components/HatchEgg.svelte';
 	import Farm from '$lib/components/Farm.svelte';
-	import { wallet, type Bun } from '$lib/stores/wallet';
+	import { wallet, type Bun, type Item } from '$lib/stores/wallet';
 	import Shop from '$lib/components/Shop.svelte';
 	import { fade, slide } from 'svelte/transition';
 	import BunWallet from '$lib/components/BunWallet.svelte';
@@ -28,6 +28,17 @@
 	});
 
 	$: buns = $wallet?.nfts ?? [];
+	// check if the bun wallet has funky glasses
+	$: if (
+		buns.length > 0 &&
+		buns[$b]?.wallet?.items?.some(
+			(item: Item) => item.name === 'Funky Glasses' && item.quantity > 0
+		)
+	) {
+		showDashboard.set(true);
+	} else {
+		showDashboard.set(false);
+	}
 </script>
 
 <div class="fixed left-1/2 -translate-x-1/2 z-50 p-2">

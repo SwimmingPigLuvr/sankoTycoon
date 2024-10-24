@@ -85,50 +85,56 @@
 		totalFruitsSold.update((total) => (total += 1));
 	}
 
-	$: {
-		if ($autoSeller.enabled) {
-			if (autoSellInterval) {
-				clearInterval(autoSellInterval);
-			}
+	function startAutoSellInterval() {
+		if (autoSellInterval) {
+			clearInterval(autoSellInterval);
+		}
 
-			let interval = 1000; // 1s
-			let fruitsPerInterval = $autoSeller.rate;
-			if ($autoSeller.rate <= 1) {
-				interval = (1 / $autoSeller.rate) * 1000;
-				fruitsPerInterval = 1;
-			} else {
-				interval = 1000;
-				fruitsPerInterval = $autoSeller.rate;
-			}
+		let interval = 1000;
+		let fps = $autoSeller.rate; // fruits per second
+		if ($autoSeller.rate <= 1) {
+			interval = (1 / $autoSeller.rate) * 1000;
+			fps = 1;
+		} else {
+			interval = 1000;
+			fps = $autoSeller.rate;
+		}
 
-			autoSellInterval = setInterval(() => {
-				if (buns[$b]) {
-					const bun = buns[$b];
-					const wallet = bun.wallet;
-					for (let i = 0; i < fruitsPerInterval; i++) {
-						const anyFruit = wallet.items.find(
-							(item: Item) => item.type === 'fruit' && item.quantity > 1
-						);
-						if (anyFruit) {
-							sellItem($b, anyFruit);
-						} else {
-							break;
-						}
+		autoSellInterval = setInterval(() => {
+			if (buns[$b]) {
+				const bun = buns[$b];
+				const wallet = bun.wallet;
+				for (let i = 0; i < fps; i++) {
+					const anyFruit = wallet.items.find(
+						(item: Item) => item.type === 'fruit' && item.quantity > 1
+					);
+					if (anyFruit) {
+						sellItem($b, anyFruit);
+					} else {
+						break;
 					}
 				}
-			}, interval);
-		} else {
-			if (autoSellInterval) {
-				clearInterval(autoSellInterval);
-				autoSellInterval = null;
 			}
+		}, interval);
+	}
+
+	function stopAutoSellInterval() {
+		if (autoSellInterval) {
+			clearInterval(autoSellInterval);
+			autoSellInterval = null;
+		}
+	}
+
+	$: {
+		if ($autoSeller.enabled) {
+			startAutoSellInterval();
+		} else {
+			stopAutoSellInterval();
 		}
 	}
 
 	onDestroy(() => {
-		if (autoSellInterval) {
-			clearInterval(autoSellInterval);
-		}
+		stopAutoSellInterval();
 	});
 </script>
 
