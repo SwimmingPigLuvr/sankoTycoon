@@ -153,12 +153,12 @@ const starterWallet: Wallet = {
     tokens: [
         {
             name: 'DMT',
-            balance: 300000000,
+            balance: 3,
             iconUrl: '/ui/icons/dmt.png',
         },
         {
             name: 'GOLD',
-            balance: 1000,
+            balance: 10,
             iconUrl: '/ui/icons/sankogold.png',
         },
         {

@@ -69,7 +69,7 @@
 		});
 	}
 
-	$: autoSellerPrice = ($autoSeller.level + 1) * (5 * ($autoSeller.level + 1));
+	$: autoSellerPrice = ($autoSeller.level + 1) * (2 * ($autoSeller.level + 1));
 
 	function buyAutoSeller() {
 		// not sure how much gold this should cost
@@ -176,7 +176,7 @@
 					ft.enabled = true;
 					return ft;
 				});
-				addMessage(`bought FARMTEK for ${price} ${tokenName}`);
+				addMessage(`minted 1 FARMTEK disc for ${price} ${tokenName}`);
 				const audio = new Audio('sounds/purchase.mp3');
 				audio.play();
 			}
@@ -188,12 +188,12 @@
 <main class="flex flex-col space-y-1 w-40 h-80 overflow-y-auto overflow-x-hidden">
 	{$farmtek.purchased}
 	{$farmtek.enabled}
-	{#if !$farmtek.purchased}
-		<button
-			on:mouseenter={() => (showFarmtekInfo = true)}
-			on:mouseleave={() => (showFarmtekInfo = false)}
-			class="w-full relative"
-		>
+	<button
+		on:mouseenter={() => (showFarmtekInfo = true)}
+		on:mouseleave={() => (showFarmtekInfo = false)}
+		class="w-full relative"
+	>
+		{#if !$farmtek.purchased}
 			{#if showFarmtekInfo}
 				<div
 					class="z-50 p-2 flex flex-col justify-around space-y-1 absolute items-center w-full h-full bg-black bg-opacity-100"
@@ -204,23 +204,23 @@
 						</p>
 						<p class="font-sans -tracking-wide text-sm text-yellow-500">by Bunsanto©️</p>
 					</div>
-					<div class=" flex items-center justify-around space-x-1">
+					<div class="text-white flex items-center justify-around space-x-1">
 						<button
 							on:click={() => buyFarmtek('DMT')}
-							disabled={dmtBalance > farmtekPrice.dmt}
-							class="hover:bg-white rounded-full px-1 flex items-center space-x-1"
+							disabled={dmtBalance < farmtekPrice.dmt}
+							class="hover:text-lime-400 disabled:cursor-not-allowed rounded-full px-1 flex items-center space-x-1"
 						>
 							<img src="/ui/icons/dmt.png" class="w-5" alt="" />
-							<p class="font-FinkHeavy text-md text-white">9.9</p>
+							<p class="font-FinkHeavy text-md">9.9</p>
 						</button>
-						<p class="text-white font-FinkHeavy text-md">/</p>
+						<p class="font-FinkHeavy text-md">/</p>
 						<button
 							on:click={() => buyFarmtek('SANTO')}
-							disabled={santoBalance > farmtekPrice.santo}
-							class="hover:bg-white rounded-full px-1 flex items-center space-x-1"
+							disabled={santoBalance < farmtekPrice.santo}
+							class="hover:text-lime-400 disabled:cursor-not-allowed rounded-full px-1 flex items-center space-x-1"
 						>
 							<img src="/ui/icons/bunsanto.webp" class="w-5 rounded-full" alt="" />
-							<p class="font-FinkHeavy text-sm text-white">4.2M</p>
+							<p class="font-FinkHeavy text-sm">4.2M</p>
 						</button>
 					</div>
 					<p class="font-mono text-xs px-2 -tracking-wider text-white leading-4">
@@ -228,24 +228,24 @@
 					</p>
 				</div>
 			{/if}
-			<img
-				class="w-40 h-auto {!$farmtek.purchased &&
-				dmtBalance < farmtekPrice.dmt &&
-				santoBalance < farmtekPrice.santo
-					? 'filter grayscale'
-					: 'grayscale-0'}"
-				src="/images/tools/farmtek-disc.png"
-				alt=""
-			/>
-		</button>
-	{/if}
+		{/if}
+		<img
+			class="w-40 h-auto {!$farmtek.purchased &&
+			dmtBalance < farmtekPrice.dmt &&
+			santoBalance < farmtekPrice.santo
+				? 'filter grayscale'
+				: 'grayscale-0'}"
+			src="/images/tools/farmtek-disc.png"
+			alt=""
+		/>
+	</button>
 	<!-- auto feeder -->
 	{#if $totalFruitsEaten >= 0}
 		{#if !$autoFeeder.purchased}
 			<button
 				disabled={goldBalance < 10}
 				on:click={() => buyAutoFeeder()}
-				class="disabled:bg-gray-400 bg-sky-400 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
+				class="hover:bg-sky-400 disabled:bg-gray-400 bg-sky-500 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
 			>
 				<div class="flex justify-between w-full">
 					<p class="text-white">autoFeeder</p>
@@ -282,7 +282,7 @@
 			<button
 				disabled={goldBalance < autoSellerPrice}
 				on:click={() => buyAutoSeller()}
-				class="disabled:bg-gray-400 bg-sky-400 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
+				class="disabled:bg-gray-400 bg-sky-500 hover:bg-sky-400 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
 			>
 				<div class="flex justify-between w-full">
 					<p class="text-white">autoSeller</p>
@@ -315,7 +315,7 @@
 			<button
 				disabled={goldBalance < autoSellerPrice}
 				on:click={() => buyAutoSeller()}
-				class="-translate-y-3 disabled:bg-gray-400 bg-sky-300 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
+				class="-translate-y-3 disabled:bg-gray-400 hover:bg-sky-400 bg-sky-500 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
 			>
 				<div class="flex justify-between w-full">
 					<p class="text-white">level {$autoSeller.level + 1}</p>
@@ -337,7 +337,7 @@
 			<button
 				disabled={goldBalance < c2pPrice}
 				on:click={() => buyClick2Plant()}
-				class="disabled:bg-gray-400 bg-sky-400 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
+				class="disabled:bg-gray-400 bg-sky-500 hover:bg-sky-400 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
 			>
 				<div class="flex justify-between w-full">
 					<p class="text-white">click2plant</p>
@@ -371,7 +371,7 @@
 			<button
 				disabled={goldBalance < c2pPrice}
 				on:click={() => buyClick2Plant()}
-				class="-translate-y-3 disabled:bg-gray-400 bg-sky-300 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
+				class="-translate-y-3 disabled:bg-gray-400 hover:bg-sky-400 bg-sky-500 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
 			>
 				<div class="flex justify-between w-full">
 					<p class="text-white">level 2</p>
@@ -392,7 +392,7 @@
 			<button
 				disabled={goldBalance < autoHarvestPrice}
 				on:click={() => buyAutoHarvest()}
-				class="disabled:bg-gray-400 bg-sky-400 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
+				class="disabled:bg-gray-400 hover:bg-sky-400 bg-sky-500 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
 			>
 				<div class="flex justify-between w-full">
 					<p class="text-white">autoHARVEST™️</p>
@@ -426,7 +426,7 @@
 			<button
 				disabled={goldBalance < autoHarvestPrice}
 				on:click={() => buyAutoHarvest()}
-				class="-translate-y-3 disabled:bg-gray-400 bg-sky-300 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
+				class="-translate-y-3 disabled:bg-gray-400 hover:bg-sky-400 bg-sky-500 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
 			>
 				<div class="flex justify-between w-full">
 					<p class="text-white">level 2</p>

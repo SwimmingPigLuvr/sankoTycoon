@@ -60,7 +60,7 @@ export interface AutoSeller {
 }
 
 const myAutoSeller: AutoSeller = {
-    rate: 0.25,
+    rate: 0.5,
     enabled: false,
     purchased: false,
     level: 0,
