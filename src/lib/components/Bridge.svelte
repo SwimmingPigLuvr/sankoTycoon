@@ -1,10 +1,8 @@
 <!-- lib/components/Bridge.svelte -->
 <script lang="ts">
-	import { get } from 'svelte/store';
-	import { gameState, progressStep } from '../stores/gameState';
+	import { bridged } from '../stores/gameState';
 	import { onDestroy, onMount } from 'svelte';
 	import { wallet } from '../stores/wallet';
-	import { fade } from 'svelte/transition';
 
 	let isBridging = false;
 	let progress = 0;
@@ -25,10 +23,9 @@
 					wallet.network = 'Sanko';
 					return wallet;
 				});
-				progressStep();
+				bridged.set(true);
 			}
 		}, 10);
-		// !todo mark bridge step as complete
 	}
 
 	function handleHoverBridge() {
@@ -37,12 +34,8 @@
 	}
 
 	let hideBridge = false;
-	const unsubscribe = gameState.subscribe((state) => {
-		hideBridge = state.currentStep > 0;
-	});
 
 	onDestroy(() => {
-		unsubscribe();
 		if (interval) {
 			clearInterval(interval);
 		}
@@ -50,7 +43,7 @@
 </script>
 
 <main class="py-2 w-full">
-	{#if !hideBridge}
+	{#if !$bridged}
 		<div class="flex flex-col w-40">
 			<button
 				class="relative rounded-lg text-sm p-1 border-black border-2 px-2 bg-gradient-to-b from-white to-slate-400 hover:border-slate-300 h-8 overflow-hidden"

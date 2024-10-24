@@ -5,7 +5,7 @@
 	import Wallet from '../lib/components/Wallet.svelte';
 	import GameClock from '../lib/components/GameClock.svelte';
 	import MintEgg from '../lib/components/MintEgg.svelte';
-	import { activeBun, gameState, StepID, b, sendModalOpen } from '../lib/stores/gameState';
+	import { activeBun, gameState, StepID, b, sendModalOpen, bridged } from '../lib/stores/gameState';
 	import { onDestroy } from 'svelte';
 	import HatchEgg from '$lib/components/HatchEgg.svelte';
 	import Farm from '$lib/components/Farm.svelte';
@@ -54,13 +54,11 @@
 			class="flex p-2 space-x-3 justify-center transform transition-all duration-1000 ease-in-out"
 		>
 			{#if buns}
-				<div class="w-1/3">
+				<div class="">
 					<BunWallet bun={buns[$b]} />
 				</div>
 			{/if}
-			{#if currentStep === StepID.Mint}
-				<MintEgg />
-			{:else if currentStep === StepID.Farm}
+			{#if $bridged}{:else if currentStep === StepID.Farm}
 				<div>
 					<Farm bun={$wallet?.nfts[$b]} />
 				</div>

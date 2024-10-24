@@ -2,16 +2,22 @@
 <script lang="ts">
 	import * as itemData from '$lib/itemData';
 	import { autoFeeder, bunBlasted, isReviving, totalFruitsEaten } from '$lib/stores/abilities';
-	import { addMessage, gameState, b } from '$lib/stores/gameState';
+	import {
+		addMessage,
+		gameState,
+		b,
+		bridged,
+		currentSectionBuns
+	} from '$lib/stores/gameState';
 	import { wallet, type Bun, type Item, type Token } from '$lib/stores/wallet';
 	import { cubicInOut } from 'svelte/easing';
 	import { fade, fly, slide } from 'svelte/transition';
 	import Hunger from './Hunger.svelte';
 	import HatchEgg from './HatchEgg.svelte';
 	import { restartHungerInterval } from '$lib/stores/hungerState';
+	import MintEgg from './MintEgg.svelte';
 
 	export let bun: Bun;
-	let currentSection: 'eggs' | 'buns' = 'eggs';
 
 	let showWithdrawGold = false;
 
@@ -253,6 +259,11 @@
 			return wallet;
 		});
 	}
+
+	function toggleSection() {
+		currentSectionBuns.set(!$currentSectionBuns);
+		console.log(`changed section from ${!currentSectionBuns} to ${$currentSectionBuns}`);
+	}
 </script>
 
 <main
@@ -260,122 +271,162 @@
 	class="w-full justify-center flex flex-col border-gray-400 border- max-w-40"
 >
 	<div class="w-full justify-center items-center flex flex-col space-y-0">
-		{#if buns[$b]}
-			<div class="w-full flex px-2 justify-center space-x-4 font-FinkHeavy text-xl text-center">
-				{#if buns.length > 1}
-					<!-- left arrow -->
-					<button class="hover:scale-125" on:click={() => nextBun()}>
-						<img src="/ui/icons/arrow.png" class="w-8" alt="" />
+		<!-- EGG SECTION -->
+		{#if !$currentSectionBuns}
+			<!-- if any eggs in the wallet -->
+			{#if buns[$b]}
+				<div class="w-full flex px-2 justify-center space-x-4 font-FinkHeavy text-xl text-center">
+					<!-- if multiple eggs in the wallet -->
+					{#if buns.length > 1}
+						<!-- left arrow -->
+						<button class="hover:scale-125" on:click={() => nextBun()}>
+							<img src="/ui/icons/arrow.png" class="w-8" alt="" />
+						</button>
+						<button on:click={() => toggleSection()}>Eggs</button>
+						<!-- right arrow -->
+						<button on:click={() => prevBun()} class="hover:scale-125">
+							<img src="/ui/icons/arrow.png" class="w-8 scale-[-100%]" alt="" />
+						</button>
+						<!-- if singular bun -->
+					{:else}
+						<button on:click={() => toggleSection()}>Buns</button>
+					{/if}
+				</div>
+				<!-- current egg -->
+				<div class="w-full">
+					<button in:fade={{ duration: 1000, easing: cubicInOut }} class="relative">
+						<img class="w-40 m-auto" src={buns[$b].imageUrl} alt={buns[$b].name} />
 					</button>
-					{#if buns[$b].type === 'Egg'}
-						<button>Eggs</button>
-					{/if}
-					{#if buns[$b].type === 'Bun'}
-						<button>Buns</button>
-					{/if}
-					<!-- right arrow -->
-					<button on:click={() => prevBun()} class="hover:scale-125">
-						<img src="/ui/icons/arrow.png" class="w-8 scale-[-100%]" alt="" />
-					</button>
-				{:else}
-					{#if buns[$b].type === 'Egg'}
-						<button>Eggs</button>
-					{/if}
-					{#if buns[$b].type === 'Bun'}
-						<button>Buns</button>
-					{/if}
-				{/if}
-			</div>
-			<!-- buns -->
-			<!-- active bun -->
-			<div class="flex justify-between items-center space-x-1">
-				<!-- bun info -->
-			</div>
-			<div class="w-full">
-				<button in:fade={{ duration: 1000, easing: cubicInOut }} class="relative">
-					<img class="w-40 m-auto" src={buns[$b].imageUrl} alt={buns[$b].name} />
-					<!-- hunger meter -->
-					{#if buns[$b].type === 'Bun'}
-						<div class="">
-							<Hunger bun={buns[$b]} />
-						</div>
-					{/if}
-				</button>
-				<div class="flex flex-col items-center justify-center space-y-1">
-					{#if buns[$b].type === 'Egg'}
-						<p class="text-sm font-FinkHeavy text-center">
+					<!-- egg info -->
+					<div class="flex flex-col items-center justify-center space-y-0">
+						<p class="text-2xl font-FinkHeavy text-center">
 							{buns[$b].name} Egg
 						</p>
-						<p class="text-xs text-center">
+						<p class="text-xs font-mono text-center">
 							{buns[$b].rarity}
 						</p>
-						<HatchEgg />
+						<div class="py-2">
+							<HatchEgg />
+						</div>
+					</div>
+				</div>
+			{/if}
+			{#if $bridged}
+				<div>
+					<MintEgg />
+				</div>
+			{/if}
+		{:else if $currentSectionBuns}
+			<!-- if any buns in the wallet -->
+			{#if buns[$b]}
+				<div class="w-full flex px-2 justify-center space-x-4 font-FinkHeavy text-xl text-center">
+					<!-- if multiple buns in the wallet -->
+					{#if buns.length > 1}
+						<!-- left arrow -->
+						<button class="hover:scale-125" on:click={() => nextBun()}>
+							<img src="/ui/icons/arrow.png" class="w-8" alt="" />
+						</button>
+						<button on:click={() => toggleSection()}>Buns</button>
+						<!-- right arrow -->
+						<button on:click={() => prevBun()} class="hover:scale-125">
+							<img src="/ui/icons/arrow.png" class="w-8 scale-[-100%]" alt="" />
+						</button>
+						<!-- if singular bun -->
+					{:else}
+						<button on:click={() => toggleSection()}>Buns</button>
 					{/if}
 				</div>
-			</div>
-			{#if buns[$b].type === 'Bun'}
-				<!-- bun wallet -->
-				{#if bunBlastMessage}
-					<p>{bunBlastMessage}</p>
-				{/if}
-				<div class="flex relative justify-between w-full px-1 items-center">
-					{#if buns[$b].type === 'Bun'}
-						<p class="text-xs">{buns[$b].name} #{buns[$b].id}</p>
-					{/if}
-					<!-- gold balance -->
-					<button
-						on:mouseenter={() => (showWithdrawGold = true)}
-						on:mouseleave={() => (showWithdrawGold = false)}
-						on:click={() => withdrawGold()}
-						class="hover:bg-slate-100 rounded-full px-2 flex justify-center space-x-1 p-1 w-8"
-					>
-						{#if showWithdrawGold}
-							<img src="/ui/icons/send-red.svg" class="h-4" alt="" />
-						{:else}
-							<img src="/ui/icons/sankogold.png" class="h-4" alt="" />
-							<p class="text-xs">{gold}</p>
+				<!-- buns -->
+				<!-- current bun -->
+				<div class="flex justify-between items-center space-x-1">
+					<!-- bun info -->
+				</div>
+				<div class="w-full">
+					<button in:fade={{ duration: 1000, easing: cubicInOut }} class="relative">
+						<img class="w-40 m-auto" src={buns[$b].imageUrl} alt={buns[$b].name} />
+						<!-- hunger meter -->
+						{#if buns[$b].type === 'Bun'}
+							<div class="">
+								<Hunger bun={buns[$b]} />
+							</div>
 						{/if}
 					</button>
-					{#if showWithdrawGold}
-						<p
-							class="rounded border-black absolute text-sm bg-white p-2 text-black border-dashed border-2 text- right-0 -bottom-10 z-20 font-FinkHeavy"
-						>
-							send to wallet
-						</p>
-					{/if}
+					<div class="flex flex-col items-center justify-center space-y-1">
+						{#if buns[$b].type === 'Egg'}
+							<p class="text-sm font-FinkHeavy text-center">
+								{buns[$b].name} Egg
+							</p>
+							<p class="text-xs text-center">
+								{buns[$b].rarity}
+							</p>
+							<HatchEgg />
+						{/if}
+					</div>
 				</div>
-				<!-- items, fruits, seeds -->
-				<div
-					class="border-[1px] bg-gray-100 border-gray-400 overflow-y-auto overflow-x-hidden grid gap-0 grid-cols-4 grid-rows-3 w-full"
-				>
-					{#each allItems as item}
+				{#if buns[$b].type === 'Bun'}
+					<!-- bun wallet -->
+					{#if bunBlastMessage}
+						<p>{bunBlastMessage}</p>
+					{/if}
+					<div class="flex relative justify-between w-full px-1 items-center">
+						{#if buns[$b].type === 'Bun'}
+							<p class="text-xs">{buns[$b].name} #{buns[$b].id}</p>
+						{/if}
+						<!-- gold balance -->
 						<button
-							on:mouseenter={() => (currentAbility = item.ability)}
-							on:mouseleave={() => (currentAbility = undefined)}
-							on:click={() => activateAbility(item.name)}
-							class="relative border-gray-400 border-[1px] hover:bg-gray-200 flex items-center justify-center"
+							on:mouseenter={() => (showWithdrawGold = true)}
+							on:mouseleave={() => (showWithdrawGold = false)}
+							on:click={() => withdrawGold()}
+							class="hover:bg-slate-100 rounded-full px-2 flex justify-center space-x-1 p-1 w-8"
 						>
-							<img src={item.imgPath} alt={item.name} class="h-8 w-auto" />
-							{#if item.quantity > 1}
-								<div
-									class="absolute w-3 h-3 top-0 right-0 bg-rose-600 rounded-full text-white flex items-center justify-center text-[0.6rem] text-center font-FinkHeavy"
-								>
-									<p class="m-auto">
-										{item.quantity}
-									</p>
-								</div>
+							{#if showWithdrawGold}
+								<img src="/ui/icons/send-red.svg" class="h-4" alt="" />
+							{:else}
+								<img src="/ui/icons/sankogold.png" class="h-4" alt="" />
+								<p class="text-xs">{gold}</p>
 							{/if}
 						</button>
-					{/each}
-
-					{#each Array(16 - allItems.length) as _}
-						<div class="border-gray-400 border-[1px] hover:bg-gray-200"></div>
-					{/each}
-				</div>
-				{#if currentAbility}
-					<div class="w-full">
-						<p class="text-left text-xs w-full">{currentAbility}</p>
+						{#if showWithdrawGold}
+							<p
+								class="rounded border-black absolute text-sm bg-white p-2 text-black border-dashed border-2 text- right-0 -bottom-10 z-20 font-FinkHeavy"
+							>
+								send to wallet
+							</p>
+						{/if}
 					</div>
+					<!-- items, fruits, seeds -->
+					<div
+						class="border-[1px] bg-gray-100 border-gray-400 overflow-y-auto overflow-x-hidden grid gap-0 grid-cols-4 grid-rows-3 w-full"
+					>
+						{#each allItems as item}
+							<button
+								on:mouseenter={() => (currentAbility = item.ability)}
+								on:mouseleave={() => (currentAbility = undefined)}
+								on:click={() => activateAbility(item.name)}
+								class="relative border-gray-400 border-[1px] hover:bg-gray-200 flex items-center justify-center"
+							>
+								<img src={item.imgPath} alt={item.name} class="h-8 w-auto" />
+								{#if item.quantity > 1}
+									<div
+										class="absolute w-3 h-3 top-0 right-0 bg-rose-600 rounded-full text-white flex items-center justify-center text-[0.6rem] text-center font-FinkHeavy"
+									>
+										<p class="m-auto">
+											{item.quantity}
+										</p>
+									</div>
+								{/if}
+							</button>
+						{/each}
+
+						{#each Array(16 - allItems.length) as _}
+							<div class="border-gray-400 border-[1px] hover:bg-gray-200"></div>
+						{/each}
+					</div>
+					{#if currentAbility}
+						<div class="w-full">
+							<p class="text-left text-xs w-full">{currentAbility}</p>
+						</div>
+					{/if}
 				{/if}
 			{/if}
 		{/if}

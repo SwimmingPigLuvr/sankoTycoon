@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { activeBun, progressStep } from '$lib/stores/gameState';
+	import { activeBun, bridged, currentSectionBuns, progressStep } from '$lib/stores/gameState';
 	import type { Bun, BunVariety, BunType, BunRarity, BunWallet, Item } from '$lib/stores/wallet';
 	import { generateEthAddress, wallet } from '$lib/stores/wallet';
 	import * as items from '$lib/itemData';
@@ -15,6 +15,7 @@
 			hatchEgg($activeBun);
 			isHatching = false;
 			hatched = true;
+			currentSectionBuns.set(true);
 		}, 333);
 	}
 

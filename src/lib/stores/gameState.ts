@@ -6,6 +6,9 @@ export const activeBun = writable<Bun>();
 export const b = writable<number>(0);
 export const sendModalOpen = writable<boolean>(false);
 
+export const bridged = writable<boolean>(false);
+export const currentSectionBuns = writable<boolean>(true);
+
 export enum StepID {
     Bridge = 0,
     Mint,
