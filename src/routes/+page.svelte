@@ -5,7 +5,15 @@
 	import Wallet from '../lib/components/Wallet.svelte';
 	import GameClock from '../lib/components/GameClock.svelte';
 	import MintEgg from '../lib/components/MintEgg.svelte';
-	import { activeBun, gameState, StepID, b, sendModalOpen, bridged } from '../lib/stores/gameState';
+	import {
+		activeBun,
+		gameState,
+		StepID,
+		b,
+		sendModalOpen,
+		bridged,
+		currentSectionBuns
+	} from '../lib/stores/gameState';
 	import { onDestroy } from 'svelte';
 	import HatchEgg from '$lib/components/HatchEgg.svelte';
 	import Farm from '$lib/components/Farm.svelte';
@@ -17,6 +25,7 @@
 	import Toasts from '$lib/components/Toasts.svelte';
 	import Dashboard from '$lib/components/Dashboard.svelte';
 	import { showDashboard } from '$lib/stores/abilities';
+	import Abilities from '$lib/components/Abilities.svelte';
 
 	let currentStep: StepID;
 	const unsubscribe = gameState.subscribe((state) => {
@@ -27,7 +36,7 @@
 		unsubscribe;
 	});
 
-	$: buns = $wallet?.nfts ?? [];
+	$: buns = $wallet?.nfts.filter((nft: Bun) => nft.type === 'Bun') ?? [];
 	// check if the bun wallet has funky glasses
 	$: if (
 		buns.length > 0 &&
@@ -53,18 +62,19 @@
 		<div
 			class="flex p-2 space-x-3 justify-center transform transition-all duration-1000 ease-in-out"
 		>
-			{#if buns}
-				<div class="">
-					<BunWallet bun={buns[$b]} />
-				</div>
-			{/if}
-			{#if $bridged}{:else if currentStep === StepID.Farm}
+			<div>
+				<Wallet />
+			</div>
+			<div>
+				<BunWallet bun={buns[$b]} />
+			</div>
+			{#if buns.length > 0}
 				<div>
 					<Farm bun={$wallet?.nfts[$b]} />
 				</div>
 			{/if}
-			<div class="transform transition-all duration-1000 ease-in-out">
-				<Wallet />
+			<div>
+				<Abilities />
 			</div>
 		</div>
 		<div class="">

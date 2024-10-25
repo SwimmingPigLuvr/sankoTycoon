@@ -14,7 +14,9 @@
 	let tokens: Token[] = [];
 	let nfts: Bun[] = [];
 	$: tokens = $wallet?.tokens ?? [];
-	$: nfts = $wallet?.nfts ?? [];
+	$: buns = $wallet?.nfts.filter((nft: Bun) => nft.type === 'Bun') ?? [];
+	$: eggs = $wallet?.nfts.filter((nft: Bun) => nft.type === 'Egg') ?? [];
+	let showEggs = true;
 	let showBunWallet = false;
 
 	let showOptions: boolean[] = [];
@@ -26,17 +28,6 @@
 
 	function openWallet() {
 		showBunWallet = true;
-	}
-
-	// Modify the nextBun and prevBun functions to cycle through the nfts array
-	function nextBun() {
-		b.set(($b + 1) % nfts.length); // Increment b and wrap around using modulo
-		console.log(`current bun: ${nfts[$b].name} id #${nfts[$b].id}`);
-	}
-
-	function prevBun() {
-		b.set(($b - 1 + nfts.length) % nfts.length); // Decrement b and wrap around using modulo to handle negative index
-		console.log(`current bun: ${nfts[$b].name} id #${nfts[$b].id}`);
 	}
 
 	// if the last decimal is 0 do not include it.
@@ -77,7 +68,7 @@
 	}
 </script>
 
-<main class="space-y-0 px-1 tracking-normal text-center w-40 flex flex-col items-center">
+<main class="space-y-0 px-0 tracking-normal text-center w-40 flex flex-col items-center">
 	<h1 class="text-xl">Wallet</h1>
 	<div class="w-full">
 		<p class="text-xs">{$wallet?.walletAddress}</p>
@@ -117,12 +108,75 @@
 		</div>
 	</div>
 	{#if currentStep === StepID.Bridge}
-		<Bridge />
+		<div class="w-40">
+			<Bridge />
+		</div>
 	{/if}
+	<!-- buns and eggs -->
+	<div class="py-2 w-full font-FinkHeavy">
+		<!-- eggs -->
+		<div class="flex text-xs justify-between w-full px-4">
+			<button
+				class="px-2 bg-rose-300 text-black text-opacity-50 rounded-t {showEggs
+					? 'z-50 border-2 border-gray-200 border-b-0'
+					: 'border-2 border-transparent'}"
+				on:click={() => (showEggs = true)}>Eggs</button
+			>
+			<button
+				class="px-2 bg-sky-200 text-black text-opacity-50 rounded-t {!showEggs
+					? 'border-2 border-gray-200 border-b-0'
+					: 'border-2 border-transparent'}"
+				on:click={() => (showEggs = false)}>Buns</button
+			>
+		</div>
+		{#if showEggs}
+			<div
+				class="egs bg-rose-200 relative border-2 rounded max-h-40 border-gray-200 overflow-y-auto overflow-x-hidden grid gap-1 items-center grid-cols-3 grid-rows-3 w-full p-1 px-2"
+			>
+				{#each eggs as egg}
+					<button
+						on:click={() => activeBun.set(egg)}
+						class="relative border-white border-[1px] hover:bg-gray-200 w-10 h-10 flex items-center justify-center"
+					>
+						<img src={egg.imageUrl} alt={egg.name} class="w-full h-auto" />
+					</button>
+				{/each}
+
+				<!-- Calculate the number of empty divs needed to fill the row -->
+				{#each Array(Math.max(9 - eggs.length, 0)) as _}
+					<div class="border-white border-[1px] hover:bg-gray-200 w-10 h-10"></div>
+				{/each}
+			</div>
+		{/if}
+		{#if !showEggs}
+			<!-- bun -->
+			<div
+				class="bun rounded border-2 bg-sky-100 border-gray-200 overflow-y-auto overflow-x-hidden grid gap-1 grid-cols-3 grid-rows-2 w-full px-2 p-1"
+			>
+				{#each buns as bun}
+					<button
+						on:click={() => activeBun.set(bun)}
+						class="border-white border-[1px] hover:bg-sky-200 h-10 w-10 flex items-center justify-center"
+					>
+						<img src={bun.thumbUrl} alt={bun.name} class="h-full w-full" />
+					</button>
+				{/each}
+
+				{#each Array(9 - buns.length) as _}
+					<div class="border-white border-[1px] hover:bg-sky-200 w-10 h-10"></div>
+				{/each}
+			</div>
+		{/if}
+	</div>
 </main>
 
-{#if nfts[$b] && nfts[$b].type === 'Bun'}
-	<div>
-		<Abilities />
-	</div>
-{/if}
+<style>
+	.eggs {
+		background-image: url('ui/patterns/checkersankobg3.png');
+		background-size: 65px;
+	}
+	.buns {
+		background-image: url('ui/patterns/checkersankobg2.png');
+		background-size: 65px;
+	}
+</style>

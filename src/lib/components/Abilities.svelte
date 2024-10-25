@@ -186,61 +186,61 @@
 </script>
 
 <main class="flex flex-col space-y-1 w-40 h-80 overflow-y-auto overflow-x-hidden">
-	{$farmtek.purchased}
-	{$farmtek.enabled}
-	<button
-		on:mouseenter={() => (showFarmtekInfo = true)}
-		on:mouseleave={() => (showFarmtekInfo = false)}
-		class="w-full relative"
-	>
-		{#if !$farmtek.purchased}
-			{#if showFarmtekInfo}
-				<div
-					class="z-50 p-2 flex flex-col justify-around space-y-1 absolute items-center w-full h-full bg-black bg-opacity-100"
-				>
-					<div class="">
-						<p class="font-black font-sans -tracking-wide text-2xl text-lime-700 leading-4">
-							FARMTEK
+	{#if $autoHarvest.level >= 2 && $click2plant.level >= 2}
+		<button
+			on:mouseenter={() => (showFarmtekInfo = true)}
+			on:mouseleave={() => (showFarmtekInfo = false)}
+			class="w-full relative"
+		>
+			{#if !$farmtek.purchased}
+				{#if showFarmtekInfo}
+					<div
+						class="z-50 p-2 flex flex-col justify-around space-y-1 absolute items-center w-full h-full bg-black bg-opacity-100"
+					>
+						<div class="">
+							<p class="font-black font-sans -tracking-wide text-2xl text-lime-700 leading-4">
+								FARMTEK
+							</p>
+							<p class="font-sans -tracking-wide text-sm text-yellow-500">by Bunsanto©️</p>
+						</div>
+						<div class="text-white flex items-center justify-around space-x-1">
+							<button
+								on:click={() => buyFarmtek('DMT')}
+								disabled={dmtBalance < farmtekPrice.dmt}
+								class="hover:text-lime-400 disabled:cursor-not-allowed rounded-full px-1 flex items-center space-x-1"
+							>
+								<img src="/ui/icons/dmt.png" class="w-5" alt="" />
+								<p class="font-FinkHeavy text-md">9.9</p>
+							</button>
+							<p class="font-FinkHeavy text-md">/</p>
+							<button
+								on:click={() => buyFarmtek('SANTO')}
+								disabled={santoBalance < farmtekPrice.santo}
+								class="hover:text-lime-400 disabled:cursor-not-allowed rounded-full px-1 flex items-center space-x-1"
+							>
+								<img src="/ui/icons/bunsanto.webp" class="w-5 rounded-full" alt="" />
+								<p class="font-FinkHeavy text-sm">4.2M</p>
+							</button>
+						</div>
+						<p class="font-mono text-xs px-2 -tracking-wider text-white leading-4">
+							p2p automated farming protocol
 						</p>
-						<p class="font-sans -tracking-wide text-sm text-yellow-500">by Bunsanto©️</p>
 					</div>
-					<div class="text-white flex items-center justify-around space-x-1">
-						<button
-							on:click={() => buyFarmtek('DMT')}
-							disabled={dmtBalance < farmtekPrice.dmt}
-							class="hover:text-lime-400 disabled:cursor-not-allowed rounded-full px-1 flex items-center space-x-1"
-						>
-							<img src="/ui/icons/dmt.png" class="w-5" alt="" />
-							<p class="font-FinkHeavy text-md">9.9</p>
-						</button>
-						<p class="font-FinkHeavy text-md">/</p>
-						<button
-							on:click={() => buyFarmtek('SANTO')}
-							disabled={santoBalance < farmtekPrice.santo}
-							class="hover:text-lime-400 disabled:cursor-not-allowed rounded-full px-1 flex items-center space-x-1"
-						>
-							<img src="/ui/icons/bunsanto.webp" class="w-5 rounded-full" alt="" />
-							<p class="font-FinkHeavy text-sm">4.2M</p>
-						</button>
-					</div>
-					<p class="font-mono text-xs px-2 -tracking-wider text-white leading-4">
-						p2p automated farming protocol
-					</p>
-				</div>
+				{/if}
 			{/if}
-		{/if}
-		<img
-			class="w-40 h-auto {!$farmtek.purchased &&
-			dmtBalance < farmtekPrice.dmt &&
-			santoBalance < farmtekPrice.santo
-				? 'filter grayscale'
-				: 'grayscale-0'}"
-			src="/images/tools/farmtek-disc.png"
-			alt=""
-		/>
-	</button>
+			<img
+				class="w-40 h-auto {!$farmtek.purchased &&
+				dmtBalance < farmtekPrice.dmt &&
+				santoBalance < farmtekPrice.santo
+					? 'filter grayscale'
+					: 'grayscale-0'}"
+				src="/images/tools/farmtek-disc.png"
+				alt=""
+			/>
+		</button>
+	{/if}
 	<!-- auto feeder -->
-	{#if $totalFruitsEaten >= 0}
+	{#if $totalFruitsEaten >= 10}
 		{#if !$autoFeeder.purchased}
 			<button
 				disabled={goldBalance < 10}
@@ -277,7 +277,7 @@
 		{/if}
 	{/if}
 	<!-- auto Seller -->
-	{#if $totalFruitsSold >= 0}
+	{#if $totalFruitsSold >= 30}
 		{#if !$autoSeller.purchased}
 			<button
 				disabled={goldBalance < autoSellerPrice}
@@ -331,7 +331,7 @@
 
 	<!-- one click planting -->
 	<!-- shows up once user plants 10 trees -->
-	{#if $totalTreesPlanted >= 0}
+	{#if $totalTreesPlanted >= 10}
 		<!-- if not purchased yet -->
 		{#if !$click2plant.purchased}
 			<button
@@ -386,7 +386,7 @@
 	{/if}
 
 	<!-- auto harvest -->
-	{#if $totalFruitHarvested >= 0}
+	{#if $totalFruitHarvested >= 50}
 		<!-- if not purchased yet -->
 		{#if !$autoHarvest.purchased}
 			<button

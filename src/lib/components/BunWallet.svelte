@@ -2,13 +2,7 @@
 <script lang="ts">
 	import * as itemData from '$lib/itemData';
 	import { autoFeeder, bunBlasted, isReviving, totalFruitsEaten } from '$lib/stores/abilities';
-	import {
-		addMessage,
-		gameState,
-		b,
-		bridged,
-		currentSectionBuns
-	} from '$lib/stores/gameState';
+	import { addMessage, gameState, b, bridged, currentSectionBuns } from '$lib/stores/gameState';
 	import { wallet, type Bun, type Item, type Token } from '$lib/stores/wallet';
 	import { cubicInOut } from 'svelte/easing';
 	import { fade, fly, slide } from 'svelte/transition';
@@ -21,7 +15,8 @@
 
 	let showWithdrawGold = false;
 
-	$: buns = $wallet?.nfts ?? [];
+	$: buns = $wallet?.nfts.filter((nft: Bun) => nft.type === 'Bun') ?? [];
+	$: eggs = $wallet?.nfts.filter((nft: Bun) => nft.type === 'Egg') ?? [];
 	$: bunWallet = bun?.wallet;
 	$: items = bunWallet?.items.filter((items: Item) => items.quantity > 0);
 	$: bunId = bunWallet?.bunId;
@@ -274,10 +269,10 @@
 		<!-- EGG SECTION -->
 		{#if !$currentSectionBuns}
 			<!-- if any eggs in the wallet -->
-			{#if buns[$b]}
+			{#if eggs[$b]}
 				<div class="w-full flex px-2 justify-center space-x-4 font-FinkHeavy text-xl text-center">
 					<!-- if multiple eggs in the wallet -->
-					{#if buns.length > 1}
+					{#if eggs.length > 1}
 						<!-- left arrow -->
 						<button class="hover:scale-125" on:click={() => nextBun()}>
 							<img src="/ui/icons/arrow.png" class="w-8" alt="" />
@@ -289,21 +284,21 @@
 						</button>
 						<!-- if singular bun -->
 					{:else}
-						<button on:click={() => toggleSection()}>Buns</button>
+						<button on:click={() => toggleSection()}>Eggs</button>
 					{/if}
 				</div>
 				<!-- current egg -->
 				<div class="w-full">
 					<button in:fade={{ duration: 1000, easing: cubicInOut }} class="relative">
-						<img class="w-40 m-auto" src={buns[$b].imageUrl} alt={buns[$b].name} />
+						<img class="w-40 m-auto" src={eggs[$b].imageUrl} alt={eggs[$b].name} />
 					</button>
 					<!-- egg info -->
 					<div class="flex flex-col items-center justify-center space-y-0">
 						<p class="text-2xl font-FinkHeavy text-center">
-							{buns[$b].name} Egg
+							{eggs[$b].name} Egg
 						</p>
 						<p class="text-xs font-mono text-center">
-							{buns[$b].rarity}
+							{eggs[$b].rarity}
 						</p>
 						<div class="py-2">
 							<HatchEgg />
@@ -311,7 +306,7 @@
 					</div>
 				</div>
 			{/if}
-			{#if $bridged}
+			{#if $bridged && !$currentSectionBuns}
 				<div>
 					<MintEgg />
 				</div>
@@ -383,7 +378,7 @@
 								<img src="/ui/icons/send-red.svg" class="h-4" alt="" />
 							{:else}
 								<img src="/ui/icons/sankogold.png" class="h-4" alt="" />
-								<p class="text-xs">{gold}</p>
+								<p class="text-xs">{buns[$b].wallet.gold}</p>
 							{/if}
 						</button>
 						{#if showWithdrawGold}

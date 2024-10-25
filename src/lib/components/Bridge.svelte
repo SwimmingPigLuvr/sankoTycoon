@@ -1,6 +1,6 @@
 <!-- lib/components/Bridge.svelte -->
 <script lang="ts">
-	import { bridged } from '../stores/gameState';
+	import { bridged, currentSectionBuns } from '../stores/gameState';
 	import { onDestroy, onMount } from 'svelte';
 	import { wallet } from '../stores/wallet';
 
@@ -24,6 +24,7 @@
 					return wallet;
 				});
 				bridged.set(true);
+				currentSectionBuns.set(false);
 			}
 		}, 10);
 	}

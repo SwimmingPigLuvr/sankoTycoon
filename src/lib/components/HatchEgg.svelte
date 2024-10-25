@@ -231,8 +231,11 @@
 
 		// push newBun
 		wallet.update((wallet) => {
-			wallet.nfts.push(newBun);
-			return wallet;
+			// Create a new array with the existing NFTs and the newly created bun
+			return {
+				...wallet,
+				nfts: [...wallet.nfts, newBun]
+			};
 		});
 
 		if (!newBun.isHibernating) {
