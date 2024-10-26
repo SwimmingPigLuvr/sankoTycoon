@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { activeBun, addToast, b, sendModalOpen, toasts } from '$lib/stores/gameState';
+	import { activeBun, addToast, sendModalOpen, toasts } from '$lib/stores/gameState';
 	import {
 		wallet,
 		type Bun,

@@ -9,10 +9,10 @@
 		activeBun,
 		gameState,
 		StepID,
-		b,
 		sendModalOpen,
 		bridged,
-		currentSectionBuns
+		currentSectionBuns,
+		bunIndex
 	} from '../lib/stores/gameState';
 	import { onDestroy } from 'svelte';
 	import HatchEgg from '$lib/components/HatchEgg.svelte';
@@ -40,7 +40,7 @@
 	// check if the bun wallet has funky glasses
 	$: if (
 		buns.length > 0 &&
-		buns[$b]?.wallet?.items?.some(
+		buns[$bunIndex]?.wallet?.items?.some(
 			(item: Item) => item.name === 'Funky Glasses' && item.quantity > 0
 		)
 	) {
@@ -66,11 +66,11 @@
 				<Wallet />
 			</div>
 			<div>
-				<BunWallet bun={buns[$b]} />
+				<BunWallet bun={buns[$bunIndex]} />
 			</div>
 			{#if buns.length > 0}
 				<div>
-					<Farm bun={$wallet?.nfts[$b]} />
+					<Farm bun={$wallet?.nfts[$bunIndex]} />
 				</div>
 			{/if}
 			<div>
@@ -78,9 +78,9 @@
 			</div>
 		</div>
 		<div class="">
-			{#if buns[$b]}
+			{#if buns[$bunIndex]}
 				<!-- bun wallet -->
-				<Shop bun={buns[$b]} />
+				<Shop bun={buns[$bunIndex]} />
 			{/if}
 		</div>
 		{#if $showDashboard}

@@ -5,7 +5,7 @@
 	import Wallet from './Wallet.svelte';
 	import * as itemData from '$lib/itemData';
 	import { fade } from 'svelte/transition';
-	import { gameState, b, addMessage } from '$lib/stores/gameState';
+	import { gameState, addMessage } from '$lib/stores/gameState';
 	import { onDestroy, onMount } from 'svelte';
 	import {
 		autoHarvest,
@@ -197,7 +197,7 @@
 					return currentWallet;
 				});
 			}
-		}, 1000 * 2);
+		}, 100);
 	}
 
 	function harvestFruit(index: number) {

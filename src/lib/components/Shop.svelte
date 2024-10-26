@@ -2,7 +2,7 @@
 <script lang="ts">
 	import * as allItems from '$lib/itemData';
 	import { autoSeller, type AutoSeller, bunBlasted, totalFruitsSold } from '$lib/stores/abilities';
-	import { gameState, b } from '$lib/stores/gameState';
+	import { gameState, bunIndex } from '$lib/stores/gameState';
 	import {
 		addItemToWallet,
 		subtractItemFromWallet,
@@ -48,7 +48,7 @@
 
 	// buns in wallet
 	$: buns = $wallet?.nfts ?? [];
-	$: bunWallet = buns[$b]?.wallet ?? {};
+	$: bunWallet = buns[$bunIndex]?.wallet ?? {};
 
 	// existing items
 	$: items = bunWallet?.items.filter((items: Item) => items.quantity > 0) ?? [];
@@ -101,15 +101,15 @@
 		}
 
 		autoSellInterval = setInterval(() => {
-			if (buns[$b]) {
-				const bun = buns[$b];
+			if (buns[$bunIndex]) {
+				const bun = buns[$bunIndex];
 				const wallet = bun.wallet;
 				for (let i = 0; i < fps; i++) {
 					const anyFruit = wallet.items.find(
 						(item: Item) => item.type === 'fruit' && item.quantity > 1
 					);
 					if (anyFruit) {
-						sellItem($b, anyFruit);
+						sellItem($bunIndex, anyFruit);
 					} else {
 						break;
 					}
@@ -173,7 +173,7 @@
 		>
 			<img src="/ui/icons/sankogold.png" class="w-4 h-4" alt="" />
 			<p>{bunWallet.gold}</p>
-			<p class="border-l-2 border-l-yellow-500 px-1">{buns[$b].name}</p>
+			<p class="border-l-2 border-l-yellow-500 px-1">{buns[$bunIndex].name}</p>
 		</div>
 	</div>
 	<!-- items -->
@@ -189,7 +189,7 @@
 						}}
 						on:mouseleave={() => (currentDescription = undefined)}
 						disabled={item.buyPrice > bunWallet.gold}
-						on:click={() => buyItem($b, item)}
+						on:click={() => buyItem($bunIndex, item)}
 						class="flex-shrink-0 disabled:filter disabled:invert-[50%] relative font-FinkHeavy w-24 h-28 text-xs rounded border-white border-[1px] bg-white bg-opacity-50 hover:bg-opacity-75 flex flex-col justify-evenly overflow-hidden items-center"
 					>
 						<!-- price -->
@@ -221,7 +221,7 @@
 		{#if sell}
 			{#each allSellableItems as item}
 				<button
-					on:click={() => sellItem($b, item)}
+					on:click={() => sellItem($bunIndex, item)}
 					class="relative font-FinkHeavy w-20 h-24 text-xs rounded border-white border-[1px] bg-white bg-opacity-75 hover:bg-opacity-90 flex flex-col justify-evenly overflow-hidden items-center"
 				>
 					<div class="px-1 text-white absolute top-1 right-1 rounded-full bg-rose-600">
@@ -248,7 +248,7 @@
 				class="mt-1 text-lg border-2 border-black border-dashed bg-white w-full h-full text-wrap leading-[1.1] rounded-xl p-2 font-FinkHeavy"
 			>
 				<p>
-					{#if currentItemPrice && currentItemPrice > buns[$b].wallet.gold}
+					{#if currentItemPrice && currentItemPrice > buns[$bunIndex].wallet.gold}
 						???
 					{:else}
 						{currentDescription}

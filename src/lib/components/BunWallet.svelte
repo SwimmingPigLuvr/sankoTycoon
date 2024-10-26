@@ -2,7 +2,15 @@
 <script lang="ts">
 	import * as itemData from '$lib/itemData';
 	import { autoFeeder, bunBlasted, isReviving, totalFruitsEaten } from '$lib/stores/abilities';
-	import { addMessage, gameState, b, bridged, currentSectionBuns } from '$lib/stores/gameState';
+	import {
+		addMessage,
+		gameState,
+		bridged,
+		currentSectionBuns,
+		activeBun,
+		eggIndex,
+		bunIndex
+	} from '$lib/stores/gameState';
 	import { wallet, type Bun, type Item, type Token } from '$lib/stores/wallet';
 	import { cubicInOut } from 'svelte/easing';
 	import { fade, fly, slide } from 'svelte/transition';
@@ -17,6 +25,16 @@
 
 	$: buns = $wallet?.nfts.filter((nft: Bun) => nft.type === 'Bun') ?? [];
 	$: eggs = $wallet?.nfts.filter((nft: Bun) => nft.type === 'Egg') ?? [];
+
+	$: $bunIndex = $bunIndex % buns.length;
+	$: $eggIndex = $eggIndex % eggs.length;
+
+	$: if ($currentSectionBuns && buns.length > 0) {
+		activeBun.set(buns[$bunIndex]);
+	} else if (!$currentSectionBuns && eggs.length > 0) {
+		activeBun.set(eggs[$eggIndex]);
+	}
+
 	$: bunWallet = bun?.wallet;
 	$: items = bunWallet?.items.filter((items: Item) => items.quantity > 0);
 	$: bunId = bunWallet?.bunId;
@@ -33,15 +51,24 @@
 	let currentAbility: string | undefined;
 	let bunBlastMessage: string | undefined;
 
-	// Modify the nextBun and prevBun functions to cycle through the nfts array
 	function nextBun() {
-		b.set(($b + 1) % buns.length); // Increment b and wrap around using modulo
-		console.log(`current bun: ${buns[$b].name} id #${buns[$b].id}`);
+		bunIndex.update((b) => (b + 1) % buns.length);
 	}
 
 	function prevBun() {
-		b.set(($b - 1 + buns.length) % buns.length); // Decrement b and wrap around using modulo to handle negative index
-		console.log(`current bun: ${buns[$b].name} id #${buns[$b].id}`);
+		bunIndex.update((b) => (b - 1 + buns.length) % buns.length);
+	}
+
+	function nextEgg() {
+		eggIndex.update((e) => (e + 1) % eggs.length);
+	}
+
+	function prevEgg() {
+		eggIndex.update((e) => (e - 1 + eggs.length) % eggs.length);
+	}
+
+	function toggleSection() {
+		currentSectionBuns.update((section) => !section);
 	}
 
 	function activateAbility(itemName: string) {
@@ -221,8 +248,8 @@
 	}
 
 	// check if autofeeder is enabled
-	$: if ($autoFeeder.enabled && buns[$b]) {
-		const bun = buns[$b];
+	$: if ($autoFeeder.enabled && buns[$bunIndex]) {
+		const bun = buns[$bunIndex];
 		// only use when bun is starving
 		if (bun.hungerLevel >= 5) {
 			const wallet = bun.wallet;
@@ -241,7 +268,7 @@
 	// an icon showing the quantity
 	function withdrawGold() {
 		wallet.update((wallet) => {
-			const bun = wallet.nfts[$b];
+			const bun = wallet.nfts[$bunIndex];
 			const amount = bun.wallet.gold;
 			const goldToken = wallet.tokens.find((token: Token) => token.name === 'GOLD');
 			if (amount >= 0) {
@@ -254,32 +281,27 @@
 			return wallet;
 		});
 	}
-
-	function toggleSection() {
-		currentSectionBuns.set(!$currentSectionBuns);
-		console.log(`changed section from ${!currentSectionBuns} to ${$currentSectionBuns}`);
-	}
 </script>
 
 <main
 	in:fly={{ duration: 100, x: -10, easing: cubicInOut }}
-	class="w-full justify-center flex flex-col border-gray-400 border- max-w-40"
+	class="w-40 justify-center flex flex-col border-gray-400 border- max-w-40"
 >
 	<div class="w-full justify-center items-center flex flex-col space-y-0">
 		<!-- EGG SECTION -->
 		{#if !$currentSectionBuns}
 			<!-- if any eggs in the wallet -->
-			{#if eggs[$b]}
+			{#if eggs[$eggIndex]}
 				<div class="w-full flex px-2 justify-center space-x-4 font-FinkHeavy text-xl text-center">
 					<!-- if multiple eggs in the wallet -->
 					{#if eggs.length > 1}
 						<!-- left arrow -->
-						<button class="hover:scale-125" on:click={() => nextBun()}>
+						<button class="hover:scale-125" on:click={() => prevEgg()}>
 							<img src="/ui/icons/arrow.png" class="w-8" alt="" />
 						</button>
 						<button on:click={() => toggleSection()}>Eggs</button>
 						<!-- right arrow -->
-						<button on:click={() => prevBun()} class="hover:scale-125">
+						<button on:click={() => nextEgg()} class="hover:scale-125">
 							<img src="/ui/icons/arrow.png" class="w-8 scale-[-100%]" alt="" />
 						</button>
 						<!-- if singular bun -->
@@ -290,15 +312,15 @@
 				<!-- current egg -->
 				<div class="w-full">
 					<button in:fade={{ duration: 1000, easing: cubicInOut }} class="relative">
-						<img class="w-40 m-auto" src={eggs[$b].imageUrl} alt={eggs[$b].name} />
+						<img class="w-40 m-auto" src={eggs[$eggIndex].imageUrl} alt={eggs[$eggIndex].name} />
 					</button>
 					<!-- egg info -->
 					<div class="flex flex-col items-center justify-center space-y-0">
 						<p class="text-2xl font-FinkHeavy text-center">
-							{eggs[$b].name} Egg
+							{eggs[$eggIndex].name} Egg
 						</p>
 						<p class="text-xs font-mono text-center">
-							{eggs[$b].rarity}
+							{eggs[$eggIndex].rarity}
 						</p>
 						<div class="py-2">
 							<HatchEgg />
@@ -313,17 +335,17 @@
 			{/if}
 		{:else if $currentSectionBuns}
 			<!-- if any buns in the wallet -->
-			{#if buns[$b]}
+			{#if buns[$bunIndex]}
 				<div class="w-full flex px-2 justify-center space-x-4 font-FinkHeavy text-xl text-center">
 					<!-- if multiple buns in the wallet -->
 					{#if buns.length > 1}
 						<!-- left arrow -->
-						<button class="hover:scale-125" on:click={() => nextBun()}>
+						<button class="hover:scale-125" on:click={() => prevBun()}>
 							<img src="/ui/icons/arrow.png" class="w-8" alt="" />
 						</button>
 						<button on:click={() => toggleSection()}>Buns</button>
 						<!-- right arrow -->
-						<button on:click={() => prevBun()} class="hover:scale-125">
+						<button on:click={() => nextBun()} class="hover:scale-125">
 							<img src="/ui/icons/arrow.png" class="w-8 scale-[-100%]" alt="" />
 						</button>
 						<!-- if singular bun -->
@@ -338,34 +360,34 @@
 				</div>
 				<div class="w-full">
 					<button in:fade={{ duration: 1000, easing: cubicInOut }} class="relative">
-						<img class="w-40 m-auto" src={buns[$b].imageUrl} alt={buns[$b].name} />
+						<img class="w-40 m-auto" src={buns[$bunIndex].imageUrl} alt={buns[$bunIndex].name} />
 						<!-- hunger meter -->
-						{#if buns[$b].type === 'Bun'}
+						{#if buns[$bunIndex].type === 'Bun'}
 							<div class="">
-								<Hunger bun={buns[$b]} />
+								<Hunger bun={buns[$bunIndex]} />
 							</div>
 						{/if}
 					</button>
 					<div class="flex flex-col items-center justify-center space-y-1">
-						{#if buns[$b].type === 'Egg'}
+						{#if buns[$bunIndex].type === 'Egg'}
 							<p class="text-sm font-FinkHeavy text-center">
-								{buns[$b].name} Egg
+								{buns[$bunIndex].name} Egg
 							</p>
 							<p class="text-xs text-center">
-								{buns[$b].rarity}
+								{buns[$bunIndex].rarity}
 							</p>
 							<HatchEgg />
 						{/if}
 					</div>
 				</div>
-				{#if buns[$b].type === 'Bun'}
+				{#if buns[$bunIndex].type === 'Bun'}
 					<!-- bun wallet -->
 					{#if bunBlastMessage}
 						<p>{bunBlastMessage}</p>
 					{/if}
 					<div class="flex relative justify-between w-full px-1 items-center">
-						{#if buns[$b].type === 'Bun'}
-							<p class="text-xs">{buns[$b].name} #{buns[$b].id}</p>
+						{#if buns[$bunIndex].type === 'Bun'}
+							<p class="text-xs">{buns[$bunIndex].name} #{buns[$bunIndex].id}</p>
 						{/if}
 						<!-- gold balance -->
 						<button
@@ -378,7 +400,7 @@
 								<img src="/ui/icons/send-red.svg" class="h-4" alt="" />
 							{:else}
 								<img src="/ui/icons/sankogold.png" class="h-4" alt="" />
-								<p class="text-xs">{buns[$b].wallet.gold}</p>
+								<p class="text-xs">{buns[$bunIndex].wallet.gold}</p>
 							{/if}
 						</button>
 						{#if showWithdrawGold}

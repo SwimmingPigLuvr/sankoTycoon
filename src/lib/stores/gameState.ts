@@ -3,11 +3,13 @@ import { writable } from 'svelte/store';
 import type { Bun } from '/$lib/stores/wallet';
 
 export const activeBun = writable<Bun>();
-export const b = writable<number>(0);
-export const sendModalOpen = writable<boolean>(false);
+export const bunIndex = writable<number>(0);
+export const eggIndex = writable<number>(0);
+
+export const currentSectionBuns = writable<boolean>(true);
 
 export const bridged = writable<boolean>(false);
-export const currentSectionBuns = writable<boolean>(true);
+export const sendModalOpen = writable<boolean>(false);
 
 export enum StepID {
     Bridge = 0,

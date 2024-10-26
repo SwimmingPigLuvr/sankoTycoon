@@ -1,9 +1,11 @@
+<!-- $lib/components/MintEgg.svelte -->
 <script lang="ts">
 	import * as items from '$lib/itemData';
 	// todo. mintegg. add egg to wallet
 	// mint success message
-	import { activeBun, addMessage, progressStep } from '$lib/stores/gameState';
+	import { activeBun, addMessage, eggIndex, progressStep } from '$lib/stores/gameState';
 	import {
+		generateEthAddress,
 		wallet,
 		type Bun,
 		type BunRarity,
@@ -27,26 +29,28 @@
 		}, 0);
 	}
 
+	$: eggs = $wallet.nfts.filter((nft: Bun) => nft.type === 'Egg');
+
 	// Egg rarities and probabilities
 	const eggProbabilities = [
 		// common
-		{ variety: 'Red', rarity: 'Common', weight: 735 },
-		{ variety: 'Blue', rarity: 'Common', weight: 562 },
-		{ variety: 'Green', rarity: 'Common', weight: 552 },
-		{ variety: 'Natural', rarity: 'Common', weight: 540 },
+		{ variety: 'Red', rarity: 'Common', weight: 335 },
+		{ variety: 'Blue', rarity: 'Common', weight: 362 },
+		{ variety: 'Green', rarity: 'Common', weight: 352 },
+		{ variety: 'Natural', rarity: 'Common', weight: 340 },
 		// uncommon
-		{ variety: 'BlueStar', rarity: 'Uncommon', weight: 419 },
+		{ variety: 'BlueStar', rarity: 'Uncommon', weight: 319 },
 		{ variety: 'Sanko', rarity: 'Uncommon', weight: 306 },
 		{ variety: 'Purple', rarity: 'Uncommon', weight: 254 },
 		// rare
-		{ variety: 'RedStar', rarity: 'Rare', weight: 200 },
-		{ variety: 'Qualk', rarity: 'Rare', weight: 150 },
+		{ variety: 'RedStar', rarity: 'Rare', weight: 240 },
+		{ variety: 'Qualk', rarity: 'Rare', weight: 200 },
 		// rotten
-		{ variety: 'Rotten', rarity: 'Rotten', weight: 100 },
+		{ variety: 'Rotten', rarity: 'Rotten', weight: 150 },
 		// moldy
-		{ variety: 'Moldy', rarity: 'Moldy', weight: 50 },
+		{ variety: 'Moldy', rarity: 'Moldy', weight: 100 },
 		// superrare
-		{ variety: 'Gold', rarity: 'SuperRare', weight: 25 }
+		{ variety: 'Gold', rarity: 'SuperRare', weight: 500000 }
 	];
 
 	function getRandomEgg() {
@@ -68,6 +72,7 @@
 	let minted = false;
 
 	let bunWallet: BunWallet = {
+		address: generateEthAddress(),
 		bunId: 1111,
 		gold: 0,
 		items: []
@@ -89,6 +94,7 @@
 		variety: 'Buns',
 		wallet: bunWallet,
 		imageUrl: '/images/eggs/natural.webp',
+		thumbUrl: '/images/eggs/natural.webp',
 		farm: eggPlot,
 		hungerLevel: 0,
 		isHibernating: false,
@@ -125,11 +131,13 @@
 				type: 'Egg',
 				variety: egg.variety as BunVariety,
 				wallet: {
+					address: generateEthAddress(),
 					bunId: nextEggId,
 					gold: 0,
 					items: []
 				},
 				imageUrl: `/images/eggs/${egg.variety}.webp`,
+				thumbUrl: `/images/eggs/${egg.variety}.webp`,
 				farm: [],
 				hungerLevel: 0,
 				isHibernating: false,
@@ -138,6 +146,11 @@
 			// push new egg
 			wallet.nfts.push(newEgg);
 			// set current egg
+			if (eggs.length > 0) {
+				eggIndex.update((e) => (e = eggs.length));
+			} else {
+				eggIndex.set(0);
+			}
 			activeBun.set(newEgg);
 
 			// update egg count

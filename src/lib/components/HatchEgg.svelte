@@ -1,5 +1,12 @@
+<!-- $lib/components/HatchEgg.svelte -->
 <script lang="ts">
-	import { activeBun, bridged, currentSectionBuns, progressStep } from '$lib/stores/gameState';
+	import {
+		activeBun,
+		bridged,
+		bunIndex,
+		currentSectionBuns,
+		progressStep
+	} from '$lib/stores/gameState';
 	import type { Bun, BunVariety, BunType, BunRarity, BunWallet, Item } from '$lib/stores/wallet';
 	import { generateEthAddress, wallet } from '$lib/stores/wallet';
 	import * as items from '$lib/itemData';
@@ -7,6 +14,9 @@
 	import { startHungerInterval } from '$lib/stores/hungerState';
 
 	// implement random bun hatching based on rarity
+
+	$: buns = $wallet.nfts.filter((nft: Bun) => nft.type === 'Bun') ?? [];
+	$: eggs = $wallet.nfts.filter((nft: Bun) => nft.type === 'Egg') ?? [];
 
 	function hatchEggHandler() {
 		isHatching = true;
@@ -199,9 +209,9 @@
 		}
 
 		// remove egg from wallet
-		wallet.update((wallet) => {
-			wallet.nfts = wallet.nfts.filter((nft: Bun) => nft.id !== egg.id);
-			return wallet;
+		wallet.update((w) => {
+			w.nfts = w.nfts.filter((nft: Bun) => nft.id !== egg.id);
+			return w;
 		});
 
 		// generate random bun
@@ -214,6 +224,7 @@
 			`/images/buns/${bun.variety}.webp`,
 			`/images/buns/thumbs/${bun.variety}.png`,
 			stats,
+			5,
 			{
 				type: 'Bun',
 				wallet: {
@@ -230,19 +241,19 @@
 		);
 
 		// push newBun
-		wallet.update((wallet) => {
-			// Create a new array with the existing NFTs and the newly created bun
-			return {
-				...wallet,
-				nfts: [...wallet.nfts, newBun]
-			};
+		wallet.update((w) => {
+			w.nfts.push(newBun);
+			return w;
 		});
+
+		buns = [...buns];
+		bunIndex.set(buns.length - 1);
+		activeBun.set(newBun);
+		currentSectionBuns.set(true);
 
 		if (!newBun.isHibernating) {
 			startHungerInterval(newBun);
 		}
-
-		activeBun.set(newBun);
 	}
 
 	// List of bun varieties and rarities
@@ -312,62 +323,6 @@
 		{ name: 'Angel', rarity: 'SuperRare' },
 		{ name: 'Spirit', rarity: 'SuperRare' }
 	];
-
-	// Generate bun objects
-	const sankoDex: Bun[] = bunVarieties.map((bunVariety, index) => {
-		const { name, rarity } = bunVariety;
-		const stats = rarityStats[rarity as BunRarity];
-		return createBun(
-			index + 1,
-			name,
-			rarity as BunRarity,
-			`/images/buns/${name}.webp`,
-			`/images/buns/thumbs/${name}.png`,
-			stats
-		);
-	});
-
-	let buns: Bun = {
-		name: 'Buns',
-		id: 1111,
-		industry: 5,
-		luck: 5,
-		speed: 5,
-		stamina: 5,
-		strength: 5,
-		birthday: new Date(),
-		rarity: 'Common',
-		type: 'Bun',
-		variety: 'Buns',
-		wallet: starterWallet,
-		imageUrl: '/images/buns/Buns.webp',
-		thumbUrl: '/images/thumbs/Buns.png',
-		farm: Array(25).fill({ state: 'empty' }),
-		hungerLevel: 0,
-		isHibernating: false,
-		isCoolingDown: false
-	};
-
-	let snake: Bun = {
-		name: 'Snake',
-		id: 2222,
-		industry: 5,
-		luck: 5,
-		speed: 5,
-		stamina: 5,
-		strength: 5,
-		birthday: new Date(),
-		rarity: 'Rotten',
-		type: 'Bun',
-		variety: 'Snake',
-		wallet: bunWallet2,
-		imageUrl: '/images/buns/thumbs/Snake.png',
-		thumbUrl: '/images/thumbs/Snake.png',
-		farm: Array(25).fill({ state: 'empty' }),
-		hungerLevel: 0,
-		isHibernating: false,
-		isCoolingDown: false
-	};
 </script>
 
 <main>

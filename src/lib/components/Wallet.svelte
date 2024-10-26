@@ -4,7 +4,15 @@
 	import { wallet } from '../stores/wallet';
 	import type { Token, Bun, Wallet } from '../stores/wallet';
 	import { fade, fly, scale } from 'svelte/transition';
-	import { activeBun, b, gameState, sendModalOpen, StepID } from '$lib/stores/gameState';
+	import {
+		activeBun,
+		eggIndex,
+		bunIndex,
+		currentSectionBuns,
+		gameState,
+		sendModalOpen,
+		StepID
+	} from '$lib/stores/gameState';
 	import Hunger from './Hunger.svelte';
 	import HatchEgg from './HatchEgg.svelte';
 	import Bridge from './Bridge.svelte';
@@ -66,6 +74,10 @@
 			return format(balance);
 		}
 	}
+
+	function toggleSection() {
+		currentSectionBuns.update((section) => (section = !section));
+	}
 </script>
 
 <main class="space-y-0 px-0 tracking-normal text-center w-40 flex flex-col items-center">
@@ -84,14 +96,15 @@
 					>
 						{#if showOptions[index]}
 							<div
-								class="absolute top-0 left-0 w-full bg-white h-full border-blue-700 border-4 flex justify-center space-x-4 items-center"
+								class="absolute top-0 left-0 w-full bg-white h-full border-blue-700 border-4 flex justify-center space-x-6 items-center uppercase font-black text-xl"
 							>
 								<!-- send -->
-								<button on:click={() => sendModalOpen.set(true)} class="hover:text-rose-500"
-									>send</button
+								<button
+									on:click={() => sendModalOpen.set(true)}
+									class="uppercase hover:text-rose-500">send</button
 								>
 								<!-- swap -->
-								<button class="hover:text-rose-500">swap</button>
+								<button class="uppercase hover:text-rose-500">swap</button>
 							</div>
 						{/if}
 						<div class="flex text-2xl font-mono px-0 items-center justify-center space-x-2">
@@ -112,62 +125,75 @@
 			<Bridge />
 		</div>
 	{/if}
-	<!-- buns and eggs -->
-	<div class="py-2 w-full font-FinkHeavy">
-		<!-- eggs -->
-		<div class="flex text-xs justify-between w-full px-4">
-			<button
-				class="px-2 bg-rose-300 text-black text-opacity-50 rounded-t {showEggs
-					? 'z-50 border-2 border-gray-200 border-b-0'
-					: 'border-2 border-transparent'}"
-				on:click={() => (showEggs = true)}>Eggs</button
-			>
-			<button
-				class="px-2 bg-sky-200 text-black text-opacity-50 rounded-t {!showEggs
-					? 'border-2 border-gray-200 border-b-0'
-					: 'border-2 border-transparent'}"
-				on:click={() => (showEggs = false)}>Buns</button
-			>
+	{#if $wallet.nfts.length > 0}
+		<!-- buns and eggs -->
+		<!-- mini wallet -->
+		<div class="py-2 w-full font-FinkHeavy">
+			<!-- eggs -->
+			<div class="flex text-xs justify-between w-full px-4">
+				<button
+					class="px-2 bg-rose-300 text-black text-opacity-50 rounded-t {showEggs
+						? 'z-50 border-2 border-gray-200 border-b-0'
+						: 'border-2 border-transparent'}"
+					on:click={() => toggleSection()}>Eggs</button
+				>
+				<button
+					class="px-2 bg-sky-200 text-black text-opacity-50 rounded-t {!showEggs
+						? 'border-2 border-gray-200 border-b-0'
+						: 'border-2 border-transparent'}"
+					on:click={() => toggleSection()}>Buns</button
+				>
+			</div>
+			{#if !$currentSectionBuns}
+				<div
+					class="egs bg-rose-200 relative border-2 rounded max-h-80 border-gray-200 overflow-y-auto overflow-x-hidden grid gap-1 items-center grid-cols-3 grid-rows-3 w-full p-1 px-2"
+				>
+					{#each eggs as egg, index}
+						<button
+							on:click={() => {
+								eggIndex.set(index);
+								activeBun.set(egg);
+							}}
+							class="{$activeBun === egg
+								? 'border-green-500 border-2'
+								: 'border-[1px] border-white'} relative hover:bg-gray-200 w-10 h-10 flex items-center justify-center"
+						>
+							<img src={egg.imageUrl} alt={egg.name} class="w-full h-auto" />
+						</button>
+					{/each}
+
+					<!-- Calculate the number of empty divs needed to fill the row -->
+					{#each Array(Math.max(9 - eggs.length, 0)) as _}
+						<div class="border-white border-[1px] hover:bg-gray-200 w-10 h-10"></div>
+					{/each}
+				</div>
+			{/if}
+			{#if $currentSectionBuns}
+				<!-- bun -->
+				<div
+					class="bun rounded border-2 bg-sky-100 max-h-60 border-gray-200 overflow-y-auto overflow-x-hidden grid gap-1 grid-cols-3 grid-rows-2 w-full px-2 p-1"
+				>
+					{#each buns as bun, index}
+						<button
+							on:click={() => {
+								bunIndex.set(index);
+								activeBun.set(bun);
+							}}
+							class="{$activeBun === bun
+								? 'border-green-500 border-2'
+								: 'border-white border-[1px]'} hover:bg-sky-200 h-10 w-10 flex items-center justify-center"
+						>
+							<img src={bun.thumbUrl} alt={bun.name} class="h-full w-full" />
+						</button>
+					{/each}
+
+					{#each Array(Math.max(9 - buns.length, 0)) as _}
+						<div class="border-white border-[1px] hover:bg-sky-200 w-10 h-10"></div>
+					{/each}
+				</div>
+			{/if}
 		</div>
-		{#if showEggs}
-			<div
-				class="egs bg-rose-200 relative border-2 rounded max-h-40 border-gray-200 overflow-y-auto overflow-x-hidden grid gap-1 items-center grid-cols-3 grid-rows-3 w-full p-1 px-2"
-			>
-				{#each eggs as egg}
-					<button
-						on:click={() => activeBun.set(egg)}
-						class="relative border-white border-[1px] hover:bg-gray-200 w-10 h-10 flex items-center justify-center"
-					>
-						<img src={egg.imageUrl} alt={egg.name} class="w-full h-auto" />
-					</button>
-				{/each}
-
-				<!-- Calculate the number of empty divs needed to fill the row -->
-				{#each Array(Math.max(9 - eggs.length, 0)) as _}
-					<div class="border-white border-[1px] hover:bg-gray-200 w-10 h-10"></div>
-				{/each}
-			</div>
-		{/if}
-		{#if !showEggs}
-			<!-- bun -->
-			<div
-				class="bun rounded border-2 bg-sky-100 border-gray-200 overflow-y-auto overflow-x-hidden grid gap-1 grid-cols-3 grid-rows-2 w-full px-2 p-1"
-			>
-				{#each buns as bun}
-					<button
-						on:click={() => activeBun.set(bun)}
-						class="border-white border-[1px] hover:bg-sky-200 h-10 w-10 flex items-center justify-center"
-					>
-						<img src={bun.thumbUrl} alt={bun.name} class="h-full w-full" />
-					</button>
-				{/each}
-
-				{#each Array(9 - buns.length) as _}
-					<div class="border-white border-[1px] hover:bg-sky-200 w-10 h-10"></div>
-				{/each}
-			</div>
-		{/if}
-	</div>
+	{/if}
 </main>
 
 <style>

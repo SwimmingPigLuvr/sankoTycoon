@@ -20,10 +20,10 @@
 		class="absolute -top-3 right-1 w-14"
 		alt=""
 	/>
-	<div class="font-mono text-xs w-full">
+	<div class="font-mono text-xs w-40">
 		{#if $autoSeller.purchased}
 			<p class="flex justify-between">
-				<span>sell rate</span> <span>{$autoSeller.rate / 1}s</span>
+				<span>sell rate</span> <span>{$autoSeller.rate / 1}fruit/s</span>
 			</p>
 		{/if}
 		<p class="flex justify-between"><span>trees planted</span> <span>{$totalTreesPlanted}</span></p>

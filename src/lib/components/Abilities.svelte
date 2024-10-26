@@ -11,7 +11,7 @@
 		totalFruitsSold,
 		totalTreesPlanted
 	} from '$lib/stores/abilities';
-	import { addMessage, b } from '$lib/stores/gameState';
+	import { addMessage } from '$lib/stores/gameState';
 	import { wallet, type Token } from '$lib/stores/wallet';
 	import { get } from 'svelte/store';
 
@@ -183,10 +183,21 @@
 			return wallet;
 		});
 	}
+
+	$: showUpgrades =
+		showFarmtek || showAutoFeeder || showAutoSeller || showClick2Plant || showAutoHarvester;
+	$: showFarmtek = $autoHarvest.level >= 2 && $click2plant.level >= 2;
+	$: showAutoFeeder = $totalFruitsEaten >= 10;
+	$: showAutoSeller = $totalFruitsSold >= 50;
+	$: showClick2Plant = $totalTreesPlanted >= 10;
+	$: showAutoHarvester = $totalFruitHarvested >= 50;
 </script>
 
-<main class="flex flex-col space-y-1 w-40 h-80 overflow-y-auto overflow-x-hidden">
-	{#if $autoHarvest.level >= 2 && $click2plant.level >= 2}
+{#if showUpgrades}
+	<h1 class="font-mono text-center text-xl">Upgrades</h1>
+{/if}
+<main class="flex flex-col space-y-1 w-40 h-96 overflow-y-auto overflow-x-hidden">
+	{#if showFarmtek}
 		<button
 			on:mouseenter={() => (showFarmtekInfo = true)}
 			on:mouseleave={() => (showFarmtekInfo = false)}
@@ -240,7 +251,7 @@
 		</button>
 	{/if}
 	<!-- auto feeder -->
-	{#if $totalFruitsEaten >= 10}
+	{#if showAutoFeeder}
 		{#if !$autoFeeder.purchased}
 			<button
 				disabled={goldBalance < 10}
@@ -277,7 +288,7 @@
 		{/if}
 	{/if}
 	<!-- auto Seller -->
-	{#if $totalFruitsSold >= 30}
+	{#if showAutoSeller}
 		{#if !$autoSeller.purchased}
 			<button
 				disabled={goldBalance < autoSellerPrice}
@@ -331,7 +342,7 @@
 
 	<!-- one click planting -->
 	<!-- shows up once user plants 10 trees -->
-	{#if $totalTreesPlanted >= 10}
+	{#if showClick2Plant}
 		<!-- if not purchased yet -->
 		{#if !$click2plant.purchased}
 			<button
@@ -386,7 +397,7 @@
 	{/if}
 
 	<!-- auto harvest -->
-	{#if $totalFruitHarvested >= 50}
+	{#if showAutoHarvester}
 		<!-- if not purchased yet -->
 		{#if !$autoHarvest.purchased}
 			<button
