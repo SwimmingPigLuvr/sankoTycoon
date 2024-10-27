@@ -50,7 +50,7 @@
 		// moldy
 		{ variety: 'Moldy', rarity: 'Moldy', weight: 100 },
 		// superrare
-		{ variety: 'Gold', rarity: 'SuperRare', weight: 500000 }
+		{ variety: 'Gold', rarity: 'SuperRare', weight: 75 }
 	];
 
 	function getRandomEgg() {
