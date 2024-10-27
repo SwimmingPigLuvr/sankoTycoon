@@ -13,7 +13,7 @@
 	} from '$lib/stores/gameState';
 	import { wallet, type Bun, type Item, type Token } from '$lib/stores/wallet';
 	import { cubicInOut } from 'svelte/easing';
-	import { fade, fly, slide } from 'svelte/transition';
+	import { fade, fly, scale, slide } from 'svelte/transition';
 	import Hunger from './Hunger.svelte';
 	import HatchEgg from './HatchEgg.svelte';
 	import { restartHungerInterval } from '$lib/stores/hungerState';
@@ -310,8 +310,8 @@
 					{/if}
 				</div>
 				<!-- current egg -->
-				<div class="w-full">
-					<button in:fade={{ duration: 1000, easing: cubicInOut }} class="relative">
+				<div in:fly={{ y: 100, duration: 1000, easing: cubicInOut }} class="w-full">
+					<button class="relative">
 						<img class="w-40 m-auto" src={eggs[$eggIndex].imageUrl} alt={eggs[$eggIndex].name} />
 					</button>
 					<!-- egg info -->
@@ -329,9 +329,7 @@
 				</div>
 			{/if}
 			{#if $bridged && !$currentSectionBuns}
-				<div>
-					<MintEgg />
-				</div>
+				<MintEgg />
 			{/if}
 		{:else if $currentSectionBuns}
 			<!-- if any buns in the wallet -->
