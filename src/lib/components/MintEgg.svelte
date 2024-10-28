@@ -3,7 +3,13 @@
 	import * as items from '$lib/itemData';
 	// todo. mintegg. add egg to wallet
 	// mint success message
-	import { activeBun, addMessage, eggIndex, progressStep } from '$lib/stores/gameState';
+	import {
+		activeBun,
+		addMessage,
+		eggIndex,
+		progressStep,
+		totalEggsRemaining
+	} from '$lib/stores/gameState';
 	import {
 		generateEthAddress,
 		wallet,
@@ -19,7 +25,6 @@
 	import { scale } from 'svelte/transition';
 
 	let nextEggId = 1; // first egg
-	let totalEggsRemaining = 4444;
 
 	function mintEggHandler() {
 		isMinting = true;
@@ -28,7 +33,7 @@
 			mintEgg();
 			isMinting = false;
 			minted = true;
-		}, 0);
+		}, 1000);
 	}
 
 	$: eggs = $wallet.nfts.filter((nft: Bun) => nft.type === 'Egg');
@@ -107,7 +112,7 @@
 
 	function mintEgg() {
 		// check if eggs left
-		if (totalEggsRemaining <= 0) {
+		if ($totalEggsRemaining <= 0) {
 			addMessage('no eggs left to mint. buy more eggs n buns from sudoswap');
 		}
 		wallet.update((wallet) => {
@@ -157,7 +162,7 @@
 
 			// update egg count
 			nextEggId += 1;
-			totalEggsRemaining -= 1;
+			$totalEggsRemaining -= 1;
 
 			return wallet;
 		});
@@ -170,7 +175,7 @@
 	>
 		<p class="text-2xl text-blue-700">Mint Eggs</p>
 		<p class="text-lg text-black">Generation 1</p>
-		<p class="text-lg text-black">Remaining {totalEggsRemaining} / 4444</p>
+		<p class="text-lg text-black">Remaining {$totalEggsRemaining} / 4444</p>
 		<p class="text-lg text-black">1 Egg: <span class="text-blue-700">3 DMT</span></p>
 
 		<button

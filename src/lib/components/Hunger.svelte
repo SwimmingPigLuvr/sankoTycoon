@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { wallet, type Bun } from '$lib/stores/wallet';
 	import { onMount } from 'svelte';
+	import { cubicInOut } from 'svelte/easing';
+	import { scale } from 'svelte/transition';
 
 	export let bun: Bun;
 	let showHungerLevel = false;
@@ -11,7 +13,7 @@
 	export let miniMeter: boolean = false;
 </script>
 
-<main>
+<main in:scale={{ delay: 2000, duration: 1000, easing: cubicInOut }}>
 	<button class="w-full">
 		<p class="text-xs uppercase tracking-widest p-[1px]">Hunger Level</p>
 		<p

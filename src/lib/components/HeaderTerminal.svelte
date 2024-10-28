@@ -54,11 +54,4 @@
 	}
 
 	/* complete this glow to make it look like an old school terminal */
-	.terminal-glow {
-		text-shadow:
-			0 0 5px rgba(0, 255, 0, 0.75),
-			0 0 10px rgba(0, 255, 0, 0.75),
-			0 0 20px rgba(0, 255, 0, 0.75),
-			0 0 40px rgba(0, 255, 0, 0.75);
-	}
 </style>

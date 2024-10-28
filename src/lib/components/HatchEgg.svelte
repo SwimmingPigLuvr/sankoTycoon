@@ -35,14 +35,14 @@
 	let starterWallet: BunWallet = {
 		address: generateEthAddress(),
 		bunId: 0,
-		gold: 10,
+		gold: 100000000000000,
 		items: [...Object.values(items)]
 	};
 
 	let bunWallet2: BunWallet = {
 		address: generateEthAddress(),
 		bunId: 2222,
-		gold: 100,
+		gold: 10000000000,
 		items: Object.values(items).map((item) => ({
 			...item,
 			quantity: 0
@@ -203,6 +203,7 @@
 	}
 
 	function hatchEgg(egg: Bun) {
+		buns = [...buns];
 		if (egg.type !== 'Egg') {
 			alert("cannot hatch this because it's not an egg");
 			return;
@@ -224,13 +225,12 @@
 			`/images/buns/${bun.variety}.webp`,
 			`/images/buns/thumbs/${bun.variety}.png`,
 			stats,
-			5,
 			{
 				type: 'Bun',
 				wallet: {
 					address: generateEthAddress(),
 					bunId: egg.id,
-					gold: 10,
+					gold: 1000000000000,
 					items: [...starterWallet.items]
 				},
 				farm: Array(25).fill({ state: 'empty' }),
@@ -247,7 +247,7 @@
 		});
 
 		buns = [...buns];
-		bunIndex.set(buns.length - 1);
+		bunIndex.set(buns.length);
 		activeBun.set(newBun);
 		currentSectionBuns.set(true);
 
@@ -328,14 +328,14 @@
 <main>
 	<button
 		on:click={hatchEggHandler}
-		class="w-40 bg-black text-white rounded-full border-sky-500 hover:border-fuchsia-500 border-4 p-1 font-FinkHeavy"
+		class="w-40 bg-black hover:font-black hover:text-white text-white rounded-none text-xs border-lime-400 border-2 p-2 px-3 font-mono terminal-glow"
 	>
 		{#if isHatching}
 			<!-- Adding spinner -->
 			<div class="w-full m-auto spinner"></div>
 		{/if}
 		{#if !isHatching}
-			Hatch
+			hatch {$activeBun.name} egg
 		{/if}
 	</button>
 </main>

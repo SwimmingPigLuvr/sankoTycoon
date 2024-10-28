@@ -11,6 +11,8 @@ export const currentSectionBuns = writable<boolean>(true);
 export const bridged = writable<boolean>(false);
 export const sendModalOpen = writable<boolean>(false);
 
+export const totalEggsRemaining = writable<number>(4444);
+
 export enum StepID {
     Bridge = 0,
     Mint,

@@ -284,10 +284,12 @@
 </script>
 
 <main
-	in:fly={{ duration: 100, x: -10, easing: cubicInOut }}
+	in:scale={{ duration: 100, easing: cubicInOut }}
 	class="w-40 justify-center flex flex-col border-gray-400 border- max-w-40"
 >
-	<div class="w-full justify-center items-center flex flex-col space-y-0">
+	<div
+		class="transform transition-all duration-1000 ease-in-out w-full justify-center items-center flex flex-col space-y-0"
+	>
 		<!-- EGG SECTION -->
 		{#if !$currentSectionBuns}
 			<!-- if any eggs in the wallet -->
@@ -310,16 +312,20 @@
 					{/if}
 				</div>
 				<!-- current egg -->
-				<div in:fly={{ y: 100, duration: 1000, easing: cubicInOut }} class="w-full">
+				<div in:fly={{ x: -10, duration: 500, easing: cubicInOut }} class="w-full">
 					<button class="relative">
-						<img class="w-40 m-auto" src={eggs[$eggIndex].imageUrl} alt={eggs[$eggIndex].name} />
+						<img
+							class="w-40 m-auto rounded-none"
+							src={eggs[$eggIndex].imageUrl}
+							alt={eggs[$eggIndex].name}
+						/>
 					</button>
 					<!-- egg info -->
-					<div class="flex flex-col items-center justify-center space-y-0">
-						<p class="text-2xl font-FinkHeavy text-center">
+					<div class="flex leading-4 flex-col items-center justify-center space-y-0">
+						<p class="text-2xl leading- font-FinkHeavy text-center">
 							{eggs[$eggIndex].name} Egg
 						</p>
-						<p class="text-xs font-mono text-center">
+						<p class="text-sm font-mono text-center">
 							{eggs[$eggIndex].rarity}
 						</p>
 						<div class="py-2">
@@ -361,29 +367,16 @@
 						<img class="w-40 m-auto" src={buns[$bunIndex].imageUrl} alt={buns[$bunIndex].name} />
 						<!-- hunger meter -->
 						{#if buns[$bunIndex].type === 'Bun'}
-							<div class="">
-								<Hunger bun={buns[$bunIndex]} />
-							</div>
+							<Hunger bun={buns[$bunIndex]} />
 						{/if}
 					</button>
-					<div class="flex flex-col items-center justify-center space-y-1">
-						{#if buns[$bunIndex].type === 'Egg'}
-							<p class="text-sm font-FinkHeavy text-center">
-								{buns[$bunIndex].name} Egg
-							</p>
-							<p class="text-xs text-center">
-								{buns[$bunIndex].rarity}
-							</p>
-							<HatchEgg />
-						{/if}
-					</div>
 				</div>
 				{#if buns[$bunIndex].type === 'Bun'}
 					<!-- bun wallet -->
 					{#if bunBlastMessage}
 						<p>{bunBlastMessage}</p>
 					{/if}
-					<div class="flex relative justify-between w-full px-1 items-center">
+					<div in:slide class="flex relative justify-between w-full px-1 items-center">
 						{#if buns[$bunIndex].type === 'Bun'}
 							<p class="text-xs">{buns[$bunIndex].name} #{buns[$bunIndex].id}</p>
 						{/if}

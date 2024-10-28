@@ -1,7 +1,13 @@
 <!-- $lib/components/Shop.svelte -->
 <script lang="ts">
 	import * as allItems from '$lib/itemData';
-	import { autoSeller, type AutoSeller, bunBlasted, totalFruitsSold } from '$lib/stores/abilities';
+	import {
+		autoSeller,
+		autoBuyer,
+		bunBlasted,
+		totalFruitsSold,
+		totalSeedsBought
+	} from '$lib/stores/abilities';
 	import { gameState, bunIndex } from '$lib/stores/gameState';
 	import {
 		addItemToWallet,
@@ -16,6 +22,7 @@
 	import { fade } from 'svelte/transition';
 
 	let autoSellInterval: ReturnType<typeof setInterval> | null = null;
+	let autoBuyInterval: ReturnType<typeof setInterval> | null = null;
 
 	let showDescription: boolean[] = [];
 	let currentDescription: string | undefined;
@@ -71,9 +78,15 @@
 	$: allSellableItems = [...allExistingItems.filter((items) => items.sellPrice)];
 
 	function buyItem(bunIndex: number, newItem: Item) {
+		console.log('BUY ITEM');
+		console.log('BUN INDEX: ', bunIndex);
+		console.log('item: ', newItem.name);
 		addItemToWallet(bunIndex, newItem);
 		if (newItem.buyPrice) {
 			updateGold(bunIndex, -newItem.buyPrice);
+		}
+		if (newItem.type === 'seed') {
+			totalSeedsBought.update((total) => total + 1);
 		}
 	}
 
@@ -82,7 +95,42 @@
 		if (newItem.sellPrice) {
 			updateGold(bunIndex, newItem.sellPrice);
 		}
-		totalFruitsSold.update((total) => (total += 1));
+		if (newItem.type === 'fruit') {
+			totalFruitsSold.update((total) => (total += 1));
+		}
+	}
+
+	function startAutoBuyInterval() {
+		if (autoBuyInterval) {
+			clearInterval(autoBuyInterval);
+		}
+
+		let interval = 1000;
+		let sps = $autoBuyer.rate;
+
+		if ($autoBuyer.rate <= 1) {
+			interval = (1 / $autoBuyer.rate) * 1000;
+			sps = 1;
+		} else {
+			interval = 1000;
+			sps = $autoBuyer.rate;
+		}
+
+		autoBuyInterval = setInterval(() => {
+			if (buns[$bunIndex]) {
+				const bun = buns[$bunIndex];
+				const wallet = bun.wallet;
+				const gold = wallet.gold;
+				for (let i = 0; i < sps; i++) {
+					const anySeeds = dailyItems.find((item: Item) => item.type === 'seed');
+					if (anySeeds && anySeeds.buyPrice && gold > anySeeds.buyPrice) {
+						buyItem($bunIndex, anySeeds);
+					} else {
+						break;
+					}
+				}
+			}
+		}, interval);
 	}
 
 	function startAutoSellInterval() {
@@ -118,10 +166,25 @@
 		}, interval);
 	}
 
+	function stopAutoBuyInterval() {
+		if (autoBuyInterval) {
+			clearInterval(autoBuyInterval);
+			autoBuyInterval = null;
+		}
+	}
+
 	function stopAutoSellInterval() {
 		if (autoSellInterval) {
 			clearInterval(autoSellInterval);
 			autoSellInterval = null;
+		}
+	}
+
+	$: {
+		if ($autoBuyer.enabled) {
+			startAutoBuyInterval();
+		} else {
+			stopAutoBuyInterval();
 		}
 	}
 
@@ -135,6 +198,7 @@
 
 	onDestroy(() => {
 		stopAutoSellInterval();
+		stopAutoBuyInterval();
 	});
 </script>
 

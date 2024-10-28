@@ -52,6 +52,24 @@ export const totalFruitsEaten = writable<number>(0);
 
 
 // auto sell those fruits
+export interface AutoBuyer {
+    rate: number;
+    enabled: boolean;
+    purchased: boolean;
+    level: number;
+}
+
+const myAutoBuyer: AutoBuyer = {
+    rate: 0.5,
+    enabled: false,
+    purchased: false,
+    level: 0,
+}
+
+export const autoBuyer = writable<AutoBuyer>(myAutoBuyer);
+export const totalSeedsBought = writable<number>(0);
+
+// auto sell those fruits
 export interface AutoSeller {
     rate: number;
     enabled: boolean;
@@ -68,24 +86,6 @@ const myAutoSeller: AutoSeller = {
 
 export const autoSeller = writable<AutoSeller>(myAutoSeller);
 export const totalFruitsSold = writable<number>(0);
-
-// auto sell those fruits
-export interface AutoBuyer {
-    rate: number;
-    enabled: boolean;
-    purchased: boolean;
-    level: number;
-}
-
-const myAutoBuyer: AutoBuyer = {
-    rate: 2000,
-    enabled: false,
-    purchased: false,
-    level: 0,
-}
-
-export const autoBuyer = writable<AutoBuyer>(myAutoBuyer);
-export const totalFruitsBought = writable<number>(0);
 
 export interface Farmtek {
     purchased: boolean;

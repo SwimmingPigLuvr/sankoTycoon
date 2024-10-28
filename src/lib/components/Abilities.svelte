@@ -1,5 +1,6 @@
 <script lang="ts">
 	import {
+		autoBuyer,
 		autoFeeder,
 		autoHarvest,
 		autoSeller,
@@ -9,6 +10,7 @@
 		totalFruitHarvested,
 		totalFruitsEaten,
 		totalFruitsSold,
+		totalSeedsBought,
 		totalTreesPlanted
 	} from '$lib/stores/abilities';
 	import { addMessage } from '$lib/stores/gameState';
@@ -20,6 +22,14 @@
 		autoFeeder.update((feeder) => {
 			feeder.enabled = !feeder.enabled;
 			return feeder;
+		});
+	}
+
+	// Function to toggle the autobuyer enabled
+	function toggleAutoBuyer() {
+		autoBuyer.update((autoBuyer) => {
+			autoBuyer.enabled = !autoBuyer.enabled;
+			return autoBuyer;
 		});
 	}
 
@@ -63,6 +73,34 @@
 			}
 
 			addMessage(`bought AUTOFEEDER™️ for 20 GOLD`);
+			const audio = new Audio('sounds/purchase.mp3');
+			audio.play();
+			return wallet;
+		});
+	}
+
+	$: autoBuyerPrice = ($autoBuyer.level + 1) * (2 * ($autoBuyer.level + 1));
+
+	function buyAutoBuyer() {
+		// not sure how much gold this should cost
+		wallet.update((wallet) => {
+			const goldToken = wallet.tokens.find((token: Token) => token.name === 'GOLD');
+			if (goldToken && goldToken.balance >= autoBuyerPrice) {
+				goldToken.balance -= autoBuyerPrice;
+
+				// set stores
+				autoBuyer.update((b) => {
+					b.purchased = true;
+					b.enabled = true;
+					// increase level
+					b.level += 1;
+					// double selling frequency
+					b.rate *= 2;
+					return b;
+				});
+			}
+
+			addMessage(`bought AUTOBUYER™️ for ${autoBuyerPrice} GOLD`);
 			const audio = new Audio('sounds/purchase.mp3');
 			audio.play();
 			return wallet;
@@ -184,13 +222,24 @@
 		});
 	}
 
-	$: showUpgrades =
-		showFarmtek || showAutoFeeder || showAutoSeller || showClick2Plant || showAutoHarvester;
+	$: showAll = true;
+	// if show all is true then set everything to true
 	$: showFarmtek = $autoHarvest.level >= 2 && $click2plant.level >= 2;
 	$: showAutoFeeder = $totalFruitsEaten >= 10;
 	$: showAutoSeller = $totalFruitsSold >= 50;
+	$: showAutoBuyer = $totalSeedsBought >= 5;
 	$: showClick2Plant = $totalTreesPlanted >= 10;
 	$: showAutoHarvester = $totalFruitHarvested >= 50;
+
+	// Calculate if there are any upgrades to show
+	$: showUpgrades =
+		showAll ||
+		showFarmtek ||
+		showAutoFeeder ||
+		showAutoSeller ||
+		showClick2Plant ||
+		showAutoHarvester ||
+		showAutoBuyer;
 </script>
 
 {#if showUpgrades}
@@ -285,6 +334,58 @@
 					{/if}
 				</button>
 			</div>
+		{/if}
+	{/if}
+	<!-- auto Buyer -->
+	{#if showAll}
+		{#if !$autoBuyer.purchased}
+			<button
+				disabled={goldBalance < autoBuyerPrice}
+				on:click={() => buyAutoBuyer()}
+				class="disabled:bg-gray-400 bg-sky-500 hover:bg-sky-400 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
+			>
+				<div class="flex justify-between w-full">
+					<p class="text-white">autoBuyer</p>
+					<div class="absolute px-1 top-1 right-1 flex items-center space-x-1">
+						<img src="/ui/icons/sankogold.png" class="w-4" alt="" />
+						<p class="font-FinkHeavy text-sm text-yellow-300">{autoBuyerPrice}</p>
+					</div>
+				</div>
+				<p class="text-left">Buys seeds for you</p>
+			</button>
+		{/if}
+		{#if $autoBuyer.purchased}
+			<div class="text-xs border-2 border-black p-2 flex justify-between relative">
+				<p>Auto Buyer</p>
+				<button
+					class="{$autoBuyer.enabled
+						? 'bg-lime-400'
+						: 'bg-red-400'} h-full w-12 absolute right-0 top-0"
+					on:click={toggleAutoBuyer}
+				>
+					{#if $autoBuyer.enabled}
+						On
+					{:else}
+						Off
+					{/if}
+				</button>
+			</div>
+		{/if}
+		{#if $autoBuyer.level >= 1}
+			<button
+				disabled={goldBalance < autoBuyerPrice}
+				on:click={() => buyAutoBuyer()}
+				class="-translate-y-3 disabled:bg-gray-400 hover:bg-sky-400 bg-sky-500 text-xs border-2 border-black p-2 flex flex-col justify-between relative space-y-1"
+			>
+				<div class="flex justify-between w-full">
+					<p class="text-white">level {$autoBuyer.level + 1}</p>
+					<div class="absolute px-1 top-1 right-1 flex items-center space-x-1">
+						<img src="/ui/icons/sankogold.png" class="w-4" alt="" />
+						<p class="font-FinkHeavy text-sm text-yellow-300">{autoBuyerPrice}</p>
+					</div>
+				</div>
+				<p class="text-left">increase auto buy rate</p>
+			</button>
 		{/if}
 	{/if}
 	<!-- auto Seller -->

@@ -4,7 +4,7 @@
 	import { get } from 'svelte/store';
 	import Wallet from './Wallet.svelte';
 	import * as itemData from '$lib/itemData';
-	import { fade } from 'svelte/transition';
+	import { fade, scale } from 'svelte/transition';
 	import { gameState, addMessage } from '$lib/stores/gameState';
 	import { onDestroy, onMount } from 'svelte';
 	import {
@@ -15,6 +15,7 @@
 		type Click2plant
 	} from '$lib/stores/abilities';
 	import HeaderTerminal from './HeaderTerminal.svelte';
+	import { cubicInOut } from 'svelte/easing';
 
 	export let bun: Bun;
 
@@ -386,7 +387,10 @@
 	});
 </script>
 
-<main class="flex flex-col space-y-2 max-w-40" in:fade={{ delay: 100, duration: 250 }}>
+<main
+	in:scale={{ delay: 500, duration: 1000, easing: cubicInOut }}
+	class="flex flex-col space-y-2 max-w-40"
+>
 	<!-- Farm Grid -->
 	<div>
 		<h2 class="font-FinkHeavy text-xl text-center w-40">Farm</h2>
