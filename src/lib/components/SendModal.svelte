@@ -9,8 +9,19 @@
 		type BunWallet,
 		truncateEthAddress
 	} from '$lib/stores/wallet';
-	import { backIn, backOut, cubicInOut, cubicOut, elasticInOut, elasticOut } from 'svelte/easing';
-	import { fade, scale } from 'svelte/transition';
+	import {
+		backIn,
+		backOut,
+		bounceIn,
+		bounceOut,
+		circIn,
+		circOut,
+		cubicInOut,
+		cubicOut,
+		elasticInOut,
+		elasticOut
+	} from 'svelte/easing';
+	import { blur, fade, fly, scale, slide } from 'svelte/transition';
 
 	$: buns = $wallet.nfts;
 
@@ -22,8 +33,16 @@
 	let receivingWallet: Wallet | Bun = $activeBun;
 	let payload: Item | Bun | Token;
 
-	function isBun(wallet: Wallet | Bun): wallet is Bun {
-		return 'imageUrl' in wallet && 'name' in wallet;
+	function isBun(concept: any): concept is Bun {
+		return 'imageUrl' in concept && 'name' in concept;
+	}
+
+	function isItem(idea: any): idea is Item {
+		return 'name' in idea && 'quantity' in idea && 'imgPath' in idea;
+	}
+
+	function isToken(notion: any): notion is Token {
+		return 'name' in notion && 'balance' in notion && 'iconUrl' in notion;
 	}
 
 	function copyAddress(address: string) {
@@ -42,6 +61,17 @@
 	}
 
 	// find the gold / dmt balances
+	$: if (!isBun(sendingWallet)) {
+		// senderDmtToken = sendingWallet.tokens.find((t: Token) => t.name === 'DMT');
+	}
+	$: senderDmtToken = isBun(sendingWallet)
+		? undefined
+		: sendingWallet.tokens.find((t: Token) => t.name === 'DMT');
+
+	$: senderGoldToken = isBun(sendingWallet)
+		? undefined
+		: sendingWallet.tokens.find((t: Token) => t.name === 'GOLD');
+
 	$: senderGoldBalance = isBun(sendingWallet)
 		? sendingWallet.wallet.gold
 		: (sendingWallet.tokens.find((token: Token) => token.name.toLowerCase() === 'gold')?.balance ??
@@ -96,17 +126,70 @@
 		receivingWallet = tempSender;
 		sendingWallet = tempRecipient;
 	}
+
+	function handleSelection(party: 'sender' | 'receiver', wallet: Wallet | Bun) {
+		if (party === 'sender' && receivingWallet === wallet) {
+			swapSender();
+		}
+		if (party === 'receiver' && sendingWallet === wallet) {
+			swapSender();
+		}
+		if (party === 'sender') {
+			sendingWallet = wallet;
+		} else {
+			receivingWallet = wallet;
+		}
+	}
+
+	let sendTokens = true;
+	let sendItems = false;
+	let sendBun = false;
+
+	function handleSelectPayload(newPayload: Item | Bun | Token | undefined) {
+		if (!newPayload) {
+			addToast('no allowed');
+			return;
+		}
+		payload = newPayload;
+
+		// Check if the payload is an Item
+		if (isItem(newPayload)) {
+			// It's an Item
+			// Set the necessary booleans or handle the item-specific logic here
+			sendTokens = false;
+			sendItems = true;
+			sendBun = false;
+		}
+		// Check if the payload is a Bun
+		else if (isBun(newPayload)) {
+			// It's a Bun
+			// Set the necessary booleans or handle the bun-specific logic here
+			sendTokens = false;
+			sendItems = false;
+			sendBun = true;
+		}
+		// If not an Item or Bun, it must be a Token
+		else if (isToken(newPayload)) {
+			// It's a Token
+			// Set the necessary booleans or handle the token-specific logic here
+			sendTokens = true;
+			sendItems = false;
+			sendBun = false;
+		} else {
+			console.error('unknoqn payload toype oi mate');
+		}
+	}
 </script>
 
 <button
 	on:click|preventDefault={handleOutsideClicks}
-	in:fade={{duration: 100}}
-	out:fade={{duration: 100}}
+	in:fade={{ duration: 100 }}
+	out:fade={{ duration: 100 }}
 	class="font-FinkHeavy w-screen h-screen bg-black bg-opacity-50"
 >
 	<!-- modal -->
 	<button
-		in:scale={{ duration: 250, easing: cubicInOut  }}
+		in:scale={{ duration: 250, easing: cubicInOut }}
 		out:scale={{ duration: 500, easing: backIn }}
 		on:click|stopPropagation
 		class="items-center w-[500px] send-modal fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col space-y-3 m-auto p-4 rounded-xl border-blue-600 border-4"
@@ -126,10 +209,19 @@
 				>
 					{#if openSenderSelection}
 						<div
+							in:slide={{ duration: 500, easing: backOut }}
+							out:slide={{ duration: 350, easing: backIn }}
 							class="absolute -bottom-32 left-1/2 -translate-y-2 -translate-x-1/2 w-80 z-40 bg-yellow-200 rounded-xl text-sm p-1 flex space-x-3"
 						>
+							<!-- close selection button X -->
 							<button
-								on:click={() => (sendingWallet = $wallet)}
+								in:scale={{ delay: 500, duration: 500, easing: backOut }}
+								class="px-3 p-1 absolute -top-10 right-8 bg-black text-red-500 border-red-600 border-2 hover:bg-red-500 hover:text-white rounded"
+								on:click|stopPropagation={() => (openSenderSelection = false)}>X</button
+							>
+							<!-- list of wallets starting with main wallet -->
+							<button
+								on:click={() => handleSelection('sender', $wallet)}
 								class="p-2 rounded-lg w-20 border-2 border-transparent hover:border-gray-500 flex items-center flex-col space-y-0"
 							>
 								<img class="w-10" src="ui/icons/wallet.svg" alt="wallet icon" />
@@ -137,7 +229,7 @@
 							</button>
 							{#each buns as bun}
 								<button
-									on:click={() => (sendingWallet = bun)}
+									on:click={() => handleSelection('sender', bun)}
 									class="p-2 w-20 rounded-lg border-2 border-transparent hover:border-gray-500 flex items-center flex-col space-y-0"
 								>
 									<img class="w-10" src={bun.thumbUrl} alt={bun.name} />
@@ -176,18 +268,20 @@
 						<!-- main wallet -->
 						{#if !isBun(sendingWallet)}
 							<!-- dmt balance -->
-							<div
+							<button
+								on:click={() => handleSelectPayload(senderDmtToken)}
 								class="px-2 p-1 items-center space-x-1 flex bg-gray-200 border-gray-500 border-2"
 							>
 								<img class="w-4 h-4" src="/ui/icons/dmt.png" alt="" />
 								<p>{senderDmtBalance}</p>
-							</div>
-							<div
+							</button>
+							<button
+								on:click={() => handleSelectPayload(senderGoldToken)}
 								class="-translate-x-[2px] items-center px-2 p-1 flex space-x-1 bg-gray-200 border-2 border-gray-500"
 							>
 								<img class="w-4 h-4" src="/ui/icons/sankogold.png" alt="" />
 								<p>{senderGoldBalance}</p>
-							</div>
+							</button>
 						{/if}
 						<!-- any bun's wallet -->
 						{#if isBun(sendingWallet)}
@@ -208,7 +302,7 @@
 							<button
 								on:mouseenter={() => (showItemName = true)}
 								on:mouseleave={() => (showItemName = false)}
-								on:click={() => (payload = item)}
+								on:click={() => handleSelectPayload(item)}
 								class="relative border-gray-500 border-[1px] hover:bg-gray-200 flex items-center justify-center"
 							>
 								<img src={item.imgPath} alt={item.name} class="h-8 w-auto" />
@@ -262,10 +356,18 @@
 				>
 					{#if openReceiverSelection}
 						<div
+							in:slide={{ duration: 500, easing: backOut }}
+							out:slide={{ duration: 350, easing: backIn }}
 							class="absolute -bottom-32 left-1/2 -translate-y-2 -translate-x-1/2 w-80 z-40 bg-yellow-200 rounded-xl text-sm p-1 flex space-x-3"
 						>
+							<!-- close receiver button X -->
 							<button
-								on:click={() => (receivingWallet = $wallet)}
+								in:scale={{ delay: 500, duration: 500, easing: backOut }}
+								class="px-3 p-1 absolute -top-10 right-8 bg-black text-red-500 border-red-600 border-2 hover:bg-red-500 hover:text-white rounded"
+								on:click|stopPropagation={() => (openReceiverSelection = false)}>X</button
+							>
+							<button
+								on:click={() => handleSelection('receiver', $wallet)}
 								class="p-2 rounded-lg w-20 border-2 border-transparent hover:border-gray-500 flex items-center flex-col space-y-0"
 							>
 								<img class="w-10" src="ui/icons/wallet.svg" alt="wallet icon" />
@@ -273,7 +375,7 @@
 							</button>
 							{#each buns as bun}
 								<button
-									on:click={() => (receivingWallet = bun)}
+									on:click={() => handleSelection('receiver', bun)}
 									class="p-2 w-20 rounded-lg border-2 border-transparent hover:border-gray-500 flex items-center flex-col space-y-0"
 								>
 									<img class="w-10" src={bun.thumbUrl} alt={bun.name} />
@@ -383,13 +485,23 @@
 		<div
 			class="flex justify-evenly p-2 bg-gray-200 border-gray-500 border-2 rounded-none items-center space-x-2"
 		>
-			<!-- selected amount -->
-			<input
-				class="focus:outline-sky-300 focus:border-transparent w-20 rounded px-2 placeholder:font-FinkHeavy"
-				placeholder="0"
-				type="text"
-			/>
-			<img class="w-[25px]" src="/ui/icons/sankogold.png" alt="" />
+			{#if payload && sendTokens && isToken(payload)}
+				<!-- selected amount -->
+				<input
+					class="focus:outline-sky-300 focus:border-transparent w-20 rounded px-2 placeholder:font-FinkHeavy"
+					placeholder="0"
+					type="text"
+				/>
+				<img class="w-[25px]" src={payload.iconUrl} alt="" />
+			{:else if payload && sendBun && isBun(payload)}{:else if payload && sendItems && isItem(payload)}{:else}
+				<!-- selected amount -->
+				<input
+					class="focus:outline-sky-300 focus:border-transparent w-20 rounded px-2 placeholder:font-FinkHeavy"
+					placeholder="0"
+					type="text"
+				/>
+				<img class="w-[25px]" src="ui/icons/sankogold.png" alt="" />
+			{/if}
 		</div>
 		<!-- transfer button -->
 		<button

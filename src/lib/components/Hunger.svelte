@@ -13,7 +13,7 @@
 	export let miniMeter: boolean = false;
 </script>
 
-<main in:scale={{ delay: 2000, duration: 1000, easing: cubicInOut }}>
+<main>
 	<button class="w-full">
 		<p class="text-xs uppercase tracking-widest p-[1px]">Hunger Level</p>
 		<p

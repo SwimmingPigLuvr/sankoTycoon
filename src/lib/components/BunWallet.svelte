@@ -376,7 +376,7 @@
 					{#if bunBlastMessage}
 						<p>{bunBlastMessage}</p>
 					{/if}
-					<div in:slide class="flex relative justify-between w-full px-1 items-center">
+					<div class="flex relative justify-between w-full px-1 items-center">
 						{#if buns[$bunIndex].type === 'Bun'}
 							<p class="text-xs">{buns[$bunIndex].name} #{buns[$bunIndex].id}</p>
 						{/if}
