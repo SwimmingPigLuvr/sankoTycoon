@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { activeBun, addToast, sendModalOpen, toasts } from '$lib/stores/gameState';
+	import { activeBun, addMessage, addToast, sendModalOpen, toasts } from '$lib/stores/gameState';
 	import {
 		wallet,
 		type Bun,
@@ -32,6 +32,8 @@
 	let sendingWallet: Wallet | Bun = $wallet;
 	let receivingWallet: Wallet | Bun = $activeBun;
 	let payload: Item | Bun | Token;
+
+	let tokensToSend: number = 0;
 
 	function isBun(concept: any): concept is Bun {
 		return 'imageUrl' in concept && 'name' in concept;
@@ -177,6 +179,58 @@
 			sendBun = false;
 		} else {
 			console.error('unknoqn payload toype oi mate');
+		}
+	}
+
+	function maxTokens() {
+		if (payload && isToken(payload)) {
+			tokensToSend = payload.balance;
+		}
+	}
+
+	function handleTransfer() {
+		if (payload) {
+			if (sendTokens && isToken(payload)) {
+				const amount = tokensToSend;
+				if (amount <= 0 || amount > payload.balance) {
+					addMessage('invalid amount');
+					console.log('invalid amount');
+					return;
+				}
+				transferToken(payload, amount);
+				addToast(`sent ${amount} ${payload.name}`);
+				sendModalOpen.set(false);
+			}
+		} else {
+			addToast('please select item to send');
+		}
+	}
+
+	function transferToken(token: Token, amount: number) {
+		if (!isBun(sendingWallet)) {
+			const senderToken = sendingWallet.tokens.find((t) => t.name === token.name);
+			if (senderToken) {
+				senderToken.balance -= amount;
+			}
+		}
+
+		// Update receivingWallet
+		if (!isBun(receivingWallet)) {
+			let receiverToken = receivingWallet.tokens.find((t) => t.name === token.name);
+			if (receiverToken) {
+				receiverToken.balance += amount;
+			} else {
+				receivingWallet.tokens.push({ ...token, balance: amount });
+			}
+		} else {
+			// If the receivingWallet is a bun, handle accordingly
+			// For example, if buns can hold tokens
+			if (token.name.toLowerCase() === 'gold') {
+				receivingWallet.wallet.gold += amount;
+			} else {
+				// Handle other tokens if applicable
+				addToast('Cannot send this token to a bun');
+			}
 		}
 	}
 </script>
@@ -488,18 +542,26 @@
 			{#if payload && sendTokens && isToken(payload)}
 				<!-- selected amount -->
 				<input
-					class="focus:outline-sky-300 focus:border-transparent w-20 rounded px-2 placeholder:font-FinkHeavy"
+					class="relative focus:outline-sky-300 focus:border-transparent w-20 rounded px-2 placeholder:font-FinkHeavy"
 					placeholder="0"
-					type="text"
+					type="number"
 				/>
+				<button class="absolute"> max </button>
 				<img class="w-[25px]" src={payload.iconUrl} alt="" />
 			{:else if payload && sendBun && isBun(payload)}{:else if payload && sendItems && isItem(payload)}{:else}
 				<!-- selected amount -->
 				<input
 					class="focus:outline-sky-300 focus:border-transparent w-20 rounded px-2 placeholder:font-FinkHeavy"
 					placeholder="0"
-					type="text"
+					type="number"
+					bind:value={tokensToSend}
 				/>
+				<button
+					on:click={() => maxTokens()}
+					class="absolute translate-x-[2px] text-xs bg-gray-200 border-[1px] border-gray-400 rounded-sm px-1"
+				>
+					max
+				</button>
 				<img class="w-[25px]" src="ui/icons/sankogold.png" alt="" />
 			{/if}
 		</div>

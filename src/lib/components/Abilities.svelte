@@ -233,7 +233,6 @@
 
 	// Calculate if there are any upgrades to show
 	$: showUpgrades =
-		showAll ||
 		showFarmtek ||
 		showAutoFeeder ||
 		showAutoSeller ||
@@ -337,7 +336,7 @@
 		{/if}
 	{/if}
 	<!-- auto Buyer -->
-	{#if showAll}
+	{#if showAutoBuyer}
 		{#if !$autoBuyer.purchased}
 			<button
 				disabled={goldBalance < autoBuyerPrice}
