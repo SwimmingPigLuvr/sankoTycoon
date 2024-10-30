@@ -78,9 +78,6 @@
 	$: allSellableItems = [...allExistingItems.filter((items) => items.sellPrice)];
 
 	function buyItem(bunIndex: number, newItem: Item) {
-		console.log('BUY ITEM');
-		console.log('BUN INDEX: ', bunIndex);
-		console.log('item: ', newItem.name);
 		addItemToWallet(bunIndex, newItem);
 		if (newItem.buyPrice) {
 			updateGold(bunIndex, -newItem.buyPrice);

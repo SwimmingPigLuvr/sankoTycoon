@@ -128,10 +128,7 @@
 	{#if $wallet.nfts.length > 0}
 		<!-- buns and eggs -->
 		<!-- mini wallet -->
-		<div
-			in:slide={{ delay: 500, duration: 1000, easing: backOut }}
-			class="py-2 w-full font-FinkHeavy"
-		>
+		<div in:slide={{ duration: 1000, easing: backOut }} class="py-2 w-full font-FinkHeavy">
 			<!-- eggs -->
 			<div class="flex text-xs justify-between w-full px-4">
 				<button

@@ -22,7 +22,7 @@
 		type Token
 	} from '$lib/stores/wallet';
 	import { cubicInOut } from 'svelte/easing';
-	import { scale } from 'svelte/transition';
+	import { scale, slide } from 'svelte/transition';
 
 	let nextEggId = 1; // first egg
 
@@ -169,7 +169,7 @@
 	}
 </script>
 
-<main in:scale={{ duration: 1000, easing: cubicInOut }} class="w-full">
+<main in:slide={{ duration: 1000, easing: cubicInOut }} class="w-full">
 	<div
 		class="border-slate-200 border-4 w-40 text-center mint-button rounded-xl font-FinkHeavy tracking-normal filter hue-rotate-90 flex flex-col"
 	>

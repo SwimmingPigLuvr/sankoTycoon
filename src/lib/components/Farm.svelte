@@ -4,7 +4,7 @@
 	import { get } from 'svelte/store';
 	import Wallet from './Wallet.svelte';
 	import * as itemData from '$lib/itemData';
-	import { fade, scale } from 'svelte/transition';
+	import { fade, fly, scale, slide } from 'svelte/transition';
 	import { gameState, addMessage } from '$lib/stores/gameState';
 	import { onDestroy, onMount } from 'svelte';
 	import {
@@ -15,7 +15,7 @@
 		type Click2plant
 	} from '$lib/stores/abilities';
 	import HeaderTerminal from './HeaderTerminal.svelte';
-	import { cubicInOut } from 'svelte/easing';
+	import { backOut, cubicInOut } from 'svelte/easing';
 
 	export let bun: Bun;
 
@@ -387,14 +387,14 @@
 	});
 </script>
 
-<main
-	in:scale={{ delay: 500, duration: 1000, easing: cubicInOut }}
-	class="flex flex-col space-y-2 max-w-40"
->
+<main class="flex flex-col space-y-2 max-w-40">
 	<!-- Farm Grid -->
 	<div>
 		<h2 class="font-FinkHeavy text-xl text-center w-40">Farm</h2>
-		<div class="grid gap-0 grid-cols-5 grid-rows-5 w-40 h-40 border-black border-2">
+		<div
+			in:fly={{ y: -20, delay: 500, duration: 500, easing: backOut }}
+			class="grid gap-0 grid-cols-5 grid-rows-5 w-40 h-40 border-black border-2"
+		>
 			<!-- plots -->
 			{#each plots as plot, index}
 				<button

@@ -284,7 +284,7 @@
 </script>
 
 <main
-	in:scale={{ duration: 100, easing: cubicInOut }}
+	in:scale={{ duration: 1000, easing: cubicInOut }}
 	class="w-40 justify-center flex flex-col border-gray-400 border- max-w-40"
 >
 	<div
@@ -294,16 +294,16 @@
 		{#if !$currentSectionBuns}
 			<!-- if any eggs in the wallet -->
 			{#if eggs[$eggIndex]}
-				<div class="w-full flex px-2 justify-center space-x-4 font-FinkHeavy text-xl text-center">
+				<div class="w-full flex px-2 justify-around font-FinkHeavy text-xl text-center">
 					<!-- if multiple eggs in the wallet -->
 					{#if eggs.length > 1}
 						<!-- left arrow -->
-						<button class="hover:scale-125" on:click={() => prevEgg()}>
+						<button class="hover:filter hover:brightness-[75%]" on:click={() => prevEgg()}>
 							<img src="/ui/icons/arrow.png" class="w-8" alt="" />
 						</button>
 						<button on:click={() => toggleSection()}>Eggs</button>
 						<!-- right arrow -->
-						<button on:click={() => nextEgg()} class="hover:scale-125">
+						<button on:click={() => nextEgg()} class="hover:filter hover:brightness-[75%]">
 							<img src="/ui/icons/arrow.png" class="w-8 scale-[-100%]" alt="" />
 						</button>
 						<!-- if singular bun -->
@@ -312,7 +312,7 @@
 					{/if}
 				</div>
 				<!-- current egg -->
-				<div in:fly={{ x: -10, duration: 500, easing: cubicInOut }} class="w-full">
+				<div in:scale={{ delay: 350, duration: 650, easing: cubicInOut }} class="w-full">
 					<button class="relative">
 						<img
 							class="w-40 m-auto rounded-none"
@@ -340,16 +340,16 @@
 		{:else if $currentSectionBuns}
 			<!-- if any buns in the wallet -->
 			{#if buns[$bunIndex]}
-				<div class="w-full flex px-2 justify-center space-x-4 font-FinkHeavy text-xl text-center">
+				<div class="w-full flex px-2 justify-around font-FinkHeavy text-xl text-center">
 					<!-- if multiple buns in the wallet -->
 					{#if buns.length > 1}
 						<!-- left arrow -->
-						<button class="hover:scale-125" on:click={() => prevBun()}>
+						<button class="hover:filter hover:brightness-[75%]" on:click={() => prevBun()}>
 							<img src="/ui/icons/arrow.png" class="w-8" alt="" />
 						</button>
 						<button on:click={() => toggleSection()}>Buns</button>
 						<!-- right arrow -->
-						<button on:click={() => nextBun()} class="hover:scale-125">
+						<button on:click={() => nextBun()} class="hover:filter hover:brightness-[75%]">
 							<img src="/ui/icons/arrow.png" class="w-8 scale-[-100%]" alt="" />
 						</button>
 						<!-- if singular bun -->

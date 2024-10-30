@@ -25,43 +25,6 @@
 
 	$: buns = $wallet.nfts;
 
-	let showItemName = false;
-	let openSenderSelection = false;
-	let openReceiverSelection = false;
-
-	let sendingWallet: Wallet | Bun = $wallet;
-	let receivingWallet: Wallet | Bun = $activeBun;
-	let payload: Item | Bun | Token;
-
-	let tokensToSend: number = 0;
-
-	function isBun(concept: any): concept is Bun {
-		return 'imageUrl' in concept && 'name' in concept;
-	}
-
-	function isItem(idea: any): idea is Item {
-		return 'name' in idea && 'quantity' in idea && 'imgPath' in idea;
-	}
-
-	function isToken(notion: any): notion is Token {
-		return 'name' in notion && 'balance' in notion && 'iconUrl' in notion;
-	}
-
-	function copyAddress(address: string) {
-		// Attempt to copy the address to the user's clipboard
-		navigator.clipboard
-			.writeText(address)
-			.then(() => {
-				// Push the "Copied address" message into the toasts store if successful
-				addToast('copied address');
-			})
-			.catch((error) => {
-				// Handle the error if the clipboard operation fails
-				console.error('Failed to copy address:', error);
-				addToast('failed to copy address');
-			});
-	}
-
 	// find the gold / dmt balances
 	$: if (!isBun(sendingWallet)) {
 		// senderDmtToken = sendingWallet.tokens.find((t: Token) => t.name === 'DMT');
@@ -96,7 +59,9 @@
 		? sendingWallet.wallet.items.filter((item: Item) => item.quantity > 0)
 		: sendingWallet.items.filter((item: Item) => item.quantity > 0);
 
-	$: senderNfts = isBun(sendingWallet) ? [] : [...sendingWallet.nfts];
+	$: senderNfts = isBun(sendingWallet)
+		? []
+		: [...sendingWallet.nfts.filter((bun: Bun) => bun.type === 'Bun')];
 	$: receiverNfts = isBun(receivingWallet) ? [] : [...receivingWallet.nfts];
 
 	$: receiverItems = isBun(receivingWallet)
@@ -110,6 +75,59 @@
 	$: recipientAddress = isBun(receivingWallet)
 		? receivingWallet.wallet.address
 		: receivingWallet.walletAddress;
+
+	let showItemName = false;
+	let openSenderSelection = false;
+	let openReceiverSelection = false;
+
+	let sendingWallet: Wallet | Bun = $wallet;
+	let receivingWallet: Wallet | Bun = $activeBun;
+	let payload: Item | Bun | Token;
+	$: if (isToken(senderGoldToken)) {
+		payload = senderGoldToken;
+	}
+
+	let tokensToSend: number = 0;
+	let itemQuantityToSend: number = 1;
+
+	function isBun(concept: any): concept is Bun {
+		return concept !== undefined && concept !== null && 'imageUrl' in concept && 'name' in concept;
+	}
+
+	function isItem(idea: any): idea is Item {
+		return (
+			idea !== undefined &&
+			idea !== null &&
+			'name' in idea &&
+			'quantity' in idea &&
+			'imgPath' in idea
+		);
+	}
+
+	function isToken(notion: any): notion is Token {
+		return (
+			notion !== undefined &&
+			notion !== null &&
+			'name' in notion &&
+			'balance' in notion &&
+			'iconUrl' in notion
+		);
+	}
+
+	function copyAddress(address: string) {
+		// Attempt to copy the address to the user's clipboard
+		navigator.clipboard
+			.writeText(address)
+			.then(() => {
+				// Push the "Copied address" message into the toasts store if successful
+				addToast('copied address');
+			})
+			.catch((error) => {
+				// Handle the error if the clipboard operation fails
+				console.error('Failed to copy address:', error);
+				addToast('failed to copy address');
+			});
+	}
 
 	function handleOutsideClicks() {
 		sendModalOpen.set(false);
@@ -127,6 +145,16 @@
 		let tempRecipient = receivingWallet;
 		receivingWallet = tempSender;
 		sendingWallet = tempRecipient;
+
+		// reset the payload
+		if (senderGoldToken) {
+			payload = senderGoldToken;
+		}
+		sendTokens = true;
+		sendItems = false;
+		sendBun = false;
+		tokensToSend = 0;
+		itemQuantityToSend = 0;
 	}
 
 	function handleSelection(party: 'sender' | 'receiver', wallet: Wallet | Bun) {
@@ -183,12 +211,13 @@
 	}
 
 	function maxTokens() {
-		if (payload && isToken(payload)) {
+		if (payload && sendTokens && isToken(payload)) {
 			tokensToSend = payload.balance;
 		}
 	}
 
 	function handleTransfer() {
+		console.log('attempt to transfer');
 		if (payload) {
 			if (sendTokens && isToken(payload)) {
 				const amount = tokensToSend;
@@ -200,6 +229,20 @@
 				transferToken(payload, amount);
 				addToast(`sent ${amount} ${payload.name}`);
 				sendModalOpen.set(false);
+			} else if (sendItems && isItem(payload)) {
+				const quantity = itemQuantityToSend;
+				if (quantity <= 0 || quantity > payload.quantity) {
+					addMessage('invalid quantity');
+					console.log('invalid quantity');
+					return;
+				}
+				transferItem(payload, quantity);
+				addToast(`sent ${quantity} ${payload.name}`);
+			} else if (sendBun && isBun(payload)) {
+				transferBun(payload);
+				addToast(`sent ${payload.name} #${payload.id}`);
+			} else {
+				addMessage('error: invalid payload');
 			}
 		} else {
 			addToast('please select item to send');
@@ -207,6 +250,7 @@
 	}
 
 	function transferToken(token: Token, amount: number) {
+		// update sender wallet
 		if (!isBun(sendingWallet)) {
 			const senderToken = sendingWallet.tokens.find((t) => t.name === token.name);
 			if (senderToken) {
@@ -225,13 +269,88 @@
 		} else {
 			// If the receivingWallet is a bun, handle accordingly
 			// For example, if buns can hold tokens
-			if (token.name.toLowerCase() === 'gold') {
+			if (token.name === 'GOLD') {
 				receivingWallet.wallet.gold += amount;
 			} else {
 				// Handle other tokens if applicable
 				addToast('Cannot send this token to a bun');
 			}
 		}
+
+		//trigger reactivity
+		updateWallets();
+	}
+
+	function transferItem(item: Item, quantity: number) {
+		// update sender's wallet
+		const senderItems = isBun(sendingWallet) ? sendingWallet.wallet.items : sendingWallet.items;
+		const senderItem = senderItems.find((i: Item) => i.name === item.name);
+		if (senderItem) {
+			senderItem.quantity -= quantity;
+			if (senderItem.quantity <= 0) {
+				const index = senderItems.indexOf(senderItem);
+				senderItems.splice(index, 1);
+			}
+		} else {
+			addToast('item not found');
+			return;
+		}
+
+		// update receiver's wallet
+		const receiverItems = isBun(receivingWallet)
+			? receivingWallet.wallet.items
+			: receivingWallet.items;
+		let receiverItem = receiverItems.find((i: Item) => i.name === item.name);
+		if (receiverItem) {
+			receiverItem.quantity += quantity;
+		} else {
+			receiverItems.push({ ...item, quantity });
+		}
+
+		updateWallets();
+	}
+
+	function transferBun(payload: Bun) {
+		// update sender wallet
+		if (!isBun(sendingWallet)) {
+			const index = sendingWallet.nfts.findIndex((b: Bun) => b.id === payload.id);
+			if (index !== -1) {
+				sendingWallet.nfts.splice(index, 1);
+			} else {
+				addMessage('bun not found');
+				return;
+			}
+		} else {
+			addToast('cannot send bun from another bun');
+			return;
+		}
+
+		// update receiver wallet
+		if (!isBun(receivingWallet)) {
+			receivingWallet.nfts.push(payload);
+		} else {
+			addMessage('cannot send bun to another bun');
+			return;
+		}
+
+		// trigger reactivity
+		updateWallets();
+	}
+
+	function updateWallets() {
+		if (!isBun(sendingWallet)) {
+			sendingWallet = { ...sendingWallet };
+		} else {
+			sendingWallet = { ...sendingWallet };
+		}
+
+		if (!isBun(receivingWallet)) {
+			receivingWallet = { ...receivingWallet };
+		} else {
+			receivingWallet = { ...receivingWallet };
+		}
+
+		wallet.update((w) => ({ ...w }));
 	}
 </script>
 
@@ -324,14 +443,14 @@
 							<!-- dmt balance -->
 							<button
 								on:click={() => handleSelectPayload(senderDmtToken)}
-								class="px-2 p-1 items-center space-x-1 flex bg-gray-200 border-gray-500 border-2"
+								class="px-2 p-1 items-center space-x-1 flex bg-gray-100 hover:bg-gray-200 border-gray-500 border-2"
 							>
 								<img class="w-4 h-4" src="/ui/icons/dmt.png" alt="" />
 								<p>{senderDmtBalance}</p>
 							</button>
 							<button
 								on:click={() => handleSelectPayload(senderGoldToken)}
-								class="-translate-x-[2px] items-center px-2 p-1 flex space-x-1 bg-gray-200 border-2 border-gray-500"
+								class="-translate-x-[2px] items-center px-2 p-1 flex space-x-1 bg-gray-100 hover:bg-gray-200 border-2 border-gray-500"
 							>
 								<img class="w-4 h-4" src="/ui/icons/sankogold.png" alt="" />
 								<p>{senderGoldBalance}</p>
@@ -485,7 +604,7 @@
 						{#if isBun(receivingWallet)}
 							<!-- buns gold balance -->
 							<div
-								class="px-2 p-1 items-center space-x-1 flex bg-gray-200 border-2 border-gray-500"
+								class="px-2 p-1 items-center space-x-1 flex bg-gray-100 hover:bg-gray-200 border-2 border-gray-500"
 							>
 								<img class="w-4" src="/ui/icons/sankogold.png" alt="" />
 								<p>{receiverGoldBalance}</p>
@@ -537,18 +656,41 @@
 
 		<!-- amount to transfer button -->
 		<div
-			class="flex justify-evenly p-2 bg-gray-200 border-gray-500 border-2 rounded-none items-center space-x-2"
+			class="flex justify-evenly py-3 p-2 bg-gray-200 border-gray-500 border-2 rounded-none items-center space-x-2 h12 h-[55px]"
 		>
+			<!-- if TOKEN -->
 			{#if payload && sendTokens && isToken(payload)}
-				<!-- selected amount -->
+				<!-- amount -->
 				<input
 					class="relative focus:outline-sky-300 focus:border-transparent w-20 rounded px-2 placeholder:font-FinkHeavy"
 					placeholder="0"
 					type="number"
 				/>
-				<button class="absolute"> max </button>
-				<img class="w-[25px]" src={payload.iconUrl} alt="" />
-			{:else if payload && sendBun && isBun(payload)}{:else if payload && sendItems && isItem(payload)}{:else}
+				<button
+					on:click={() => maxTokens()}
+					class="absolute translate-x-[2px] text-xs bg-gray-200 border-[1px] border-gray-400 rounded-sm px-1"
+					>max</button
+				>
+				<img class="w-[25px] h-[25px]" src={payload.iconUrl} alt="" />
+
+				<!-- if BUN -->
+			{:else if payload && sendBun && isBun(payload)}
+				<div class="border-gray-400">
+					<img src={payload.thumbUrl} alt={payload.name} />
+				</div>
+				<!-- if ITEM -->
+			{:else if payload && sendItems && isItem(payload)}
+				<div class="flex w-[80px] justify-between items-center space-x-2 border-gray-400">
+					<select class="w-10" bind:value={itemQuantityToSend} name="quantity" id="">
+						<!-- Create an option for each unit in payload.quantity -->
+						{#each Array(payload.quantity) as _, index}
+							<option value={index + 1}>{index + 1}</option>
+						{/each}
+					</select>
+					<img class="max-h-[50px]" src={payload.imgPath} alt={payload.name} />
+				</div>
+				<!-- if anything else -->
+			{:else}
 				<!-- selected amount -->
 				<input
 					class="focus:outline-sky-300 focus:border-transparent w-20 rounded px-2 placeholder:font-FinkHeavy"
@@ -567,6 +709,7 @@
 		</div>
 		<!-- transfer button -->
 		<button
+			on:click={() => handleTransfer()}
 			class="bg-yellow-300 m-auto items-center flex space-x-1 justify-evenly border-yellow-200 border-2 p-1 px-2 rounded-lg"
 		>
 			<p class="font-FinkHeavy">Transfer</p>
