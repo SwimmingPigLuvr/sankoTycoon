@@ -33,9 +33,18 @@
 		? undefined
 		: sendingWallet.tokens.find((t: Token) => t.name === 'DMT');
 
-	$: senderGoldToken = isBun(sendingWallet)
-		? undefined
-		: sendingWallet.tokens.find((t: Token) => t.name === 'GOLD');
+	function getSenderGoldToken(): Token | undefined {
+		if (isBun(sendingWallet)) {
+			return {
+				name: 'GOLD',
+				balance: sendingWallet.wallet.gold,
+				iconUrl: '/ui/icons/sankogold.png'
+			};
+		} else {
+			return sendingWallet.tokens.find((t: Token) => t.name === 'GOLD');
+		}
+	}
+	$: senderGoldToken = getSenderGoldToken();
 
 	$: senderGoldBalance = isBun(sendingWallet)
 		? sendingWallet.wallet.gold
@@ -82,7 +91,8 @@
 
 	let sendingWallet: Wallet | Bun = $wallet;
 	let receivingWallet: Wallet | Bun = $activeBun;
-	let payload: Item | Bun | Token;
+	export let payload: Item | Bun | Token | undefined = undefined;
+
 	$: if (isToken(senderGoldToken)) {
 		payload = senderGoldToken;
 	}
@@ -150,11 +160,11 @@
 		if (senderGoldToken) {
 			payload = senderGoldToken;
 		}
-		sendTokens = true;
+		sendTokens = false;
 		sendItems = false;
 		sendBun = false;
 		tokensToSend = 0;
-		itemQuantityToSend = 0;
+		itemQuantityToSend = 1;
 	}
 
 	function handleSelection(party: 'sender' | 'receiver', wallet: Wallet | Bun) {
@@ -228,7 +238,7 @@
 				}
 				transferToken(payload, amount);
 				addToast(`sent ${amount} ${payload.name}`);
-				sendModalOpen.set(false);
+				payload = undefined;
 			} else if (sendItems && isItem(payload)) {
 				const quantity = itemQuantityToSend;
 				if (quantity <= 0 || quantity > payload.quantity) {
@@ -238,11 +248,16 @@
 				}
 				transferItem(payload, quantity);
 				addToast(`sent ${quantity} ${payload.name}`);
+
+				// if the item quantity goes down to 0 reset the payload
+				payload = undefined;
 			} else if (sendBun && isBun(payload)) {
 				transferBun(payload);
 				addToast(`sent ${payload.name} #${payload.id}`);
+				payload = undefined;
 			} else {
 				addMessage('error: invalid payload');
+				payload = undefined;
 			}
 		} else {
 			addToast('please select item to send');
@@ -251,29 +266,39 @@
 
 	function transferToken(token: Token, amount: number) {
 		// update sender wallet
-		if (!isBun(sendingWallet)) {
-			const senderToken = sendingWallet.tokens.find((t) => t.name === token.name);
+		if (isBun(sendingWallet)) {
+			if (token.name === 'GOLD') {
+				if (sendingWallet.wallet.gold >= amount) {
+					sendingWallet.wallet.gold -= amount;
+				} else {
+					addToast('insufficient gold balance');
+					return;
+				}
+			} else {
+				addToast('buns can only send/receive gold at the moment.');
+				return;
+			}
+		} else {
+			const senderToken = sendingWallet.tokens.find((t: Token) => t.name === 'GOLD');
 			if (senderToken) {
 				senderToken.balance -= amount;
 			}
 		}
 
 		// Update receivingWallet
-		if (!isBun(receivingWallet)) {
+		if (isBun(receivingWallet)) {
+			if (token.name === 'GOLD') {
+				receivingWallet.wallet.gold += amount;
+			} else {
+				addToast('cannot send this token to a bun');
+				return;
+			}
+		} else {
 			let receiverToken = receivingWallet.tokens.find((t) => t.name === token.name);
 			if (receiverToken) {
 				receiverToken.balance += amount;
 			} else {
 				receivingWallet.tokens.push({ ...token, balance: amount });
-			}
-		} else {
-			// If the receivingWallet is a bun, handle accordingly
-			// For example, if buns can hold tokens
-			if (token.name === 'GOLD') {
-				receivingWallet.wallet.gold += amount;
-			} else {
-				// Handle other tokens if applicable
-				addToast('Cannot send this token to a bun');
 			}
 		}
 
@@ -459,12 +484,13 @@
 						<!-- any bun's wallet -->
 						{#if isBun(sendingWallet)}
 							<!-- buns gold balance -->
-							<div
+							<button
+								on:click={() => handleSelectPayload(senderGoldToken)}
 								class="px-2 p-1 items-center space-x-1 flex bg-gray-200 border-2 border-gray-500"
 							>
 								<img class="w-4" src="/ui/icons/sankogold.png" alt="" />
 								<p>{senderGoldBalance}</p>
-							</div>
+							</button>
 						{/if}
 					</div>
 					<!-- items grid -->
@@ -665,6 +691,7 @@
 					class="relative focus:outline-sky-300 focus:border-transparent w-20 rounded px-2 placeholder:font-FinkHeavy"
 					placeholder="0"
 					type="number"
+					bind:value={tokensToSend}
 				/>
 				<button
 					on:click={() => maxTokens()}
@@ -689,22 +716,10 @@
 					</select>
 					<img class="max-h-[50px]" src={payload.imgPath} alt={payload.name} />
 				</div>
-				<!-- if anything else -->
+				<!-- if payload undefined -->
 			{:else}
 				<!-- selected amount -->
-				<input
-					class="focus:outline-sky-300 focus:border-transparent w-20 rounded px-2 placeholder:font-FinkHeavy"
-					placeholder="0"
-					type="number"
-					bind:value={tokensToSend}
-				/>
-				<button
-					on:click={() => maxTokens()}
-					class="absolute translate-x-[2px] text-xs bg-gray-200 border-[1px] border-gray-400 rounded-sm px-1"
-				>
-					max
-				</button>
-				<img class="w-[25px]" src="ui/icons/sankogold.png" alt="" />
+				<div class="w-20 rounded px-2 font-FinkHeavy">Select an asset</div>
 			{/if}
 		</div>
 		<!-- transfer button -->
