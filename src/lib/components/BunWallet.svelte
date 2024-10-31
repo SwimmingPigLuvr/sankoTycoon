@@ -6,7 +6,7 @@
 		addMessage,
 		gameState,
 		bridged,
-		currentSectionBuns,
+		currentSection,
 		activeBun,
 		eggIndex,
 		bunIndex
@@ -29,9 +29,9 @@
 	$: $bunIndex = $bunIndex % buns.length;
 	$: $eggIndex = $eggIndex % eggs.length;
 
-	$: if ($currentSectionBuns && buns.length > 0) {
+	$: if ($currentSection === 'Buns' && buns.length > 0) {
 		activeBun.set(buns[$bunIndex]);
-	} else if (!$currentSectionBuns && eggs.length > 0) {
+	} else if ($currentSection === 'Eggs' && eggs.length > 0) {
 		activeBun.set(eggs[$eggIndex]);
 	}
 
@@ -67,8 +67,12 @@
 		eggIndex.update((e) => (e - 1 + eggs.length) % eggs.length);
 	}
 
+	// cycle through the sections
 	function toggleSection() {
-		currentSectionBuns.update((section) => !section);
+		let sections = ['Egg', 'Buns', 'Mint'];
+		let index = sections.findIndex((section) => section === $currentSection);
+		index = (index + 1) % sections.length;
+		currentSection.set(sections[index]);
 	}
 
 	function activateAbility(itemName: string) {
@@ -290,8 +294,12 @@
 	<div
 		class="transform transition-all duration-1000 ease-in-out w-full justify-center items-center flex flex-col space-y-0"
 	>
+		<!-- MINT SECTION -->
+		{#if $bridged && $currentSection === 'Mint'}
+			<MintEgg />
+		{/if}
 		<!-- EGG SECTION -->
-		{#if !$currentSectionBuns}
+		{#if $currentSection === 'Eggs'}
 			<!-- if any eggs in the wallet -->
 			{#if eggs[$eggIndex]}
 				<div class="w-full flex px-2 justify-around font-FinkHeavy text-xl text-center">
@@ -334,10 +342,7 @@
 					</div>
 				</div>
 			{/if}
-			{#if $bridged && !$currentSectionBuns}
-				<MintEgg />
-			{/if}
-		{:else if $currentSectionBuns}
+		{:else if $currentSection === 'Buns'}
 			<!-- if any buns in the wallet -->
 			{#if buns[$bunIndex]}
 				<div class="w-full flex px-2 justify-around font-FinkHeavy text-xl text-center">

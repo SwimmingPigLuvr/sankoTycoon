@@ -8,10 +8,10 @@
 		activeBun,
 		eggIndex,
 		bunIndex,
-		currentSectionBuns,
 		gameState,
 		sendModalOpen,
-		StepID
+		StepID,
+		currentSection
 	} from '$lib/stores/gameState';
 	import Hunger from './Hunger.svelte';
 	import HatchEgg from './HatchEgg.svelte';
@@ -75,8 +75,8 @@
 		}
 	}
 
-	function toggleSection() {
-		currentSectionBuns.update((section) => (section = !section));
+	function toggleSection(destination: string) {
+		currentSection.set(destination);
 	}
 </script>
 
@@ -135,16 +135,16 @@
 					class="px-2 bg-rose-300 text-black text-opacity-50 rounded-t {showEggs
 						? 'z-50 border-2 border-gray-200 border-b-0'
 						: 'border-2 border-transparent'}"
-					on:click={() => toggleSection()}>Eggs</button
+					on:click={() => toggleSection('Eggs')}>Eggs</button
 				>
 				<button
 					class="px-2 bg-sky-200 text-black text-opacity-50 rounded-t {!showEggs
 						? 'border-2 border-gray-200 border-b-0'
 						: 'border-2 border-transparent'}"
-					on:click={() => toggleSection()}>Buns</button
+					on:click={() => toggleSection('Buns')}>Buns</button
 				>
 			</div>
-			{#if !$currentSectionBuns}
+			{#if $currentSection === 'Eggs'}
 				<div
 					class="egs bg-rose-200 relative border-2 rounded max-h-80 border-gray-200 overflow-y-auto overflow-x-hidden grid gap-1 items-center grid-cols-3 grid-rows-3 w-full p-1 px-2"
 				>
@@ -168,7 +168,7 @@
 					{/each}
 				</div>
 			{/if}
-			{#if $currentSectionBuns}
+			{#if $currentSection === 'Buns'}
 				<!-- bun -->
 				<div
 					class="bun rounded border-2 bg-sky-100 max-h-60 border-gray-200 overflow-y-auto overflow-x-hidden grid gap-1 grid-cols-3 grid-rows-2 w-full px-2 p-1"

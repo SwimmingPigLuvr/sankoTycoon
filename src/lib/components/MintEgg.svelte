@@ -6,6 +6,7 @@
 	import {
 		activeBun,
 		addMessage,
+		currentSection,
 		eggIndex,
 		progressStep,
 		totalEggsRemaining
@@ -33,6 +34,7 @@
 			mintEgg();
 			isMinting = false;
 			minted = true;
+			currentSection.set('Eggs');
 		}, 1000);
 	}
 
@@ -170,6 +172,7 @@
 </script>
 
 <main in:slide={{ duration: 1000, easing: cubicInOut }} class="w-full">
+	<button on:click={() => currentSection.set('Eggs')} class="text-xl text-center w-full">🔙</button>
 	<div
 		class="border-slate-200 border-4 w-40 text-center mint-button rounded-xl font-FinkHeavy tracking-normal filter hue-rotate-90 flex flex-col"
 	>

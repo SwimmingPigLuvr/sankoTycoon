@@ -4,7 +4,7 @@
 		activeBun,
 		bridged,
 		bunIndex,
-		currentSectionBuns,
+		currentSection,
 		progressStep
 	} from '$lib/stores/gameState';
 	import type { Bun, BunVariety, BunType, BunRarity, BunWallet, Item } from '$lib/stores/wallet';
@@ -25,7 +25,7 @@
 			hatchEgg($activeBun);
 			isHatching = false;
 			hatched = true;
-			currentSectionBuns.set(true);
+			currentSection.set('Buns');
 		}, 333);
 	}
 
@@ -249,7 +249,7 @@
 		buns = [...buns];
 		bunIndex.set(buns.length);
 		activeBun.set(newBun);
-		currentSectionBuns.set(true);
+		currentSection.set('Buns');
 
 		if (!newBun.isHibernating) {
 			startHungerInterval(newBun);

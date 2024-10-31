@@ -6,7 +6,7 @@ export const activeBun = writable<Bun>();
 export const bunIndex = writable<number>(0);
 export const eggIndex = writable<number>(0);
 
-export const currentSectionBuns = writable<boolean>(true);
+export const currentSection = writable<string>('Mint');
 
 export const bridged = writable<boolean>(false);
 export const sendModalOpen = writable<boolean>(false);

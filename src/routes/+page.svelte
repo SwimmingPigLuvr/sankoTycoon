@@ -11,7 +11,6 @@
 		StepID,
 		sendModalOpen,
 		bridged,
-		currentSectionBuns,
 		bunIndex
 	} from '../lib/stores/gameState';
 	import { onDestroy } from 'svelte';
