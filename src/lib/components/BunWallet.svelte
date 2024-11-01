@@ -287,10 +287,7 @@
 	}
 </script>
 
-<main
-	in:scale={{ duration: 1000, easing: cubicInOut }}
-	class="w-40 justify-center flex flex-col border-gray-400 border- max-w-40"
->
+<main in:fade class="w-40 justify-center flex flex-col border-gray-400 border- max-w-40">
 	<div
 		class="transform transition-all duration-1000 ease-in-out w-full justify-center items-center flex flex-col space-y-0"
 	>
@@ -309,18 +306,18 @@
 						<button class="hover:filter hover:brightness-[75%]" on:click={() => prevEgg()}>
 							<img src="/ui/icons/arrow.png" class="w-8" alt="" />
 						</button>
-						<button on:click={() => toggleSection()}>Eggs</button>
+						<button>Eggs</button>
 						<!-- right arrow -->
 						<button on:click={() => nextEgg()} class="hover:filter hover:brightness-[75%]">
 							<img src="/ui/icons/arrow.png" class="w-8 scale-[-100%]" alt="" />
 						</button>
 						<!-- if singular bun -->
 					{:else}
-						<button on:click={() => toggleSection()}>Eggs</button>
+						<button>Eggs</button>
 					{/if}
 				</div>
 				<!-- current egg -->
-				<div in:scale={{ delay: 350, duration: 650, easing: cubicInOut }} class="w-full">
+				<div in:fade class="w-full">
 					<button class="relative">
 						<img
 							class="w-40 m-auto rounded-none"
@@ -352,14 +349,14 @@
 						<button class="hover:filter hover:brightness-[75%]" on:click={() => prevBun()}>
 							<img src="/ui/icons/arrow.png" class="w-8" alt="" />
 						</button>
-						<button on:click={() => toggleSection()}>Buns</button>
+						<button>Buns</button>
 						<!-- right arrow -->
 						<button on:click={() => nextBun()} class="hover:filter hover:brightness-[75%]">
 							<img src="/ui/icons/arrow.png" class="w-8 scale-[-100%]" alt="" />
 						</button>
 						<!-- if singular bun -->
 					{:else}
-						<button on:click={() => toggleSection()}>Buns</button>
+						<button>Buns</button>
 					{/if}
 				</div>
 				<!-- buns -->
@@ -368,7 +365,7 @@
 					<!-- bun info -->
 				</div>
 				<div class="w-full">
-					<button in:fade={{ duration: 1000, easing: cubicInOut }} class="relative">
+					<button in:fade class="relative">
 						<img class="w-40 m-auto" src={buns[$bunIndex].imageUrl} alt={buns[$bunIndex].name} />
 						<!-- hunger meter -->
 						{#if buns[$bunIndex].type === 'Bun'}

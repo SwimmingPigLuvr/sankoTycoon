@@ -67,7 +67,7 @@
 			<div>
 				<BunWallet bun={buns[$bunIndex]} />
 			</div>
-			{#if buns.length > 0}
+			{#if $activeBun && $activeBun.type === 'Bun'}
 				<div>
 					<Farm bun={$wallet?.nfts[$bunIndex]} />
 				</div>
@@ -86,9 +86,8 @@
 			<Dashboard />
 		{/if}
 	</div>
-	<h1 class="-z-50 w-full text-left absolute bottom-2 left-2">Sanko Tycoon ©</h1>
 	<div
-		in:slide={{ delay: 1500 }}
+		in:fade
 		class="-z-10 font-amsterdam-display fixed bottom-2 right-2 items-center -translate-y-1 flex-col"
 	>
 		<a

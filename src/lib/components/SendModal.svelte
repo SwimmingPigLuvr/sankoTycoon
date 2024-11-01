@@ -221,7 +221,13 @@
 	}
 
 	function maxTokens() {
-		if (payload && sendTokens && isToken(payload)) {
+		if (!payload || !sendTokens || !isToken(payload)) {
+			return;
+		}
+		// Check if sending wallet is a Bun and if the token is 'GOLD'
+		if (isBun(sendingWallet) && payload.name === 'GOLD') {
+			tokensToSend = sendingWallet.wallet.gold;
+		} else {
 			tokensToSend = payload.balance;
 		}
 	}

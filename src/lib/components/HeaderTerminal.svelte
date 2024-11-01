@@ -20,6 +20,7 @@
 </script>
 
 <main class="bg-black text-sm text-white tracking-normal font-mono p-2 w-full">
+	<h1 class="fixed z-50 text-left top-24 right-6">Sanko Tycoon ©</h1>
 	<div class="w-full flex flex-col justify-end">
 		{#each messages as message, index}
 			{#if index === 4}

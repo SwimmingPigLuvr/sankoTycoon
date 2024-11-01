@@ -22,10 +22,12 @@
 		type Plot,
 		type Token
 	} from '$lib/stores/wallet';
-	import { cubicInOut } from 'svelte/easing';
-	import { scale, slide } from 'svelte/transition';
+	import { backOut, cubicInOut } from 'svelte/easing';
+	import { fade, fly, scale, slide } from 'svelte/transition';
 
 	let nextEggId = 1; // first egg
+
+	$: eggs = $wallet.nfts.filter((nft: Bun) => nft.type === 'Egg');
 
 	function mintEggHandler() {
 		isMinting = true;
@@ -34,11 +36,11 @@
 			mintEgg();
 			isMinting = false;
 			minted = true;
-			currentSection.set('Eggs');
+			if (eggs.length === 0) {
+				currentSection.set('Eggs');
+			}
 		}, 1000);
 	}
-
-	$: eggs = $wallet.nfts.filter((nft: Bun) => nft.type === 'Egg');
 
 	// Egg rarities and probabilities
 	const eggProbabilities = [
@@ -171,9 +173,9 @@
 	}
 </script>
 
-<main in:slide={{ duration: 1000, easing: cubicInOut }} class="w-full">
-	<button on:click={() => currentSection.set('Eggs')} class="text-xl text-center w-full">🔙</button>
+<main class="w-full">
 	<div
+		in:fade
 		class="border-slate-200 border-4 w-40 text-center mint-button rounded-xl font-FinkHeavy tracking-normal filter hue-rotate-90 flex flex-col"
 	>
 		<p class="text-2xl text-blue-700">Mint Eggs</p>

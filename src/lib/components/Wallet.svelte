@@ -128,7 +128,7 @@
 	{#if $wallet.nfts.length > 0}
 		<!-- buns and eggs -->
 		<!-- mini wallet -->
-		<div in:slide={{ duration: 1000, easing: backOut }} class="py-2 w-full font-FinkHeavy">
+		<div in:fade class="py-2 w-full font-FinkHeavy">
 			<!-- eggs -->
 			<div class="flex text-xs justify-between w-full px-4">
 				<button
@@ -144,7 +144,7 @@
 					on:click={() => toggleSection('Buns')}>Buns</button
 				>
 			</div>
-			{#if $currentSection === 'Eggs'}
+			{#if $currentSection === 'Eggs' || $currentSection === 'Mint'}
 				<div
 					class="egs bg-rose-200 relative border-2 rounded max-h-80 border-gray-200 overflow-y-auto overflow-x-hidden grid gap-1 items-center grid-cols-3 grid-rows-3 w-full p-1 px-2"
 				>
@@ -193,6 +193,10 @@
 				</div>
 			{/if}
 		</div>
+		<button
+			class="text-xs bg-emerald-400 p-2 px-4 font-FinkHeavy rounded-lg text-white"
+			on:click={() => currentSection.set('Mint')}>Mint more eggs</button
+		>
 	{/if}
 </main>
 
