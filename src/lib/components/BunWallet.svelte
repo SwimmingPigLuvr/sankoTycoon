@@ -287,7 +287,7 @@
 	}
 </script>
 
-<main in:fade class="w-40 justify-center flex flex-col border-gray-400 border- max-w-40">
+<main class="w-40 justify-center flex flex-col border-gray-400 border- max-w-40">
 	<div
 		class="transform transition-all duration-1000 ease-in-out w-full justify-center items-center flex flex-col space-y-0"
 	>

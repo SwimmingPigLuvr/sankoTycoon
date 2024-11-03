@@ -162,7 +162,9 @@
 			} else {
 				eggIndex.set(0);
 			}
-			activeBun.set(newEgg);
+			if (eggs.length === 0) {
+				activeBun.set(newEgg);
+			}
 
 			// update egg count
 			nextEggId += 1;

@@ -203,57 +203,57 @@
 	}
 
 	function hatchEgg(egg: Bun) {
-		buns = [...buns];
+		// buns = [...buns];
 		if (egg.type !== 'Egg') {
 			alert("cannot hatch this because it's not an egg");
 			return;
 		}
 
-		// remove egg from wallet
+		// update in 1 atomic operation
 		wallet.update((w) => {
+			// remove egg
 			w.nfts = w.nfts.filter((nft: Bun) => nft.id !== egg.id);
-			return w;
-		});
+			// generate random bun
+			const bun = getRandomBun(egg.rarity);
+			const stats = rarityStats[egg.rarity];
+			const newBun = createBun(
+				egg.id,
+				bun.variety as BunVariety,
+				egg.rarity,
+				`/images/buns/${bun.variety}.webp`,
+				`/images/buns/thumbs/${bun.variety}.png`,
+				stats,
+				{
+					type: 'Bun',
+					wallet: {
+						address: generateEthAddress(),
+						bunId: egg.id,
+						gold: 100,
+						items: [...starterWallet.items]
+					},
+					farm: Array(25).fill({ state: 'empty' }),
+					hungerLevel: 0,
+					isCoolingDown: false,
+					isHibernating: false
+				}
+			);
+			// add new bun
+			w.nfts = [...w.nfts, newBun];
 
-		// generate random bun
-		const bun = getRandomBun(egg.rarity);
-		const stats = rarityStats[egg.rarity];
-		const newBun = createBun(
-			egg.id,
-			bun.variety as BunVariety,
-			egg.rarity,
-			`/images/buns/${bun.variety}.webp`,
-			`/images/buns/thumbs/${bun.variety}.png`,
-			stats,
-			{
-				type: 'Bun',
-				wallet: {
-					address: generateEthAddress(),
-					bunId: egg.id,
-					gold: 1000000000000,
-					items: [...starterWallet.items]
-				},
-				farm: Array(25).fill({ state: 'empty' }),
-				hungerLevel: 0,
-				isCoolingDown: false,
-				isHibernating: false
-			}
-		);
+			// set new index
+			const bunsInWallet = w.nfts.filter((nft: Bun) => nft.type === 'Bun');
+			const newBunIndex = bunsInWallet.length - 1;
 
-		// push newBun
-		wallet.update((w) => {
-			w.nfts.push(newBun);
-			return w;
-		});
+			// update stores
+			bunIndex.set(newBunIndex);
+			activeBun.set(newBun);
+			currentSection.set('Buns');
 
-		buns = [...buns];
-		bunIndex.set(buns.length);
-		activeBun.set(newBun);
-		currentSection.set('Buns');
-
-		if (!newBun.isHibernating) {
+			// start hunger
 			startHungerInterval(newBun);
-		}
+
+			return w;
+		});
 	}
 
 	// List of bun varieties and rarities

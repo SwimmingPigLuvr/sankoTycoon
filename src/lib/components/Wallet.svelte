@@ -78,6 +78,21 @@
 	function toggleSection(destination: string) {
 		currentSection.set(destination);
 	}
+
+	$: if ($currentSection === 'Mint') {
+		activeBun.set(undefined);
+	}
+
+	$: if (eggs.includes($activeBun)) {
+		currentSection.set('Eggs');
+	}
+
+	// prevent out of bound indices / display issues
+	$: {
+		if ($bunIndex >= buns.length) {
+			bunIndex.set(Math.max(0, buns.length - 1));
+		}
+	}
 </script>
 
 <main class="space-y-0 px-0 tracking-normal text-center w-40 flex flex-col items-center">
@@ -155,8 +170,8 @@
 								activeBun.set(egg);
 							}}
 							class="{$activeBun === egg
-								? 'border-green-500 border-2'
-								: 'border-[1px] border-white'} relative hover:bg-gray-200 w-10 h-10 flex items-center justify-center"
+								? 'border-sky-400 border-2'
+								: 'border-[1px] border-white'} hover:border-sky-400 relative w-10 h-10 flex items-center justify-center"
 						>
 							<img src={egg.imageUrl} alt={egg.name} class="w-full h-auto" />
 						</button>

@@ -1,3 +1,4 @@
+// lib/stores/abilities.ts
 import { writable } from "svelte/store";
 
 export const showDashboard = writable<boolean>(false);

@@ -1,3 +1,4 @@
+<!-- lib/components/Abilities.svelte -->
 <script lang="ts">
 	import {
 		autoBuyer,

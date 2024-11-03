@@ -1,3 +1,4 @@
+<!-- lib/components/SendModal.svelte -->
 <script lang="ts">
 	import { activeBun, addMessage, addToast, sendModalOpen, toasts } from '$lib/stores/gameState';
 	import {

@@ -89,11 +89,15 @@
 
 	function sellItem(bunIndex: number, newItem: Item) {
 		subtractItemFromWallet(bunIndex, newItem);
+
 		if (newItem.sellPrice) {
-			updateGold(bunIndex, newItem.sellPrice);
+			// If $bunBlasted is true, double the sell price
+			const finalSellPrice = $bunBlasted ? newItem.sellPrice * 2 : newItem.sellPrice;
+			updateGold(bunIndex, finalSellPrice);
 		}
+
 		if (newItem.type === 'fruit') {
-			totalFruitsSold.update((total) => (total += 1));
+			totalFruitsSold.update((total) => total + 1);
 		}
 	}
 
