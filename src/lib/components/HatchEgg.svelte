@@ -203,7 +203,9 @@
 	}
 
 	function hatchEgg(egg: Bun) {
-		// buns = [...buns];
+		// defensive copy of buns array
+		let currentBuns = [...buns];
+
 		if (egg.type !== 'Egg') {
 			alert("cannot hatch this because it's not an egg");
 			return;
@@ -212,6 +214,11 @@
 		// update in 1 atomic operation
 		wallet.update((w) => {
 			// remove egg
+			const eggIndex = w.nfts.findIndex((nft: Bun) => nft.id === egg.id);
+			if (eggIndex === -1) {
+				console.error('egg not found');
+				return w;
+			}
 			w.nfts = w.nfts.filter((nft: Bun) => nft.id !== egg.id);
 			// generate random bun
 			const bun = getRandomBun(egg.rarity);

@@ -6,6 +6,8 @@ export default {
       fontFamily: {
         'FinkHeavy': ['FinkHeavy-Regular', 'serif'],
         'TechnologyBold': ['Technology-Bold', 'serif'],
+        'MS': ['Ms-Sans', 'sans'],
+        'MS-Bold': ['Ms-Sans-bold', 'sans'],
       },
     },
   },

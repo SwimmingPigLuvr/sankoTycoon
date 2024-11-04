@@ -14,7 +14,7 @@
 		totalSeedsBought,
 		totalTreesPlanted
 	} from '$lib/stores/abilities';
-	import { addMessage } from '$lib/stores/gameState';
+	import { addMessage, farmtekOpen } from '$lib/stores/gameState';
 	import { wallet, type Token } from '$lib/stores/wallet';
 	import { get } from 'svelte/store';
 
@@ -225,12 +225,12 @@
 
 	$: showAll = true;
 	// if show all is true then set everything to true
-	$: showFarmtek = $autoHarvest.level >= 2 && $click2plant.level >= 2;
+	$: showFarmtek = $autoHarvest.level >= 0 && $click2plant.level >= 0;
 	$: showAutoFeeder = $totalFruitsEaten >= 10;
 	$: showAutoSeller = $totalFruitsSold >= 50;
 	$: showAutoBuyer = $totalSeedsBought >= 5;
 	$: showClick2Plant = $totalTreesPlanted >= 10;
-	$: showAutoHarvester = $totalFruitHarvested >= 50;
+	$: showAutoHarvester = $totalFruitHarvested >= 5;
 
 	// Calculate if there are any upgrades to show
 	$: showUpgrades =
@@ -240,6 +240,14 @@
 		showClick2Plant ||
 		showAutoHarvester ||
 		showAutoBuyer;
+
+	function handleOpenFarmtek() {
+		if ($farmtek.purchased) {
+			farmtekOpen.set(true);
+		} else {
+			addMessage(`No disc detected. Please purchase disc.`);
+		}
+	}
 </script>
 
 {#if showUpgrades}
@@ -288,16 +296,22 @@
 					</div>
 				{/if}
 			{/if}
-			<img
-				class="w-40 h-auto {!$farmtek.purchased &&
-				dmtBalance < farmtekPrice.dmt &&
-				santoBalance < farmtekPrice.santo
-					? 'filter grayscale'
-					: 'grayscale-0'}"
-				src="/images/tools/farmtek-disc.png"
-				alt=""
-			/>
+			<button>
+				<img
+					class="w-40 h-auto {!$farmtek.purchased &&
+					dmtBalance < farmtekPrice.dmt &&
+					santoBalance < farmtekPrice.santo
+						? 'filter grayscale'
+						: 'grayscale-0'}"
+					src="/images/tools/farmtek-disc.png"
+					alt=""
+				/>
+			</button>
 		</button>
+		<button
+			class="m-auto w-[95%] hover:bg-teal-600 hover:text-white hover:border-teal-800 border-black border-[1px] text-black p-2 px-4 font-MS text-xs"
+			on:click={() => handleOpenFarmtek()}>Insert Farmtek disc</button
+		>
 	{/if}
 	<!-- auto feeder -->
 	{#if showAutoFeeder}

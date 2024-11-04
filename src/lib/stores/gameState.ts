@@ -10,6 +10,7 @@ export const currentSection = writable<string>('Mint');
 
 export const bridged = writable<boolean>(false);
 export const sendModalOpen = writable<boolean>(false);
+export const farmtekOpen = writable<boolean>(false);
 
 export const totalEggsRemaining = writable<number>(4444);
 

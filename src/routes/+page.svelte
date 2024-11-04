@@ -11,7 +11,8 @@
 		StepID,
 		sendModalOpen,
 		bridged,
-		bunIndex
+		bunIndex,
+		farmtekOpen
 	} from '../lib/stores/gameState';
 	import { onDestroy } from 'svelte';
 	import HatchEgg from '$lib/components/HatchEgg.svelte';
@@ -25,6 +26,7 @@
 	import Dashboard from '$lib/components/Dashboard.svelte';
 	import { showDashboard } from '$lib/stores/abilities';
 	import Abilities from '$lib/components/Abilities.svelte';
+	import Farmtek from '$lib/components/Farmtek.svelte';
 
 	let currentStep: StepID;
 	const unsubscribe = gameState.subscribe((state) => {
@@ -54,6 +56,9 @@
 </div>
 
 <main class="p-2 font-mono">
+	{#if $farmtekOpen}
+		<Farmtek />
+	{/if}
 	<HeaderTerminal />
 	<GameClock />
 	<div class="flex">

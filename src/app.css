@@ -12,6 +12,16 @@
     src: url('/fonts/Technology-Bold.ttf') format('opentype');
 }
 
+@font-face {
+    font-family: 'Ms-Sans';
+    src: url('/fonts/MS-Sans.ttf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Ms-Sans-Bold';
+    src: url('/fonts/MS-Sans-bold.ttf') format('opentype');
+}
+
 .terminal-glow {
     text-shadow:
         0 0 5px rgba(0, 255, 0, 0.75),
