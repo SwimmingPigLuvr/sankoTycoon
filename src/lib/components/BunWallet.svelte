@@ -406,14 +406,14 @@
 					</div>
 					<!-- items, fruits, seeds -->
 					<div
-						class="border-[1px] bg-gray-100 border-gray-400 overflow-y-auto overflow-x-hidden grid gap-0 grid-cols-4 grid-rows-3 w-full"
+						class="border-[1px] bg-gray-100 border-gray-400 overflow-y-auto overflow-x-hidden grid gap-0 grid-cols-4 h-40 w-full"
 					>
 						{#each allItems as item}
 							<button
 								on:mouseenter={() => (currentAbility = item.ability)}
 								on:mouseleave={() => (currentAbility = undefined)}
 								on:click={() => activateAbility(item.name)}
-								class="relative border-gray-400 border-[1px] hover:bg-gray-200 flex items-center justify-center"
+								class="relative border-gray-400 border-[1px] hover:bg-gray-200 flex items-center justify-center h-10 w-10"
 							>
 								<img src={item.imgPath} alt={item.name} class="h-8 w-auto" />
 								{#if item.quantity > 1}
@@ -428,8 +428,8 @@
 							</button>
 						{/each}
 
-						{#each Array(16 - allItems.length) as _}
-							<div class="border-gray-400 border-[1px] hover:bg-gray-200"></div>
+						{#each Array(Math.max(16, Math.ceil(allItems.length / 4) * 4) - allItems.length) as _}
+							<div class="border-gray-400 border-[1px] hover:bg-gray-200 h-10 w-10"></div>
 						{/each}
 					</div>
 					{#if currentAbility}

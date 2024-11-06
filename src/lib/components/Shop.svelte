@@ -17,9 +17,34 @@
 		type Bun,
 		type Item
 	} from '$lib/stores/wallet';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { cubicInOut } from 'svelte/easing';
 	import { fade } from 'svelte/transition';
+
+	// buns in wallet
+	$: buns = $wallet?.nfts ?? [];
+	$: bunWallet = buns[$bunIndex]?.wallet ?? {};
+
+	// existing items
+	$: items = bunWallet?.items.filter((items: Item) => items.quantity > 0) ?? [];
+
+	export let bun: Bun;
+
+	// bun id and gold
+	$: bunId = bunWallet.bunId;
+	$: gold = bunWallet.gold;
+
+	// filter items based on type
+	$: fruit = items.filter((items: Item) => items.type === 'fruit');
+	$: seeds = items.filter((items: Item) => items.type === 'seed');
+	$: witheredSeeds = items.filter((items: Item) => items.type === 'witheredSeed');
+	$: wearables = items.filter((items: Item) => items.type === 'wearable');
+	$: consumables = items.filter((items: Item) => items.type === 'consumable');
+
+	$: allPossibleItems = [...consumables, ...wearables, ...seeds, ...witheredSeeds, ...fruit];
+	$: allExistingItems = [...allPossibleItems.filter((items) => items.quantity > 0)];
+	$: allSellableItems = [...allExistingItems.filter((items) => items.sellPrice)];
+	$: allBuyableItems = [...allExistingItems.filter((items) => items.buyPrice)];
 
 	let autoSellInterval: ReturnType<typeof setInterval> | null = null;
 	let autoBuyInterval: ReturnType<typeof setInterval> | null = null;
@@ -53,29 +78,62 @@
 		allItems.bunOil
 	];
 
-	// buns in wallet
-	$: buns = $wallet?.nfts ?? [];
-	$: bunWallet = buns[$bunIndex]?.wallet ?? {};
+	let i = 0;
+	// daily items always includes
+	function rotateDailyItems() {
+		const fruitTypes = ['heart', 'star', 'lumpy', 'round', 'square'];
 
-	// existing items
-	$: items = bunWallet?.items.filter((items: Item) => items.quantity > 0) ?? [];
+		// Get current types with wraparound
+		const currentFruitType = fruitTypes[i % fruitTypes.length];
+		const currentSeedType = fruitTypes[(i + 1) % fruitTypes.length];
 
-	export let bun: Bun;
+		// Get the correct fruit and seed based on type
+		let currentFruit;
+		let currentSeed;
 
-	// bun id and gold
-	$: bunId = bunWallet.bunId;
-	$: gold = bunWallet.gold;
+		switch (currentFruitType) {
+			case 'heart':
+				currentFruit = allItems.heartFruit;
+				currentSeed = allItems.heartSeed;
+				break;
+			case 'star':
+				currentFruit = allItems.starFruit;
+				currentSeed = allItems.starSeed;
+				break;
+			case 'lumpy':
+				currentFruit = allItems.lumpyFruit;
+				currentSeed = allItems.lumpySeed;
+				break;
+			case 'round':
+				currentFruit = allItems.roundFruit;
+				currentSeed = allItems.roundSeed;
+				break;
+			case 'square':
+				currentFruit = allItems.squareFruit;
+				currentSeed = allItems.squareSeed;
+				break;
+		}
 
-	// filter items based on type
-	$: fruit = items.filter((items: Item) => items.type === 'fruit');
-	$: seeds = items.filter((items: Item) => items.type === 'seed');
-	$: witheredSeeds = items.filter((items: Item) => items.type === 'witheredSeed');
-	$: wearables = items.filter((items: Item) => items.type === 'wearable');
-	$: consumables = items.filter((items: Item) => items.type === 'consumable');
+		// Update daily items
+		dailyItems = [
+			// Constants stay the same
+			allItems.slop,
+			allItems.bunzempic,
+			currentFruit,
+			currentSeed,
+			...Object.values(allItems)
+				.filter((item) => item.type === 'wearable' && item.buyPrice)
+				.sort(() => Math.random() - 0.5)
+				.slice(0, 7)
+		];
+	}
 
-	$: allPossibleItems = [...consumables, ...wearables, ...seeds, ...witheredSeeds, ...fruit];
-	$: allExistingItems = [...allPossibleItems.filter((items) => items.quantity > 0)];
-	$: allSellableItems = [...allExistingItems.filter((items) => items.sellPrice)];
+	onMount(() => {
+		setInterval(() => {
+			rotateDailyItems();
+			i = (i + 1) % 5;
+		}, 6000); // 6s to test
+	});
 
 	function buyItem(bunIndex: number, newItem: Item) {
 		addItemToWallet(bunIndex, newItem);

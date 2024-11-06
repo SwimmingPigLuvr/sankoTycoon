@@ -29,6 +29,7 @@ export const bunzempic: Item = {
 export const twoThousandElevenHat: Item = {
     type: 'wearable',
     name: '2011 Hat',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/2011Hat.png',
 };
@@ -36,6 +37,7 @@ export const twoThousandElevenHat: Item = {
 export const alienHat: Item = {
     type: 'wearable',
     name: 'Alien Hat',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/AlienHat.png',
 };
@@ -43,6 +45,7 @@ export const alienHat: Item = {
 export const alpinistHat: Item = {
     type: 'wearable',
     name: 'Alpinist Hat',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/AlpinistHat.png',
 };
@@ -50,6 +53,7 @@ export const alpinistHat: Item = {
 export const birthdayHat: Item = {
     type: 'wearable',
     name: 'Birthday Hat',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/BirthdayHat.png',
 };
@@ -57,6 +61,7 @@ export const birthdayHat: Item = {
 export const blackPompadour: Item = {
     type: 'wearable',
     name: 'Black Pompadour',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/BlackPompadour.png',
 };
@@ -64,6 +69,7 @@ export const blackPompadour: Item = {
 export const blondePompadour: Item = {
     type: 'wearable',
     name: 'Blonde Pompadour',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/BlondePompadour.png',
 };
@@ -71,6 +77,7 @@ export const blondePompadour: Item = {
 export const blueDurag: Item = {
     type: 'wearable',
     name: 'Blue Durag',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/BlueDurag.png',
 };
@@ -78,6 +85,7 @@ export const blueDurag: Item = {
 export const bunDutchTruckerCap: Item = {
     type: 'wearable',
     name: 'Bun Dutch Trucker Cap',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/BunDutchTruckerCap.png',
 };
@@ -85,6 +93,7 @@ export const bunDutchTruckerCap: Item = {
 export const bunnyEars: Item = {
     type: 'wearable',
     name: 'Bunny Ears',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/BunnyEars.png',
 };
@@ -92,6 +101,7 @@ export const bunnyEars: Item = {
 export const chefHat: Item = {
     type: 'wearable',
     name: 'Chef Hat',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/ChefHat.png',
 };
@@ -109,6 +119,7 @@ export const devoHat: Item = {
     type: 'wearable',
     name: 'DEVO Hat',
     quantity: 0,
+    buyPrice: 5,
     imgPath: 'images/items/wearables/hats/DEVO.png',
 };
 
@@ -117,11 +128,13 @@ export const elfHat: Item = {
     name: 'Elf Hat',
     quantity: 0,
     imgPath: 'images/items/wearables/hats/ElfHat.png',
+    buyPrice: 5,
 };
 
 export const fbiHat: Item = {
     type: 'wearable',
     name: 'FBI Hat',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/FBIHat.png',
 };
@@ -129,6 +142,7 @@ export const fbiHat: Item = {
 export const fruitHat: Item = {
     type: 'wearable',
     name: 'Fruit Hat',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/FruitHat.png',
 };
@@ -137,24 +151,28 @@ export const hamburgerHat: Item = {
     type: 'wearable',
     name: 'Hamburger Hat',
     quantity: 0,
+    buyPrice: 5,
     imgPath: 'images/items/wearables/hats/HamburgerHat.png',
 };
 
 export const hardHat: Item = {
     type: 'wearable',
     name: 'Hard Hat',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/HardHat.png',
 };
 
 export const harlequinHat: Item = {
     type: 'wearable',
+    buyPrice: 5,
     name: 'Harlequin Hat',
     quantity: 0,
     imgPath: 'images/items/wearables/hats/HarlequinHat.png',
 };
 
 export const mabaCap: Item = {
+    buyPrice: 5,
     type: 'wearable',
     name: 'MABA Cap',
     quantity: 0,
@@ -173,6 +191,7 @@ export const matrixBucketHat: Item = {
 export const newsBoyHat: Item = {
     type: 'wearable',
     name: 'News Boy Hat',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/NewsBoyHat.png',
 };
@@ -188,6 +207,7 @@ export const niqab: Item = {
 export const nycCap: Item = {
     type: 'wearable',
     name: 'NYC Cap',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/NYCCap.png',
 };
@@ -195,6 +215,7 @@ export const nycCap: Item = {
 export const paperHat: Item = {
     type: 'wearable',
     name: 'Paper Hat',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/PaperHat.png',
 };
@@ -202,6 +223,7 @@ export const paperHat: Item = {
 export const pirateHat: Item = {
     type: 'wearable',
     name: 'Pirate Hat',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/PirateHat.png',
 };
@@ -209,6 +231,7 @@ export const pirateHat: Item = {
 export const redDurag: Item = {
     type: 'wearable',
     name: 'Red Durag',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/RedDurag.png',
 };
@@ -216,6 +239,7 @@ export const redDurag: Item = {
 export const sombrero: Item = {
     type: 'wearable',
     name: 'Sombrero',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/Sombrero.png',
 };
@@ -223,6 +247,7 @@ export const sombrero: Item = {
 export const sunVisor: Item = {
     type: 'wearable',
     name: 'Sun Visor',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/SunVisor.png',
 };
@@ -230,6 +255,7 @@ export const sunVisor: Item = {
 export const tenGallonHat: Item = {
     type: 'wearable',
     name: 'Ten Gallon Hat',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/TenGallonHat.png',
 };
@@ -237,6 +263,7 @@ export const tenGallonHat: Item = {
 export const uncleSamHat: Item = {
     type: 'wearable',
     name: 'Uncle Sam Hat',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/UncleSamHat.png',
 };
@@ -244,6 +271,7 @@ export const uncleSamHat: Item = {
 export const wizardHat: Item = {
     type: 'wearable',
     name: 'Wizard Hat',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/WizardHat.png',
 };
@@ -251,6 +279,7 @@ export const wizardHat: Item = {
 export const yellowHat: Item = {
     type: 'wearable',
     name: 'Yellow Hat',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hats/YellowHat.png',
     description: 'This is a happy yellow hat.'
@@ -260,6 +289,7 @@ export const yellowHat: Item = {
 export const seventiesGlasses: Item = {
     type: 'wearable',
     name: "70s Glasses",
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/glasses/70sGlasses.png',
 };
@@ -267,6 +297,7 @@ export const seventiesGlasses: Item = {
 export const bearMask: Item = {
     type: 'wearable',
     name: "Bear Mask",
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/glasses/BearMask.png',
 };
@@ -274,6 +305,7 @@ export const bearMask: Item = {
 export const cateyeGlasses: Item = {
     type: 'wearable',
     name: "Cateye Glasses",
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/glasses/CateyeGlasses.png',
 };
@@ -281,6 +313,7 @@ export const cateyeGlasses: Item = {
 export const disguiseMask: Item = {
     type: 'wearable',
     name: "Disguise Mask",
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/glasses/DisguiseMask.png',
 };
@@ -298,6 +331,7 @@ export const funkyGlasses: Item = {
 export const greenStarGlasses: Item = {
     type: 'wearable',
     name: "Green Star Glasses",
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/glasses/GreenStarGlasses.png',
 };
@@ -305,6 +339,7 @@ export const greenStarGlasses: Item = {
 export const masqueradeMask: Item = {
     type: 'wearable',
     name: "Masquerade Mask",
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/glasses/MasqueradeMask.png',
 };
@@ -312,6 +347,7 @@ export const masqueradeMask: Item = {
 export const mogGlasses: Item = {
     type: 'wearable',
     name: "Mog Glasses",
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/glasses/MogGlasses.png',
 };
@@ -328,6 +364,7 @@ export const npcMask: Item = {
 export const pineappleGlasses: Item = {
     type: 'wearable',
     name: "Pineapple Glasses",
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/glasses/PineappleGlasses.png',
 };
@@ -335,6 +372,7 @@ export const pineappleGlasses: Item = {
 export const screamMask: Item = {
     type: 'wearable',
     name: "Scream Mask",
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/glasses/ScreamMask.png',
 };
@@ -342,6 +380,7 @@ export const screamMask: Item = {
 export const strongmanMoggles: Item = {
     type: 'wearable',
     name: "Strongman Moggles",
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/glasses/StrongmanMoggles.png',
 };
@@ -349,6 +388,7 @@ export const strongmanMoggles: Item = {
 export const yokoGlasses: Item = {
     type: 'wearable',
     name: "Yoko Glasses",
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/glasses/YokoGlasses.png',
 };
@@ -356,6 +396,7 @@ export const yokoGlasses: Item = {
 export const zappers: Item = {
     type: 'wearable',
     name: "Zappers",
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/glasses/Zappers.png',
 };
@@ -407,6 +448,7 @@ export const bunOil: Item = {
 export const bunPlush: Item = {
     type: 'wearable',
     name: 'Bun Plush',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hands/BunPlush.png',
 }
@@ -414,6 +456,7 @@ export const bunPlush: Item = {
 export const buntell: Item = {
     type: 'wearable',
     name: 'Buntell',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hands/Buntell.png',
 }
@@ -421,6 +464,7 @@ export const buntell: Item = {
 export const camcorder: Item = {
     type: 'wearable',
     name: 'Camcorder',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hands/Camcorder.png',
 }
@@ -428,6 +472,7 @@ export const camcorder: Item = {
 export const cola: Item = {
     type: 'wearable',
     name: 'Cola',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hands/Cola.png',
 }
@@ -483,6 +528,7 @@ export const paperPlane: Item = {
 export const pimpCup: Item = {
     type: 'wearable',
     name: 'Pimp Cup',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hands/PimpCup.png',
 }
@@ -490,6 +536,7 @@ export const pimpCup: Item = {
 export const pinkAk47: Item = {
     type: 'wearable',
     name: 'Pink AK47',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hands/PinkAK47.png',
 }
@@ -497,6 +544,7 @@ export const pinkAk47: Item = {
 export const shovel: Item = {
     type: 'wearable',
     name: 'Shovel',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hands/Shovel.png',
 }
@@ -504,6 +552,7 @@ export const shovel: Item = {
 export const sprayCan: Item = {
     type: 'wearable',
     name: 'Spray Can',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hands/SprayCan.png',
 }
@@ -511,6 +560,7 @@ export const sprayCan: Item = {
 export const woodSword: Item = {
     type: 'wearable',
     name: 'Wood Sword',
+    buyPrice: 5,
     quantity: 0,
     imgPath: 'images/items/wearables/hands/WoodSword.png',
 }

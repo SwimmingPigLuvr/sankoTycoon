@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { bunStatus } from '$lib/stores/hungerState';
 	import { wallet, type Bun } from '$lib/stores/wallet';
 	import { onMount } from 'svelte';
 	import { cubicInOut } from 'svelte/easing';
@@ -6,7 +7,6 @@
 
 	export let bun: Bun;
 	let showHungerLevel = false;
-	const bunStatus = ['Bloated', 'Full', 'Fine', 'Hungry', 'Famished', 'Starving', 'Hibernating'];
 
 	$: statusIndex = bun.hungerLevel ?? 0;
 

@@ -18,6 +18,8 @@
 	$: buns = $wallet.nfts.filter((nft: Bun) => nft.type === 'Bun') ?? [];
 	$: eggs = $wallet.nfts.filter((nft: Bun) => nft.type === 'Egg') ?? [];
 
+
+
 	function hatchEggHandler() {
 		isHatching = true;
 		setTimeout(() => {
@@ -203,6 +205,18 @@
 	}
 
 	function hatchEgg(egg: Bun) {
+		console.log('before hatching - selected egg:', egg);
+		console.log(
+			'before hatching - current nfts:',
+			$wallet.nfts.map((nft) => ({
+				id: nft.id,
+				name: nft.name,
+				type: nft.type,
+				variety: nft.variety,
+				thumbnailShows: nft.thumbUrl
+			}))
+		);
+
 		// defensive copy of buns array
 		let currentBuns = [...buns];
 
@@ -213,50 +227,68 @@
 
 		// update in 1 atomic operation
 		wallet.update((w) => {
-			// remove egg
-			const eggIndex = w.nfts.findIndex((nft: Bun) => nft.id === egg.id);
-			if (eggIndex === -1) {
-				console.error('egg not found');
-				return w;
-			}
-			w.nfts = w.nfts.filter((nft: Bun) => nft.id !== egg.id);
-			// generate random bun
+			// new array without the hatched egg
+			const filteredNfts = w.nfts.filter((nft: Bun) => nft.id !== egg.id);
+
+			// generate new bun
 			const bun = getRandomBun(egg.rarity);
 			const stats = rarityStats[egg.rarity];
-			const newBun = createBun(
-				egg.id,
-				bun.variety as BunVariety,
-				egg.rarity,
-				`/images/buns/${bun.variety}.webp`,
-				`/images/buns/thumbs/${bun.variety}.png`,
-				stats,
-				{
-					type: 'Bun',
-					wallet: {
-						address: generateEthAddress(),
-						bunId: egg.id,
-						gold: 100,
-						items: [...starterWallet.items]
-					},
-					farm: Array(25).fill({ state: 'empty' }),
-					hungerLevel: 0,
-					isCoolingDown: false,
-					isHibernating: false
-				}
+			const newBun = {
+				id: egg.id,
+				name: bun.variety,
+				variety: bun.variety as BunVariety,
+				rarity: egg.rarity,
+				type: 'Bun' as BunType,
+				imageUrl: `/images/buns/${bun.variety}.webp`,
+				thumbUrl: `/images/buns/thumbs/${bun.variety}.png`,
+				industry: stats.industry,
+				luck: stats.luck,
+				speed: stats.speed,
+				stamina: stats.stamina,
+				strength: stats.strength,
+				birthday: new Date(),
+				wallet: {
+					address: generateEthAddress(),
+					bunId: egg.id,
+					gold: 10,
+					items: [...starterWallet.items]
+				},
+				farm: Array(25).fill({ state: 'empty' }),
+				hungerLevel: 0,
+				isCoolingDown: false,
+				isHibernating: false
+			};
+
+			const newNfts = [...filteredNfts, newBun];
+
+			// debug log
+			console.log('after hatching - new bun:', newBun);
+			console.log(
+				'After hatching - Updated NFTs:',
+				newNfts.map((nft: Bun) => ({
+					id: nft.id,
+					name: nft.name,
+					type: nft.type,
+					variety: nft.variety,
+					thumbnailShows: nft.thumbUrl
+				}))
 			);
-			// add new bun
-			w.nfts = [...w.nfts, newBun];
 
-			// set new index
-			const bunsInWallet = w.nfts.filter((nft: Bun) => nft.type === 'Bun');
-			const newBunIndex = bunsInWallet.length - 1;
+			// update wallet
+			w.nfts = newNfts;
 
-			// update stores
-			bunIndex.set(newBunIndex);
-			activeBun.set(newBun);
-			currentSection.set('Buns');
+			// calculate index, update stores
+			const bunsOnly = newNfts.filter((nft) => nft.type === 'Bun');
+			const newBunIndex = bunsOnly.indexOf(newBun);
 
-			// start hunger
+			if (newBunIndex !== -1) {
+				bunIndex.set(newBunIndex);
+				activeBun.set(newBun);
+				currentSection.set('Buns');
+			} else {
+				console.error('could not find new bun in array');
+			}
+
 			startHungerInterval(newBun);
 
 			return w;

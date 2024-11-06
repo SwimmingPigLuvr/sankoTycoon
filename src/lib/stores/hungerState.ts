@@ -1,7 +1,7 @@
-import { wallet, type Bun } from '$lib/stores/wallet';
+import { wallet, type bun } from '$lib/stores/wallet';
 import { addMessage } from '$lib/stores/gameState';
 
-const bunStatus = ['Bloated', 'Full', 'Fine', 'Hungry', 'Famished', 'Starving', 'Hibernating'];
+export const bunStatus = ['Bloated', 'Full', 'Fine', 'Hungry', 'Famished', 'Starving', 'Hibernating'];
 
 function startHungerInterval(bun: Bun) {
     // clear existing interval

@@ -2,6 +2,7 @@
 import { writable } from "svelte/store";
 
 export const showDashboard = writable<boolean>(false);
+export const showAbout = writable<boolean>(true);
 
 // double sale values
 export const bunBlasted = writable<boolean>(false);

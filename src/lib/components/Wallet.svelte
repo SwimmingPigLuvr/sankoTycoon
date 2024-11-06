@@ -89,8 +89,25 @@
 
 	// prevent out of bound indices / display issues
 	$: {
-		if ($bunIndex >= buns.length) {
-			bunIndex.set(Math.max(0, buns.length - 1));
+		buns.forEach((bun) => {
+			if (bun.name !== bun.variety) {
+				console.error('data mismatch detected:', {
+					bunId: bun.id,
+					name: bun.name,
+					variety: bun.variety,
+					thumbnail: bun.thumbUrl
+				});
+			}
+		});
+	}
+
+	$: {
+		const properBuns = $wallet.nfts.filter((nft) => nft.type === 'Bun');
+		if (JSON.stringify(properBuns) !== JSON.stringify(buns)) {
+			console.error('Bun array mismatch:', {
+				properBuns: properBuns.map((b) => ({ id: b.id, name: b.name })),
+				displayedBuns: buns.map((b) => ({ id: b.id, name: b.name }))
+			});
 		}
 	}
 </script>

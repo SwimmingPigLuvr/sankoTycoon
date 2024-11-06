@@ -112,8 +112,6 @@
 		isCoolingDown: false
 	};
 
-	let eggIdCounter = 1;
-
 	function mintEgg() {
 		// check if eggs left
 		if ($totalEggsRemaining <= 0) {
