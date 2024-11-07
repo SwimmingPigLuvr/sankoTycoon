@@ -285,6 +285,17 @@
 			return wallet;
 		});
 	}
+
+	let showItemName = '';
+	function handleItemHover(item: Item) {
+		currentAbility = item.ability;
+		showItemName = item.name;
+	}
+
+	function unHandleItemHover(item: Item) {
+		currentAbility = undefined;
+		showItemName = '';
+	}
 </script>
 
 <main class="w-40 justify-center flex flex-col border-gray-400 border- max-w-40">
@@ -405,32 +416,43 @@
 						{/if}
 					</div>
 					<!-- items, fruits, seeds -->
-					<div
-						class="border-[1px] bg-gray-100 border-gray-400 overflow-y-auto overflow-x-hidden grid gap-0 grid-cols-4 h-40 w-full"
-					>
-						{#each allItems as item}
-							<button
-								on:mouseenter={() => (currentAbility = item.ability)}
-								on:mouseleave={() => (currentAbility = undefined)}
-								on:click={() => activateAbility(item.name)}
-								class="relative border-gray-400 border-[1px] hover:bg-gray-200 flex items-center justify-center h-10 w-10"
-							>
-								<img src={item.imgPath} alt={item.name} class="h-8 w-auto" />
-								{#if item.quantity > 1}
-									<div
-										class="absolute w-3 h-3 top-0 right-0 bg-rose-600 rounded-full text-white flex items-center justify-center text-[0.6rem] text-center font-FinkHeavy"
+					<div class="overflow-visible">
+						<div
+							class="border-[1px] bg-gray-100 border-gray-400 overflow-y-auto grid gap-0 grid-cols-4 h-32 w-full"
+						>
+							{#each allItems as item}
+								<div class="relative">
+									<button
+										on:mouseenter={() => handleItemHover(item)}
+										on:mouseleave={() => unHandleItemHover(item)}
+										on:click={() => activateAbility(item.name)}
+										class="relative border-gray-400 border-[1px] hover:bg-gray-200 flex items-center justify-center h-8 w-10"
 									>
-										<p class="m-auto">
-											{item.quantity}
-										</p>
-									</div>
-								{/if}
-							</button>
-						{/each}
+										{#if showItemName === item.name}
+											<div
+												class="rounded z-50 absolute bottom-full px-1 mb-1 left-1/2 whitespace-nowrap -translate-x-1/2 font-FinkHeavy bg-orange-50"
+											>
+												{item.name}
+											</div>
+										{/if}
+										<img src={item.imgPath} alt={item.name} class="h-8 w-auto" />
+										{#if item.quantity > 1}
+											<div
+												class="absolute w-3 h-3 top-0 right-0 bg-rose-600 rounded-full text-white flex items-center justify-center text-[0.6rem] text-center font-FinkHeavy"
+											>
+												<p class="m-auto">
+													{item.quantity}
+												</p>
+											</div>
+										{/if}
+									</button>
+								</div>
+							{/each}
 
-						{#each Array(Math.max(16, Math.ceil(allItems.length / 4) * 4) - allItems.length) as _}
-							<div class="border-gray-400 border-[1px] hover:bg-gray-200 h-10 w-10"></div>
-						{/each}
+							{#each Array(Math.max(16, Math.ceil(allItems.length / 4) * 4) - allItems.length) as _}
+								<div class="border-gray-400 border-[1px] hover:bg-gray-200 h-8 w-10"></div>
+							{/each}
+						</div>
 					</div>
 					{#if currentAbility}
 						<div class="w-full">

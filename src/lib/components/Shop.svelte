@@ -132,7 +132,7 @@
 		setInterval(() => {
 			rotateDailyItems();
 			i = (i + 1) % 5;
-		}, 6000); // 6s to test
+		}, 60000); // 6s to test
 	});
 
 	function buyItem(bunIndex: number, newItem: Item) {

@@ -198,7 +198,7 @@
 					return currentWallet;
 				});
 			}
-		}, 1000 * 2);
+		}, 1000);
 	}
 
 	function harvestFruit(index: number) {
