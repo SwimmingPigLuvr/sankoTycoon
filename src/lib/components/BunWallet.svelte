@@ -17,41 +17,44 @@
 	import Hunger from './Hunger.svelte';
 	import HatchEgg from './HatchEgg.svelte';
 	import { restartHungerInterval } from '$lib/stores/hungerState';
-	import { dndzone } from 'svelte-dnd-action';
 	import MintEgg from './MintEgg.svelte';
 
 	export let bun: Bun;
 
-	let dragDisabled = false;
 	let isOverDropZone = false;
 	let dropZoneItems: Array<Item & { id: string }> = [];
 	let draggedItem: (Item & { id: string }) | null = null;
 
-	function handleItemDrop(e: CustomEvent) {
-		const { items: droppedItems } = e.detail;
-		if (droppedItems.length > 0) {
-			const droppedItem = droppedItems[0];
-			activateAbility(droppedItem.name);
-		}
-		dropZoneItems = [];
+	function handleDragStart(event: DragEvent, item: Item) {
+		if (!event.dataTransfer) return;
+		event.dataTransfer.setData('text/plain', item.name);
+		// create a new image
+		const dragImage = new Image();
+		dragImage.src = item.imgPath;
+		dragImage.style.height = '40px';
+		dragImage.style.width = 'auto';
+		// use this as the drag image
+		event.dataTransfer.setDragImage(dragImage, 0, 0);
+	}
+
+	function handleDragOver(event: DragEvent) {
+		event?.preventDefault();
+		isOverDropZone = true;
+	}
+
+	function handleDragLeave() {
 		isOverDropZone = false;
 	}
 
-	function handleItemConsider(e: CustomEvent) {
-		dropZoneItems = e.detail.items;
-		isOverDropZone = dropZoneItems.length > 0;
-	}
+	function handleDrop(event: DragEvent) {
+		event?.preventDefault();
+		isOverDropZone = false;
+		if (!event.dataTransfer) return;
 
-	function handleItemsConsider(e: CustomEvent, item: Item) {
-		draggedItem = { ...item, id: `${item.name}-${item.type}` };
-	}
-
-	function handleItemsFinalize(e: CustomEvent) {
-		if (draggedItem) {
-			e.detail.items = [draggedItem];
+		const itemName = event.dataTransfer.getData('text/plain');
+		if (itemName) {
+			activateAbility(itemName);
 		}
-		draggedItem = null;
-		allItems = [...allItems];
 	}
 
 	let showWithdrawGold = false;
@@ -80,10 +83,6 @@
 	$: consumables = items?.filter((items: Item) => items.type === 'consumable') ?? [];
 
 	$: allItems = [...consumables, ...wearables, ...seeds, ...witheredSeeds, ...fruit];
-	$: dndItems = allItems.map((item) => ({
-		...item,
-		id: `${item.name}-${item.type}`
-	}));
 
 	let currentAbility: string | undefined;
 	let bunBlastMessage: string | undefined;
@@ -414,9 +413,9 @@
 				</div>
 				<div class="w-full">
 					<button
-						use:dndzone={{ items: dropZoneItems, dragDisabled: true, morphDisabled: true, dropFromOthersDisabled: false }}
-						on:consider={handleItemConsider}
-						on:finalize={handleItemDrop}
+						on:dragover={handleDragOver}
+						on:dragleave={handleDragLeave}
+						on:drop={handleDrop}
 						in:fade
 						class="relative"
 					>
@@ -487,25 +486,17 @@
 												{item.name}
 											</div>
 										{/if}
-										<div
-											use:dndzone={{
-												items: [{ ...item, id: `${item.name}-${item.type}` }],
-												dropFromOthersDisabled: true
-											}}
-											on:consider={(e) => handleItemsConsider(e, item)}
-											on:finalize={handleItemsFinalize}
-											class="h-full w-full flex items-center justify-center"
-										>
-											<img
-												src={item.imgPath}
-												alt={item.name}
-												class="cursor-grab active:cursor-grabbing h-8 w-auto"
-											/>
-										</div>
+										<img
+											draggable="true"
+											on:dragstart={(e) => handleDragStart(e, item)}
+											src={item.imgPath}
+											alt={item.name}
+											class="pointer-events-auto cursor-grab active:cursor-grabbing h-8 w-auto"
+										/>
 
 										{#if item.quantity > 1}
 											<div
-												class="absolute w-3 h-3 top-0 right-0 bg-rose-600 rounded-full text-white flex items-center justify-center text-[0.6rem] text-center font-FinkHeavy"
+												class="pointer-events-none absolute w-3 h-3 top-0 right-0 bg-rose-600 rounded-full text-white flex items-center justify-center text-[0.6rem] text-center font-FinkHeavy"
 											>
 												<p class="m-auto">
 													{item.quantity}
