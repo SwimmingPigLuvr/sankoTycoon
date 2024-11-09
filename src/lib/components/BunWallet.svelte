@@ -31,7 +31,7 @@
 		// create a new image
 		const dragImage = new Image();
 		dragImage.src = item.imgPath;
-		dragImage.style.height = '40px';
+		dragImage.style.height = '10px';
 		dragImage.style.width = 'auto';
 		// use this as the drag image
 		event.dataTransfer.setDragImage(dragImage, 0, 0);
@@ -420,8 +420,10 @@
 						class="relative"
 					>
 						<img
-							class="w-40 m-auto transition-all duration-200 ease-in-out"
-							class:opacity-75={isOverDropZone}
+							class="w-40 {bun.hungerLevel === 5
+								? 'invert-filter'
+								: ''} m-auto transition-all duration-200 ease-in-out"
+							class:opacity-50={isOverDropZone}
 							src={buns[$bunIndex].imageUrl}
 							alt={buns[$bunIndex].name}
 						/>
@@ -450,20 +452,18 @@
 							on:mouseenter={() => (showWithdrawGold = true)}
 							on:mouseleave={() => (showWithdrawGold = false)}
 							on:click={() => withdrawGold()}
-							class="hover:bg-slate-100 rounded-full px-2 flex justify-center space-x-1 p-1 w-8"
+							class="hover:bg-slate-100 rounded-full px-2 flex justify-center space-x-1 p-1"
 						>
-							{#if showWithdrawGold}
-								<img src="/ui/icons/send-red.svg" class="h-4" alt="" />
-							{:else}
-								<img src="/ui/icons/sankogold.png" class="h-4" alt="" />
-								<p class="text-xs">{buns[$bunIndex].wallet.gold}</p>
-							{/if}
+							<img src="/ui/icons/sankogold.png" class="h-4" alt="" />
+							<p class="text-xs">{buns[$bunIndex].wallet.gold}</p>
 						</button>
+						<!-- tooltip -->
 						{#if showWithdrawGold}
 							<p
-								class="rounded border-black absolute text-sm bg-white p-2 text-black border-dashed border-2 text- right-0 -bottom-10 z-20 font-FinkHeavy"
+								class="rounded border-black absolute text-sm bg-white p-2 text-black border-dashed border-2 right-0 mb-1 bottom-full z-20 font-FinkHeavy"
 							>
-								send to wallet
+								<span> send to wallet </span>
+								<img src="/ui/icons/send-red.svg" class="h-4 inline-block" alt="" />
 							</p>
 						{/if}
 					</div>
@@ -522,3 +522,6 @@
 		{/if}
 	</div>
 </main>
+
+<style>
+</style>

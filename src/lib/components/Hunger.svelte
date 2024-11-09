@@ -31,7 +31,7 @@
 								: bunStatus[statusIndex] === 'Famished'
 									? 'bg-orange-600'
 									: bunStatus[statusIndex] === 'Starving'
-										? 'bg-red-600'
+										? 'bg-red-600 invert-filter'
 										: ''} 
 				"
 		>
