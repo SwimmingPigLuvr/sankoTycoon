@@ -124,29 +124,37 @@
 					<button
 						on:mouseenter={() => (showOptions[index] = true)}
 						on:mouseleave={() => (showOptions[index] = false)}
-						class="w-full h-10 relative"
+						class="w-full h-6 relative"
 					>
 						{#if showOptions[index]}
 							<div
-								class="absolute top-0 left-0 w-full bg-white h-full border-blue-700 border-4 flex justify-center space-x-6 items-center uppercase font-black text-xl"
+								class="absolute top-0 w-full left-1/2 -translate-x-1/2 h-full text-xs flex justify-center items-center"
 							>
 								<!-- send -->
 								<button
 									on:click={() => sendModalOpen.set(true)}
-									class="uppercase hover:text-rose-500">send</button
+									class="hover:bg-lime-400 hover:font-black h-full w-1/2">send</button
 								>
 								<!-- swap -->
-								<button class="uppercase hover:text-rose-500">swap</button>
+								<button class="hover:bg-lime-400 hover:font-black h-full w-1/2">swap</button>
+							</div>
+							{:else}
+							<div class="flex font-mono px-1 items-center space-x-2 justify-between">
+								<p class="">
+									{normalizeBalance(token.balance)}
+								</p>
+								<div class="flex items-center space-x-8">
+									{#if !showOptions[index]}
+										{token.name}
+									{/if}
+									<img
+										src={token.iconUrl}
+										class="ml-1 rounded-full border-black border-[0.5px] h-4 w-4"
+										alt=""
+									/>
+								</div>
 							</div>
 						{/if}
-						<div class="flex text-2xl font-mono px-0 items-center justify-center space-x-2">
-							<p class="">
-								{normalizeBalance(token.balance)}
-							</p>
-							<p>
-								{token.name}
-							</p>
-						</div>
 					</button>
 				{/if}
 			{/each}

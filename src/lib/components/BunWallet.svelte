@@ -17,9 +17,42 @@
 	import Hunger from './Hunger.svelte';
 	import HatchEgg from './HatchEgg.svelte';
 	import { restartHungerInterval } from '$lib/stores/hungerState';
+	import { dndzone } from 'svelte-dnd-action';
 	import MintEgg from './MintEgg.svelte';
 
 	export let bun: Bun;
+
+	let dragDisabled = false;
+	let isOverDropZone = false;
+	let dropZoneItems: Array<Item & { id: string }> = [];
+	let draggedItem: (Item & { id: string }) | null = null;
+
+	function handleItemDrop(e: CustomEvent) {
+		const { items: droppedItems } = e.detail;
+		if (droppedItems.length > 0) {
+			const droppedItem = droppedItems[0];
+			activateAbility(droppedItem.name);
+		}
+		dropZoneItems = [];
+		isOverDropZone = false;
+	}
+
+	function handleItemConsider(e: CustomEvent) {
+		dropZoneItems = e.detail.items;
+		isOverDropZone = dropZoneItems.length > 0;
+	}
+
+	function handleItemsConsider(e: CustomEvent, item: Item) {
+		draggedItem = { ...item, id: `${item.name}-${item.type}` };
+	}
+
+	function handleItemsFinalize(e: CustomEvent) {
+		if (draggedItem) {
+			e.detail.items = [draggedItem];
+		}
+		draggedItem = null;
+		allItems = [...allItems];
+	}
 
 	let showWithdrawGold = false;
 
@@ -47,6 +80,10 @@
 	$: consumables = items?.filter((items: Item) => items.type === 'consumable') ?? [];
 
 	$: allItems = [...consumables, ...wearables, ...seeds, ...witheredSeeds, ...fruit];
+	$: dndItems = allItems.map((item) => ({
+		...item,
+		id: `${item.name}-${item.type}`
+	}));
 
 	let currentAbility: string | undefined;
 	let bunBlastMessage: string | undefined;
@@ -298,7 +335,7 @@
 	}
 </script>
 
-<main class="w-40 justify-center flex flex-col border-gray-400 border- max-w-40">
+<main class="w-40 relative justify-center flex flex-col border-gray-400">
 	<div
 		class="transform transition-all duration-1000 ease-in-out w-full justify-center items-center flex flex-col space-y-0"
 	>
@@ -376,8 +413,24 @@
 					<!-- bun info -->
 				</div>
 				<div class="w-full">
-					<button in:fade class="relative">
-						<img class="w-40 m-auto" src={buns[$bunIndex].imageUrl} alt={buns[$bunIndex].name} />
+					<button
+						use:dndzone={{ items: dropZoneItems, dragDisabled: true, morphDisabled: true, dropFromOthersDisabled: false }}
+						on:consider={handleItemConsider}
+						on:finalize={handleItemDrop}
+						in:fade
+						class="relative"
+					>
+						<img
+							class="w-40 m-auto transition-all duration-200 ease-in-out"
+							class:opacity-75={isOverDropZone}
+							src={buns[$bunIndex].imageUrl}
+							alt={buns[$bunIndex].name}
+						/>
+						{#if isOverDropZone}
+							<div
+								class="absolute inset-0 border-4 border-dashed border-yellow-400 rounded-lg pointer-events-none"
+							/>
+						{/if}
 						<!-- hunger meter -->
 						{#if buns[$bunIndex].type === 'Bun'}
 							<Hunger bun={buns[$bunIndex]} />
@@ -416,7 +469,7 @@
 						{/if}
 					</div>
 					<!-- items, fruits, seeds -->
-					<div class="overflow-visible">
+					<div class="relative w-40 mx-auto">
 						<div
 							class="border-[1px] bg-gray-100 border-gray-400 overflow-y-auto grid gap-0 grid-cols-4 h-32 w-full"
 						>
@@ -425,17 +478,31 @@
 									<button
 										on:mouseenter={() => handleItemHover(item)}
 										on:mouseleave={() => unHandleItemHover(item)}
-										on:click={() => activateAbility(item.name)}
 										class="relative border-gray-400 border-[1px] hover:bg-gray-200 flex items-center justify-center h-8 w-10"
 									>
 										{#if showItemName === item.name}
 											<div
-												class="rounded z-50 absolute bottom-full px-1 mb-1 left-1/2 whitespace-nowrap -translate-x-1/2 font-FinkHeavy bg-orange-50"
+												class="pointer-events-none rounded absolute bottom-full mb-1 left-1/2 -translate-x-1/2 font-FinkHeavy bg-orange-50 px-1 whitespace-nowrap z-[9999]"
 											>
 												{item.name}
 											</div>
 										{/if}
-										<img src={item.imgPath} alt={item.name} class="h-8 w-auto" />
+										<div
+											use:dndzone={{
+												items: [{ ...item, id: `${item.name}-${item.type}` }],
+												dropFromOthersDisabled: true
+											}}
+											on:consider={(e) => handleItemsConsider(e, item)}
+											on:finalize={handleItemsFinalize}
+											class="h-full w-full flex items-center justify-center"
+										>
+											<img
+												src={item.imgPath}
+												alt={item.name}
+												class="cursor-grab active:cursor-grabbing h-8 w-auto"
+											/>
+										</div>
+
 										{#if item.quantity > 1}
 											<div
 												class="absolute w-3 h-3 top-0 right-0 bg-rose-600 rounded-full text-white flex items-center justify-center text-[0.6rem] text-center font-FinkHeavy"

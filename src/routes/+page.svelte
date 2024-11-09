@@ -61,7 +61,7 @@
 	{/if}
 	<HeaderTerminal />
 	<GameClock />
-	<div class="flex">
+	<div class="flex overflow-visible">
 		<!-- bunWallet / farm / wallet -->
 		<div
 			class="flex p-2 space-x-3 justify-center transform transition-all duration-1000 ease-in-out"
