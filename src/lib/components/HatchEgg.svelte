@@ -18,8 +18,6 @@
 	$: buns = $wallet.nfts.filter((nft: Bun) => nft.type === 'Bun') ?? [];
 	$: eggs = $wallet.nfts.filter((nft: Bun) => nft.type === 'Egg') ?? [];
 
-
-
 	function hatchEggHandler() {
 		isHatching = true;
 		setTimeout(() => {
@@ -37,14 +35,14 @@
 	let starterWallet: BunWallet = {
 		address: generateEthAddress(),
 		bunId: 0,
-		gold: 100000000000000,
+		gold: 0,
 		items: [...Object.values(items)]
 	};
 
 	let bunWallet2: BunWallet = {
 		address: generateEthAddress(),
 		bunId: 2222,
-		gold: 10000000000,
+		gold: 0,
 		items: Object.values(items).map((item) => ({
 			...item,
 			quantity: 0

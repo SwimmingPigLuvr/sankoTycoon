@@ -158,7 +158,7 @@ const starterWallet: Wallet = {
         },
         {
             name: 'GOLD',
-            balance: 100000,
+            balance: 0,
             iconUrl: '/ui/icons/sankogold.png',
         },
         {

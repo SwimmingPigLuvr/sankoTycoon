@@ -98,8 +98,13 @@
 		addMessage('Buying seeds not implemented yet');
 	}
 
+	// create a seed object with the quantity that the user selected in the selected seeds value
+	// pass the seed object and the bun into this function
 	function plantSeeds(bun: Bun) {
 		// Implementation for planting seeds
+		// plant seeds in the buns farm plot.
+		// keep planting until the quantity of seeds runs out
+		// if the plots are all take and there are seeds left to plant then make sure those left over do not get subtracted from the users wallet, only the planted seeds
 		addMessage('Planting seeds not implemented yet');
 	}
 
@@ -267,9 +272,14 @@
 									</td>
 									<!-- select seeds to plant -->
 									<td class="p-1 border border-gray-400">
+										// create a custom drop down that fits the windows 95 style div styles // it
+										will show a list of each seed that the user's bun is holding then for the
+										quantity it will let the user select from a dropdown to select the number //
+										then there will be an apply button that applies all selected seeds and sets the
+										selected seeds value
 										<select class="win95-select w-full">
 											<option value="">Select Seed</option>
-											{#each bun.wallet.items.filter((item) => item.type === 'seed' || item.type === 'witheredSeed') as seed}
+											{#each bun.wallet.items.filter((item) => (item.type === 'seed' && item.quantity > 0) || (item.type === 'witheredSeed' && item.quantity > 0)) as seed}
 												<option value={seed.name}>{seed.name}</option>
 											{/each}
 										</select>
@@ -411,8 +421,6 @@
 		background-repeat: no-repeat;
 		background-position: center;
 	}
-
-
 
 	::-webkit-scrollbar-button:horizontal:start {
 		background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 4L4 8L8 12' stroke='black' stroke-width='1'/%3E%3C/svg%3E");

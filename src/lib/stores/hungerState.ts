@@ -9,7 +9,7 @@ function startHungerInterval(bun: Bun) {
         clearInterval(bun.hungerIntervalId);
     }
 
-    const HUNGER_INTERVAL = 1000 * 5;
+    const HUNGER_INTERVAL = 1000 * 20;
 
     const intervalId = setInterval(() => {
         wallet.update((currentWallet) => {

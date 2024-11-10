@@ -80,7 +80,7 @@
 		});
 	}
 
-	$: autoBuyerPrice = ($autoBuyer.level + 1) * (2 * ($autoBuyer.level + 1));
+	$: autoBuyerPrice = ($autoBuyer.level + 1) * (5 * ($autoBuyer.level + 1));
 
 	function buyAutoBuyer() {
 		// not sure how much gold this should cost
@@ -108,7 +108,7 @@
 		});
 	}
 
-	$: autoSellerPrice = ($autoSeller.level + 1) * (2 * ($autoSeller.level + 1));
+	$: autoSellerPrice = ($autoSeller.level + 1) * (5 * ($autoSeller.level + 1));
 
 	function buyAutoSeller() {
 		// not sure how much gold this should cost
@@ -136,7 +136,7 @@
 		});
 	}
 
-	$: c2pPrice = ($click2plant.level + 1) * 2;
+	$: c2pPrice = ($click2plant.level + 1) * 10;
 	function buyClick2Plant() {
 		// subtract 20 GOLD from wallet
 		// set price based on level
@@ -164,7 +164,7 @@
 		});
 	}
 
-	$: autoHarvestPrice = ($autoHarvest.level + 1) * 5;
+	$: autoHarvestPrice = ($autoHarvest.level + 1) * 10;
 	function buyAutoHarvest() {
 		wallet.update((wallet) => {
 			const goldToken = wallet.tokens.find((token: Token) => token.name === 'GOLD');
@@ -225,12 +225,12 @@
 
 	$: showAll = true;
 	// if show all is true then set everything to true
-	$: showFarmtek = $autoHarvest.level >= 0 && $click2plant.level >= 0;
+	$: showFarmtek = $autoHarvest.level >= 2 && $click2plant.level >= 2;
 	$: showAutoFeeder = $totalFruitsEaten >= 10;
 	$: showAutoSeller = $totalFruitsSold >= 50;
-	$: showAutoBuyer = $totalSeedsBought >= 5;
+	$: showAutoBuyer = $totalSeedsBought >= 50;
 	$: showClick2Plant = $totalTreesPlanted >= 10;
-	$: showAutoHarvester = $totalFruitHarvested >= 5;
+	$: showAutoHarvester = $totalFruitHarvested >= 25;
 
 	// Calculate if there are any upgrades to show
 	$: showUpgrades =
