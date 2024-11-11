@@ -225,7 +225,7 @@
 
 	$: showAll = true;
 	// if show all is true then set everything to true
-	$: showFarmtek = $autoHarvest.level >= 2 && $click2plant.level >= 2;
+	$: showFarmtek = $autoHarvest.level >= 0 && $click2plant.level >= 0;
 	$: showAutoFeeder = $totalFruitsEaten >= 10;
 	$: showAutoSeller = $totalFruitsSold >= 50;
 	$: showAutoBuyer = $totalSeedsBought >= 50;

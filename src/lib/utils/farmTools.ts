@@ -6,6 +6,19 @@ interface PlantingResult {
     seedsPlanted: number;
 }
 
+function createSeedObject(type: string, quantity: number) {
+
+    const newSeed: item = {
+        type: 'seed',
+        name: `FarmTek ${type} Seed`,
+        quantity: quantity,
+        imgPath: `/images/seeds/${type}.png`,
+        fruitType: `${type}`,
+    };
+
+    return newSeed;
+}
+
 export function plantBatchSeeds(bun: Bun, seeds: Item[]) {
     let seedsPlanted = 0; 
     const bunCopy = structuredClone(bun);

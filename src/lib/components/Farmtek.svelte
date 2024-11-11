@@ -1,5 +1,6 @@
 <!-- lib/components/Farmtek.svelte -->
 <script lang="ts">
+	import { bunOil } from '$lib/itemData';
 	import { showAbout } from '$lib/stores/abilities';
 	import { addMessage, farmtekOpen } from '$lib/stores/gameState';
 	import { bunStatus } from '$lib/stores/hungerState';
@@ -7,6 +8,8 @@
 	import { onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { scale } from 'svelte/transition';
+
+	let selectedSeeds: Item[] = [];
 
 	$: buns = $wallet.nfts.filter((nft: Bun) => nft.type === 'Bun') ?? [];
 
@@ -272,17 +275,15 @@
 									</td>
 									<!-- select seeds to plant -->
 									<td class="p-1 border border-gray-400">
-										// create a custom drop down that fits the windows 95 style div styles // it
-										will show a list of each seed that the user's bun is holding then for the
-										quantity it will let the user select from a dropdown to select the number //
-										then there will be an apply button that applies all selected seeds and sets the
-										selected seeds value
-										<select class="win95-select w-full">
-											<option value="">Select Seed</option>
+										<div class="win95-select w-full">
 											{#each bun.wallet.items.filter((item) => (item.type === 'seed' && item.quantity > 0) || (item.type === 'witheredSeed' && item.quantity > 0)) as seed}
-												<option value={seed.name}>{seed.name}</option>
+												<div class="flex">
+													<p>{seed.name} ({seed.quantity})</p>
+													<input on:change={() => selectedSeeds.push()} type="number" min="0" max={seed.quantity}>
+												</div>
+												<button on:submit={() => selectedSeeds.push()}>Apply</button>
 											{/each}
-										</select>
+										</div>
 									</td>
 									<!-- plant seeds button -->
 									<td class="p-1 border border-gray-400">

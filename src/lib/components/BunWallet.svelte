@@ -21,6 +21,10 @@
 
 	export let bun: Bun;
 
+	let latestStatIncrease = '';
+	let playSparkleAnimation = false;
+	let showHungerReduced = false;
+	let showPlusOne = false;
 	let isOverDropZone = false;
 	let dropZoneItems: Array<Item & { id: string }> = [];
 	let draggedItem: (Item & { id: string }) | null = null;
@@ -247,27 +251,44 @@
 				// reset hunger
 				bunNft.hungerLevel = 0;
 				restartHungerInterval(bunNft);
+				playSparkleAnimation = true;
+				showHungerReduced = true;
+				setTimeout(() => {
+					showHungerReduced = false;
+					showPlusOne = true;
+				}, 2500);
+				setTimeout(() => {
+					showPlusOne = false;
+				}, 5000);
+				setTimeout(() => {
+					playSparkleAnimation = false;
+				}, 5000);
 
 				// handle fruit type
 				switch (fruitItem.fruitType) {
 					case 'heart':
 						bunNft.strength += 1;
+						latestStatIncrease = 'Strength';
 						addMessage('Hunger reduced. Strength +1.');
 						break;
 					case 'star':
 						bunNft.luck += 1;
+						latestStatIncrease = 'Luck';
 						addMessage('Hunger reduced. Luck +1.');
 						break;
 					case 'lumpy':
 						bunNft.stamina += 1;
+						latestStatIncrease = 'Stamina';
 						addMessage('Hunger reduced. Stamina +1.');
 						break;
 					case 'round':
 						bunNft.speed += 1;
+						latestStatIncrease = 'Speed';
 						addMessage('Hunger reduced. Speed +1.');
 						break;
 					case 'square':
 						bunNft.industry += 1;
+						latestStatIncrease = 'Industry';
 						addMessage('Hunger reduced. Industry +1.');
 						break;
 					case 'slop':
@@ -419,6 +440,19 @@
 						in:fade
 						class="relative"
 					>
+						{#if playSparkleAnimation}
+							<img class="absolute top-0 left-0 w-full h-auto" src="ui/gifs/sparkle.gif" alt="" />
+							<div
+								class="absolute font-FinkHeavy p-1 whitespace-nowrap bg-white bg-opacity-75 text-green-500 rounded top-1/4 translate-y-1/2 left-1/2 -translate-x-1/2 w-[90%] m-auto h-auto"
+							>
+								{#if showHungerReduced}
+									Hunger reduced!
+								{/if}
+								{#if showPlusOne}
+									+1 {latestStatIncrease}
+								{/if}
+							</div>
+						{/if}
 						<img
 							class="w-40 {bun.hungerLevel === 5
 								? 'invert-filter'

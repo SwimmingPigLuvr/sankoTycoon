@@ -583,7 +583,7 @@ export const starFruit: Item = {
     imgPath: '/images/fruit/star.png',
     fruitType: 'star',
     buyPrice: 3,
-    sellPrice: 0.75,
+    sellPrice: 1,
     description: "Star Fruits nourish your Bun as well as increase their Luck by 1.",
     ability: "Star Fruits nourish your Bun as well as increase their Luck by 1.",
 };
@@ -595,7 +595,7 @@ export const lumpyFruit: Item = {
     imgPath: '/images/fruit/lumpy.png',
     fruitType: 'lumpy',
     buyPrice: 3,
-    sellPrice: 0.75,
+    sellPrice: 1,
     description: "Lumpy Fruits nourish your Bun as well as increase their Stamina by 1.",
     ability: "Lumpy Fruits nourish your Bun as well as increase their Stamina by 1.",
 };
@@ -607,7 +607,7 @@ export const heartFruit: Item = {
     imgPath: '/images/fruit/heart.png',
     fruitType: 'heart',
     buyPrice: 3,
-    sellPrice: 0.75,
+    sellPrice: 1,
     description: "Heart Fruits nourish your Bun as well as increase their Strength by 1.",
     ability: "Heart Fruits nourish your Bun as well as increase their Strength by 1.",
 };
@@ -619,7 +619,7 @@ export const roundFruit: Item = {
     imgPath: '/images/fruit/round.png',
     fruitType: 'round',
     buyPrice: 3,
-    sellPrice: 0.75,
+    sellPrice: 1,
     description: "Round Fruits nourish your Bun as well as increase their Speed by 1.",
     ability: "Round Fruits nourish your Bun as well as increase their Speed by 1.",
 };
@@ -631,7 +631,7 @@ export const squareFruit: Item = {
     imgPath: '/images/fruit/square.png',
     fruitType: 'square',
     buyPrice: 3,
-    sellPrice: 0.75,
+    sellPrice: 1,
     description: "Square Fruits nourish your Bun as well as increase their Industry by 1.",
     ability: "Square Fruits nourish your Bun as well as increase their Industry by 1.",
 };
@@ -644,7 +644,7 @@ export const heartSeed: item = {
     quantity: 1,
     imgPath: '/images/seeds/HeartSeed.png',
     fruitType: 'heart',
-    buyPrice: 4.75,
+    buyPrice: 4,
     description: "Grows into a tree that bears Heart Fruit."
 };
 
@@ -654,7 +654,7 @@ export const starSeed: item = {
     quantity: 0,
     imgPath: '/images/seeds/StarSeed.png',
     fruitType: 'star',
-    buyPrice: 4.75,
+    buyPrice: 4,
     description: "Grows into a tree that bears Star Fruit."
 };
 
@@ -664,7 +664,7 @@ export const lumpySeed: item = {
     quantity: 0,
     imgPath: '/images/seeds/LumpySeed.png',
     fruitType: 'lumpy',
-    buyPrice: 4.75,
+    buyPrice: 4,
     description: "Grows into a tree that bears Lumpy Fruit."
 };
 
@@ -674,7 +674,7 @@ export const roundSeed: item = {
     quantity: 0,
     imgPath: '/images/seeds/RoundSeed.png',
     fruitType: 'round',
-    buyPrice: 4.75,
+    buyPrice: 4,
     description: "Grows into a tree that bears Round Fruit."
 };
 
@@ -684,7 +684,7 @@ export const squareSeed: item = {
     quantity: 0,
     imgPath: '/images/seeds/SquareSeed.png',
     fruitType: 'square',
-    buyPrice: 4.75,
+    buyPrice: 4,
     description: "Grows into a tree that bears Square Fruit."
 };
 
