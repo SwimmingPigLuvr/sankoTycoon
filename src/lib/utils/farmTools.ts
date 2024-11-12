@@ -17,9 +17,161 @@ export function createSeedObject(type: string, quantity: number): Item {
     return newSeed;
 }
 
+
+// Function to plant a seed in the selected plot
+export function plantSeed() {
+    if (!selectedSeed || selectedPlotIndex === null || !selectedSeed.fruitType) {
+        return;
+    }
+
+    // update seed quantity & plot
+    wallet.update((currentWallet) => {
+        const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
+        if (bunIndex === -1) {
+            alert('bun not found');
+            return currentWallet;
+        }
+        const bunNft = currentWallet.nfts[bunIndex];
+
+        // find seed
+        let seed = bunNft.wallet.items.find(
+            (item: Item) =>
+                item.type === selectedSeed?.type && item.fruitType === selectedSeed?.fruitType
+        );
+
+        if (seed && seed.quantity > 0) {
+            seed.quantity -= 1;
+
+            // update plot
+            bunNft.farm[selectedPlotIndex] = {
+                state: 'planted',
+                type: selectedSeed?.fruitType,
+                maturity: 0,
+                fruitRemaining: selectedSeed?.type === 'witheredSeed' ? 3 : 5,
+                fruitsReady: 0,
+                plantedAt: Date.now(),
+                isWithered: selectedSeed?.type === 'witheredSeed'
+            };
+            totalTreesPlanted.update((total) => (total += 1));
+
+            // trigger reactivity
+            bunNft.farm = [...bunNft.farm];
+
+            // clear selected seed
+            selectedSeed = undefined;
+
+            if (selectedPlotIndex !== null) {
+                startPlotGrowthTimer(bunIndex, selectedPlotIndex);
+            } else {
+                alert('selected plot index nonexistent');
+                return currentWallet;
+            }
+        } else {
+            alert('not enough seeds to plant');
+        }
+        return currentWallet;
+    });
+}
+
+export function startPlotGrowthTimer(bunIndex: number, plotIndex: number) {
+    const currentBun = $wallet.nfts[bunIndex];
+    if (!currentBun || !currentBun.farm[plotIndex]) return;
+
+    if (!currentBun.plotTimers) {
+        currentBun.plotTimers = Array(25).fill(null);
+    }
+
+    if (currentBun.plotTimers[plotIndex]) {
+        clearInterval(currentBun.plotTimers[plotIndex]);
+    }
+
+    currentBun.plotTimers[plotIndex] = setInterval(() => {
+        const bunFromStore = get(wallet).nfts[bunIndex];
+        let plot = bunFromStore.farm[plotIndex];
+
+        if (plot.state === 'planted' && plot.maturity !== undefined) {
+            if (plot.maturity < 100) {
+                plot.maturity += 25;
+            }
+
+            if (plot.maturity === 100 && plot.fruitsReady < plot.fruitRemaining) {
+                plot.fruitsReady += 1;
+            }
+
+            if (plot.fruitsReady >= plot.fruitRemaining) {
+                clearInterval(currentBun.plotTimers[plotIndex]);
+                currentBun.plotTimers[plotIndex] = null;
+            }
+
+            wallet.update((currentWallet) => {
+                currentWallet.nfts[bunIndex].farm = [...bunFromStore.farm];
+                return currentWallet;
+            });
+        }
+    }, 1000);
+}
+
+export function harvestFruit(index: number) {
+    const plot = plots[index];
+    if (plot.fruitsReady && plot.fruitsReady > 0) {
+        // update bunWallet
+        wallet.update((currentWallet) => {
+            const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
+            if (bunIndex === -1) {
+                alert('bun not found');
+                return currentWallet;
+            }
+            const bunNft: Bun = currentWallet.nfts[bunIndex];
+
+            // find the fruit type
+            let fruit = bunNft.wallet.items.find(
+                (item: Item) => item.type === 'fruit' && item.fruitType === plot.type
+            );
+
+            // find witheredSeed
+            let witheredSeed = bunNft.wallet.items.find(
+                (item: Item) => item.type === 'witheredSeed' && item.fruitType === plot.type
+            );
+
+            // add fruit to wallet
+            if (fruit && plot.fruitsReady) {
+                fruit.quantity += plot.fruitsReady;
+            }
+
+            // update plot
+            if (plot.fruitsReady && plot.fruitRemaining) {
+                plot.fruitRemaining -= plot.fruitsReady;
+                plot.fruitsReady = 0;
+            }
+
+            if (plot.fruitRemaining === 0 && plot.fruitsReady === 0) {
+                // add witheredSeeds to bunWallet
+                if (!plot.isWithered) {
+                    if (witheredSeed) {
+                        witheredSeed.quantity += 1;
+                    }
+                }
+
+                // clear plot
+                plot.state = 'empty';
+            }
+
+            // reassign farm to trigger reactivity
+            bunNft.farm = [...bunNft.farm];
+
+            totalFruitHarvested.update((total) => (total += 1));
+            return currentWallet;
+        });
+    }
+    allAvailableSeeds = [...allAvailableSeeds];
+}
+
+// add console logs to this function so that i can debug
+// i want to verify that the correct type is being planted and that the 
 export function plantBatchSeeds(bun: Bun, seeds: Item[]): PlantingResult {
     let seedsPlanted = 0;
     const bunCopy = structuredClone(bun);
+    const plantedPlots: number[] = [];
     
     seeds.forEach(seed => {
         const walletSeed = bunCopy.wallet.items.find((item: Item) => item.name === seed.name);
@@ -33,19 +185,26 @@ export function plantBatchSeeds(bun: Bun, seeds: Item[]): PlantingResult {
         bunCopy.farm.forEach((plot: Plot, index: number) => {
             if (plantedForThisSeed >= plantingQuantity) return;
             if (plot.state === 'empty') {
-                // Extract the base type from the seed name (e.g., "Square" from "FarmTek Square Seed")
-                const baseType = seed.name.split(' ')[1].toLowerCase();
+
+                const isWithered = seed.name.toLowerCase().includes('withered');
+                const nameParts = seed.name.split(' ');
+                const baseType = isWithered
+                    ? nameParts[1].toLowerCase()
+                    : nameParts[0].toLowerCase();
                 
                 bunCopy.farm[index] = {
                     state: 'planted',
-                    type: baseType,  // Use the extracted type
-                    fruitRemaining: seed.name.toLowerCase().includes('withered') ? 3 : 5,
+                    type: baseType,
+                    maturity: 0,
+                    fruitRemaining: isWithered ? 3 : 5,
                     fruitsReady: 0,
                     plantedAt: Date.now(),
-                    isWithered: seed.name.toLowerCase().includes('withered')
+                    isWithered: isWithered
                 };
+                plantedPlots.push(index);
                 plantedForThisSeed++;
                 seedsPlanted++;
+                totalTreesPlanted.update((total) => total + 1);
             }
         });
 
@@ -54,6 +213,20 @@ export function plantBatchSeeds(bun: Bun, seeds: Item[]): PlantingResult {
             addMessage(`${bun.name} planted ${plantedForThisSeed} ${seed.name}${plantedForThisSeed > 1 ? 's' : ''}`);
         }
     });
+
+    const bunIndex = get(wallet).nfts.findIndex((nft: Bun) => nft.id === bun.id);
+
+    if (bunIndex !== -1) {
+        plantedPlots.forEach(plotIndex => {
+            if (!bunCopy.plotTimers) {
+                bunCopy.plotTimers = Array(25).fill(null);
+
+            }
+            startPlotGrowthTimer(bunIndex, plotIndex);
+
+        })
+
+    }
 
     if (seedsPlanted === 0) {
         addMessage('Farm is fully planted. No more plots to plant');
