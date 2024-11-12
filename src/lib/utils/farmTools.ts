@@ -6,74 +6,74 @@ interface PlantingResult {
     seedsPlanted: number;
 }
 
-function createSeedObject(type: string, quantity: number) {
-
-    const newSeed: item = {
+export function createSeedObject(type: string, quantity: number): Item {
+    const newSeed: Item = {
         type: 'seed',
         name: `FarmTek ${type} Seed`,
         quantity: quantity,
         imgPath: `/images/seeds/${type}.png`,
-        fruitType: `${type}`,
+        fruitType: type,
     };
-
     return newSeed;
 }
 
-export function plantBatchSeeds(bun: Bun, seeds: Item[]) {
-    let seedsPlanted = 0; 
+export function plantBatchSeeds(bun: Bun, seeds: Item[]): PlantingResult {
+    let seedsPlanted = 0;
     const bunCopy = structuredClone(bun);
-
-    // find the seed in the buns wallet
-    seeds.foreach(
-        const seed = bunCopy.wallet.items.find((item: Item) => item.name === seed.name);
-        if (!seed || seed.quantity === 0) {
-            return { updatedBun: bunCopy, seedsPlanted: 0};
+    
+    seeds.forEach(seed => {
+        const walletSeed = bunCopy.wallet.items.find((item: Item) => item.name === seed.name);
+        if (!walletSeed || walletSeed.quantity === 0) {
+            return;
         }
 
-        const plantingQuantity = Math.min(quantity, seed.quantity);
-
-        // try to plant each seed
+        const plantingQuantity = Math.min(seed.quantity, walletSeed.quantity);
+        let plantedForThisSeed = 0;
+        
         bunCopy.farm.forEach((plot: Plot, index: number) => {
-            if (seedsPlanted >= plantingQuantity) return;
-
-            // check if plot is empty
+            if (plantedForThisSeed >= plantingQuantity) return;
             if (plot.state === 'empty') {
-                // plant seed
-                const fruitType = getFruitTypeFromSeed(seed.name);
+                // Extract the base type from the seed name (e.g., "Square" from "FarmTek Square Seed")
+                const baseType = seed.name.split(' ')[1].toLowerCase();
+                
                 bunCopy.farm[index] = {
                     state: 'planted',
-                    type: fruitType,
-                    fruitRemainging: getFruitYieldForSeed(seed.name),
+                    type: baseType,  // Use the extracted type
+                    fruitRemaining: seed.name.toLowerCase().includes('withered') ? 3 : 5,
                     fruitsReady: 0,
                     plantedAt: Date.now(),
-                    isWithered: false,
+                    isWithered: seed.name.toLowerCase().includes('withered')
                 };
+                plantedForThisSeed++;
                 seedsPlanted++;
             }
         });
 
-        if (seedsPlanted > 0) {
-            seed.quantity -= seedsPlanted;
-            addMessage(`${bun.name} planted ${seedsPlanted} ${seed.name}${seedsPlanted > 1 ? 's' : ''`);
-        } else {
-            addMessage(`farm is fully planted. no more plots to plant`);
+        if (plantedForThisSeed > 0) {
+            walletSeed.quantity -= plantedForThisSeed;
+            addMessage(`${bun.name} planted ${plantedForThisSeed} ${seed.name}${plantedForThisSeed > 1 ? 's' : ''}`);
         }
-        return {
-            updatedBun: bunCopy,
-                seedsPlanted
+    });
 
-            };
-    )
+    if (seedsPlanted === 0) {
+        addMessage('Farm is fully planted. No more plots to plant');
+    }
+
+    return {
+        updatedBun: bunCopy,
+        seedsPlanted
+    };
 }
+
 // Helper functions
 function getFruitTypeFromSeed(seedName: string): string {
     // Map seed names to fruit types
     const seedToFruit: { [key: string]: string } = {
-        'Heart Seed': 'heart',
-        'Star Seed': 'star',
-        'Lumpy Seed': 'lumpy',
-        'Round Seed': 'round',
-        'Square Seed': 'square'
+        'FarmTek Heart Seed': 'heart',
+        'FarmTek Star Seed': 'star',
+        'FarmTek Lumpy Seed': 'lumpy',
+        'FarmTek Round Seed': 'round',
+        'FarmTek Square Seed': 'square'
     };
     return seedToFruit[seedName] || 'unknown';
 }
@@ -81,16 +81,16 @@ function getFruitTypeFromSeed(seedName: string): string {
 function getFruitYieldForSeed(seedName: string): number {
     // Define how many fruits each seed type produces
     const seedYields: { [key: string]: number } = {
-        'Heart Seed': 3,
-        'Star Seed': 3,
-        'Lumpy Seed': 3,
-        'Round Seed': 3,
-        'Square Seed': 3,
-        'Withered Heart Seed': 1,
-        'Withered Star Seed': 1,
-        'Withered Lumpy Seed': 1,
-        'Withered Round Seed': 1,
-        'Withered Square Seed': 1
+        'FarmTek Heart Seed': 3,
+        'FarmTek Star Seed': 3,
+        'FarmTek Lumpy Seed': 3,
+        'FarmTek Round Seed': 3,
+        'FarmTek Square Seed': 3,
+        'FarmTek Withered Heart Seed': 1,
+        'FarmTek Withered Star Seed': 1,
+        'FarmTek Withered Lumpy Seed': 1,
+        'FarmTek Withered Round Seed': 1,
+        'FarmTek Withered Square Seed': 1
     };
     return seedYields[seedName] || 0;
 }

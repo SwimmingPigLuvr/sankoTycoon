@@ -5,9 +5,47 @@
 	import { addMessage, farmtekOpen } from '$lib/stores/gameState';
 	import { bunStatus } from '$lib/stores/hungerState';
 	import { wallet, type Bun, type Plot, type Item } from '$lib/stores/wallet';
+	import { createSeedObject, plantBatchSeeds } from '$lib/utils/farmTools';
 	import { onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { scale } from 'svelte/transition';
+
+	let isDropdownOpen = true;
+	let tempQuantities: { [key: string]: number } = {};
+	$: selectedTotal = Object.values(tempQuantities).reduce((sum, qty) => sum + (qty || 0), 0);
+
+	function handleQuantityChange(seed: Item) {
+		const quantity = tempQuantities[seed.name];
+		if (quantity < 0) tempQuantities[seed.name] = 0;
+		if (quantity > seed.quantity) tempQuantities[seed.name] = seed.quantity;
+		tempQuantities = { ...tempQuantities };
+	}
+
+	function handleApplySeeds(bun: Bun) {
+		const newSeeds: Item[] = [];
+		Object.entries(tempQuantities).forEach(([seedName, quantity]) => {
+			if (quantity > 0) {
+				const seed = bun.wallet.items.find((item) => item.name === seedName);
+				if (seed && seed.fruitType) {
+					newSeeds.push({
+						type: seed.type,
+						name: seed.name,
+						quantity: quantity,
+						fruitType: seed.fruitType,
+						imgPath: seed.imgPath
+					});
+				}
+			}
+		});
+
+		if (newSeeds.length === 0) {
+			addMessage('no seeds selected');
+			return;
+		}
+
+		selectedSeeds = newSeeds;
+		tempQuantities = {};
+	}
 
 	let selectedSeeds: Item[] = [];
 
@@ -103,12 +141,57 @@
 
 	// create a seed object with the quantity that the user selected in the selected seeds value
 	// pass the seed object and the bun into this function
+
+	let tempSeedQuantity: number = 0; // Temporary store for the quantity input
+	let tempSeedSelection: string = ''; // Store for the currently selected seed
+
+	function handleChangeSeedQuantity(type: string, quantity: number) {
+		// pass type and quantity
+		console.log(`handle change seed quantity ${type} ${quantity}`);
+		createSeedObject(type, quantity);
+	}
+
+	// Add click outside handler to close dropdown
+	function handleClickOutside(event: MouseEvent) {
+		const target = event.target as HTMLElement;
+		if (!target.closest('.win95-select') && isDropdownOpen) {
+			isDropdownOpen = false;
+		}
+	}
+
+	function clearSelectedSeeds() {
+		selectedSeeds = [];
+	}
+
 	function plantSeeds(bun: Bun) {
-		// Implementation for planting seeds
-		// plant seeds in the buns farm plot.
-		// keep planting until the quantity of seeds runs out
-		// if the plots are all take and there are seeds left to plant then make sure those left over do not get subtracted from the users wallet, only the planted seeds
-		addMessage('Planting seeds not implemented yet');
+		if (selectedSeeds.length === 0) {
+			addMessage('No seeds selected for planting');
+			return;
+		}
+
+		wallet.update((w) => {
+			const bunIndex = w.nfts.findIndex((nft) => nft.id === bun.id);
+			if (bunIndex === -1) return w;
+
+			// Plant the seeds and get updated bun
+			const result = plantBatchSeeds(w.nfts[bunIndex], selectedSeeds);
+
+			// If no seeds were planted, don't update the wallet
+			if (result.seedsPlanted === 0) {
+				addMessage('No suitable plots available for planting');
+				return w;
+			}
+
+			// Update the bun in the wallet
+			w.nfts[bunIndex] = result.updatedBun;
+
+			return w;
+		});
+
+		// Clear selections after successful planting
+		selectedSeeds = [];
+		// Close the seed selection dropdown if it's open
+		isDropdownOpen = false;
 	}
 
 	function feedBun(bun: Bun) {
@@ -245,7 +328,10 @@
 									</td>
 									<!-- harvest all button -->
 									<td class="p-1 border border-gray-400">
-										<button class="win95-button w-full" on:click={() => harvestAll(bun)}>
+										<button
+											class="whitespace-nowrap win95-button w-full"
+											on:click={() => harvestAll(bun)}
+										>
 											Harvest All
 										</button>
 									</td>
@@ -255,7 +341,10 @@
 									</td>
 									<!-- sell fruit button -->
 									<td class="p-1 border border-gray-400">
-										<button class="win95-button w-full" on:click={() => sellFruit(bun)}>
+										<button
+											class="whitespace-nowrap win95-button w-full"
+											on:click={() => sellFruit(bun)}
+										>
 											Sell Fruit
 										</button>
 									</td>
@@ -269,31 +358,78 @@
 									</td>
 									<!-- buy seeds -->
 									<td class="p-1 border border-gray-400">
-										<button class="win95-button w-full" on:click={() => buySeeds(bun)}>
+										<button
+											class="whitespace-nowrap win95-button w-full"
+											on:click={() => buySeeds(bun)}
+										>
 											Buy
 										</button>
 									</td>
 									<!-- select seeds to plant -->
-									<td class="p-1 border border-gray-400">
-										<div class="win95-select w-full">
-											{#each bun.wallet.items.filter((item) => (item.type === 'seed' && item.quantity > 0) || (item.type === 'witheredSeed' && item.quantity > 0)) as seed}
-												<div class="flex">
-													<p>{seed.name} ({seed.quantity})</p>
-													<input on:change={() => selectedSeeds.push()} type="number" min="0" max={seed.quantity}>
-												</div>
-												<button on:submit={() => selectedSeeds.push()}>Apply</button>
-											{/each}
+									<td class="p-1 border border-gray-400 relative">
+										<div class="flex justify-between items-center gap-1">
+											<button
+												class="whitespace-nowrap win95-button text-xs flex-grow text-left px-2"
+												on:click={() => (isDropdownOpen = !isDropdownOpen)}
+											>
+												Select Seeds
+											</button>
 										</div>
+
+										{#if isDropdownOpen}
+											<div
+												class="absolute left-0 top-full mt-1 bg-gray-100 border-2 border-gray-400 p-2 z-50 w-40 win95-inner"
+											>
+												<!-- Seed Selection Controls -->
+												<div class="w-full mb-1 text-xs">
+													{#each bun.wallet.items.filter((item) => (item.type === 'seed' || item.type === 'witheredSeed') && item.quantity > 0 && !selectedSeeds.some((s) => s.name === item.name)) as seed}
+														<div class="flex justify-between mb-1">
+															<p>{seed.name}: ({seed.quantity})</p>
+															<input
+																class="win95-input px-1 w-12"
+																min="0"
+																max={seed.quantity}
+																type="number"
+																bind:value={tempQuantities[seed.name]}
+																on:input={() => handleQuantityChange(seed)}
+															/>
+														</div>
+													{/each}
+												</div>
+
+												<div class="flex gap-4 items-center">
+													<p>
+														Total: {selectedTotal}
+													</p>
+													<button
+														class="win95-button flex-1 text-xs"
+														on:click={() => {
+															handleApplySeeds(bun);
+															isDropdownOpen = false;
+														}}
+													>
+														Apply
+													</button>
+												</div>
+											</div>
+										{/if}
 									</td>
 									<!-- plant seeds button -->
 									<td class="p-1 border border-gray-400">
-										<button class="win95-button w-full" on:click={() => plantSeeds(bun)}>
+										<button
+											class="win95-button disabled:opacity-50 disabled:cursor-not-allowed w-full"
+											disabled={selectedSeeds.length === 0}
+											on:click={() => plantSeeds(bun)}
+										>
 											Plant
 										</button>
 									</td>
 									<!-- feed bun button -->
 									<td class="p-1 border border-gray-400">
-										<button class="win95-button w-full" on:click={() => feedBun(bun)}>
+										<button
+											class="whitespace-nowrap win95-button w-full"
+											on:click={() => feedBun(bun)}
+										>
 											Feed Bun
 										</button>
 									</td>
@@ -335,6 +471,12 @@
 		font-size: 11px;
 	}
 
+	.win95-button:disabled {
+		background: #c0c0c0;
+		border-color: #808080;
+		color: #808080;
+	}
+
 	.win95-button:active {
 		border-right-color: #fff;
 		border-bottom-color: #fff;
@@ -344,6 +486,7 @@
 
 	.win95-input,
 	.win95-select {
+		position: relative;
 		border: 2px solid;
 		border-right-color: #fff;
 		border-bottom-color: #fff;
