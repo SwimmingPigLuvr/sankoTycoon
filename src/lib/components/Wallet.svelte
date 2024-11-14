@@ -87,6 +87,15 @@
 		currentSection.set('Eggs');
 	}
 
+	$: {
+		if ($activeBun && $activeBun.type === 'Bun') {
+			const currentBunIndex = buns.findIndex((b) => b.id === $activeBun.id);
+			if (currentBunIndex !== $bunIndex) {
+				bunIndex.set(currentBunIndex);
+			}
+		}
+	}
+
 	// prevent out of bound indices / display issues
 	$: {
 		buns.forEach((bun) => {
@@ -138,7 +147,7 @@
 								<!-- swap -->
 								<button class="hover:bg-lime-400 hover:font-black h-full w-1/2">swap</button>
 							</div>
-							{:else}
+						{:else}
 							<div class="flex font-mono px-1 items-center space-x-2 justify-between">
 								<p class="">
 									{normalizeBalance(token.balance)}
@@ -216,7 +225,8 @@
 					{#each buns as bun, index}
 						<button
 							on:click={() => {
-								bunIndex.set(index);
+								const bunOnlyIndex = buns.findIndex((b) => b.id === bun.id);
+								bunIndex.set(bunOnlyIndex);
 								activeBun.set(bun);
 							}}
 							class="{$activeBun === bun

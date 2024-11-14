@@ -25,8 +25,6 @@
 	import { backOut, cubicInOut } from 'svelte/easing';
 	import { fade, fly, scale, slide } from 'svelte/transition';
 
-	let nextEggId = 1; // first egg
-
 	$: eggs = $wallet.nfts.filter((nft: Bun) => nft.type === 'Egg');
 
 	function mintEggHandler() {
@@ -126,9 +124,11 @@
 			}
 			dmtToken.balance -= 3;
 
+			const nextId = 4444 - $totalEggsRemaining + 1;
+
 			const egg = getRandomEgg();
 			const newEgg: Bun = {
-				id: nextEggId,
+				id: nextId,
 				name: egg.variety,
 				industry: 0,
 				luck: 0,
@@ -141,7 +141,7 @@
 				variety: egg.variety as BunVariety,
 				wallet: {
 					address: generateEthAddress(),
-					bunId: nextEggId,
+					bunId: nextId,
 					gold: 0,
 					items: []
 				},
@@ -153,7 +153,8 @@
 				isCoolingDown: false
 			};
 			// push new egg
-			wallet.nfts.push(newEgg);
+			wallet.nfts = [...wallet.nfts, newEgg];
+
 			// set current egg
 			if (eggs.length > 0) {
 				eggIndex.update((e) => (e = eggs.length));
@@ -165,7 +166,6 @@
 			}
 
 			// update egg count
-			nextEggId += 1;
 			$totalEggsRemaining -= 1;
 
 			return wallet;

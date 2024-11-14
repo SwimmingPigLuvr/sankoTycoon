@@ -203,21 +203,6 @@
 	}
 
 	function hatchEgg(egg: Bun) {
-		console.log('before hatching - selected egg:', egg);
-		console.log(
-			'before hatching - current nfts:',
-			$wallet.nfts.map((nft) => ({
-				id: nft.id,
-				name: nft.name,
-				type: nft.type,
-				variety: nft.variety,
-				thumbnailShows: nft.thumbUrl
-			}))
-		);
-
-		// defensive copy of buns array
-		let currentBuns = [...buns];
-
 		if (egg.type !== 'Egg') {
 			alert("cannot hatch this because it's not an egg");
 			return;
@@ -225,8 +210,7 @@
 
 		// update in 1 atomic operation
 		wallet.update((w) => {
-			// new array without the hatched egg
-			const filteredNfts = w.nfts.filter((nft: Bun) => nft.id !== egg.id);
+			const otherNfts = w.nfts.filter((nft: Bun) => nft.id !== egg.id);
 
 			// generate new bun
 			const bun = getRandomBun(egg.rarity);
@@ -257,27 +241,15 @@
 				isHibernating: false
 			};
 
-			const newNfts = [...filteredNfts, newBun];
-
-			// debug log
-			console.log('after hatching - new bun:', newBun);
-			console.log(
-				'After hatching - Updated NFTs:',
-				newNfts.map((nft: Bun) => ({
-					id: nft.id,
-					name: nft.name,
-					type: nft.type,
-					variety: nft.variety,
-					thumbnailShows: nft.thumbUrl
-				}))
-			);
-
-			// update wallet
-			w.nfts = newNfts;
+			// update wallet with newBun
+			const updatedWallet = {
+				...w,
+				nfts: [...otherNfts, newBun]
+			};
 
 			// calculate index, update stores
-			const bunsOnly = newNfts.filter((nft) => nft.type === 'Bun');
-			const newBunIndex = bunsOnly.indexOf(newBun);
+			const bunsOnly = updatedWallet.nfts.filter((nft) => nft.type === 'Bun');
+			const newBunIndex = bunsOnly.findIndex(bun => bun.id === newBun.id);
 
 			if (newBunIndex !== -1) {
 				bunIndex.set(newBunIndex);
@@ -288,7 +260,6 @@
 			}
 
 			startHungerInterval(newBun);
-
 			return w;
 		});
 	}
