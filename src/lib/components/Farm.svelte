@@ -89,6 +89,19 @@
 		}
 	}
 
+	function handlePlanting() {
+		if (selectedPlotIndex) {
+			const success = plantSeed(bun, selectedSeed, selectedPlotIndex);
+			if (success) {
+				selectedSeed = undefined;
+			} else {
+				alert('failed to plant seed');
+			}
+		} else {
+			alert('no plot selected');
+		}
+	}
+
 	let selectedPlotIndex: number | null = null;
 
 	function selectPlot(index: number) {
@@ -168,7 +181,7 @@
 
 	// c2p lvl 1
 	$: if ($click2plant.enabled && $click2plant.level === 1 && selectedSeed && selectedPlotIndex) {
-		plantSeed();
+		plantSeed(bun, selectedSeed, selectedPlotIndex);
 	}
 
 	// c2p lvl 2
@@ -183,7 +196,7 @@
 			selectedSeed = allAvailableSeeds.length > 0 ? allAvailableSeeds[0] : undefined;
 			if (selectedSeed) {
 				// then plant the seed
-				plantSeed();
+				plantSeed(bun, selectedSeed, selectedPlotIndex);
 			}
 		}
 	}
@@ -202,7 +215,7 @@
 			currentPlot.fruitsReady != null &&
 			currentPlot.fruitsReady > 0
 		) {
-			harvestFruit(selectedPlotIndex);
+			harvestFruit(bun, selectedPlotIndex);
 		}
 	}
 
@@ -211,7 +224,7 @@
 		if ($autoHarvest.enabled && $autoHarvest.level === 2) {
 			const index = plots.findIndex((plot) => plot.fruitsReady != null && plot.fruitsReady > 0);
 			if (index !== -1) {
-				harvestFruit(index);
+				harvestFruit(bun, index);
 				addMessage(`autoHARVESTED fruit from plot index ${index}`);
 			}
 		}
@@ -337,26 +350,28 @@
 				{/if}
 			{/if}
 			<!-- plant seed / harvest fruit -->
-			{#if plots[selectedPlotIndex].state === 'empty'}
-				<p class="text-center">
-					{selectedSeed?.name ?? ''}
-				</p>
-				<button
-					disabled={selectedSeed === undefined}
-					on:click={() => plantSeed()}
-					class="disabled:bg-opacity-10 bg-white bg-opacity-50 w-3/4 m-auto rounded-full border-black border-[1px] text-green-700"
-				>
-					plant seed
-				</button>
-			{:else if plots[selectedPlotIndex].fruitsReady === 0}
-				<p class="text-xs">No fruits to harvest</p>
-			{:else}
-				<button
-					on:click={() => harvestFruit(selectedPlotIndex ?? 0)}
-					class="disabled:bg-opacity-10 bg-white bg-opacity-50 w-3/4 m-auto rounded-full border-black border-[1px] text-green-700"
-				>
-					harvest {plots[selectedPlotIndex].fruitsReady}
-				</button>
+			{#if selectedPlotIndex !== null}
+				{#if plots[selectedPlotIndex].state === 'empty'}
+					<p class="text-center">
+						{selectedSeed?.name ?? ''}
+					</p>
+					<button
+						disabled={selectedSeed === undefined}
+						on:click={() => plantSeed(bun, selectedSeed, selectedPlotIndex ?? 0)}
+						class="disabled:bg-opacity-10 bg-white bg-opacity-50 w-3/4 m-auto rounded-full border-black border-[1px] text-green-700"
+					>
+						plant seed
+					</button>
+				{:else if plots[selectedPlotIndex].fruitsReady === 0}
+					<p class="text-xs">No fruits to harvest</p>
+				{:else}
+					<button
+						on:click={() => harvestFruit(bun, selectedPlotIndex ?? 0)}
+						class="disabled:bg-opacity-10 bg-white bg-opacity-50 w-3/4 m-auto rounded-full border-black border-[1px] text-green-700"
+					>
+						harvest {plots[selectedPlotIndex].fruitsReady}
+					</button>
+				{/if}
 			{/if}
 		</div>
 	{/if}

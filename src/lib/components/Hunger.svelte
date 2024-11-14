@@ -13,9 +13,8 @@
 	export let miniMeter: boolean = false;
 </script>
 
-<main>
+<main class="-translate-y-1 z-10">
 	<button class="w-full">
-		<p class="text-xs uppercase tracking-widest p-[1px]">Hunger Level</p>
 		<p
 			class="w-full bg-opacity-100 text-sm font-FinkHeavy italic text-white
 				{bunStatus[statusIndex] === 'Hibernating'

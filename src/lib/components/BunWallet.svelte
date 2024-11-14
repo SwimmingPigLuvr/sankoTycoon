@@ -454,7 +454,7 @@
 							</div>
 						{/if}
 						<img
-							class="w-40 {bun.hungerLevel === 5
+							class="w-40 z-20 {bun.hungerLevel === 5
 								? 'invert-filter'
 								: ''} m-auto transition-all duration-200 ease-in-out"
 							class:opacity-50={isOverDropZone}

@@ -1,5 +1,11 @@
 import type { Bun, Plot, Item } from '$lib/stores/wallet';
+import { wallet } from '$lib/stores/wallet';
 import { addMessage } from '$lib/stores/gameState';
+import {
+    totalTreesPlanted,
+    totalFruitHarvested,
+} from '$lib/stores/abilities';
+import { get } from 'svelte/store';
 
 interface PlantingResult {
     updatedBun: Bun;
@@ -19,21 +25,21 @@ export function createSeedObject(type: string, quantity: number): Item {
 
 
 // Function to plant a seed in the selected plot
-export function plantSeed() {
+export function plantSeed(bun: Bun, selectedSeed: Item | undefined, selectedPlotIndex: number) {
     if (!selectedSeed || selectedPlotIndex === null || !selectedSeed.fruitType) {
-        return;
+        return false;
     }
+
+    let success = false;
 
     // update seed quantity & plot
     wallet.update((currentWallet) => {
         const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
         if (bunIndex === -1) {
-            alert('bun not found');
             return currentWallet;
         }
-        const bunNft = currentWallet.nfts[bunIndex];
 
-        // find seed
+        const bunNft = currentWallet.nfts[bunIndex];
         let seed = bunNft.wallet.items.find(
             (item: Item) =>
                 item.type === selectedSeed?.type && item.fruitType === selectedSeed?.fruitType
@@ -60,21 +66,15 @@ export function plantSeed() {
             // clear selected seed
             selectedSeed = undefined;
 
-            if (selectedPlotIndex !== null) {
-                startPlotGrowthTimer(bunIndex, selectedPlotIndex);
-            } else {
-                alert('selected plot index nonexistent');
-                return currentWallet;
-            }
-        } else {
-            alert('not enough seeds to plant');
+            startPlotGrowthTimer(bunIndex, selectedPlotIndex);
+            success = true;
         }
         return currentWallet;
     });
 }
 
 export function startPlotGrowthTimer(bunIndex: number, plotIndex: number) {
-    const currentBun = $wallet.nfts[bunIndex];
+    const currentBun = get(wallet).nfts[bunIndex];
     if (!currentBun || !currentBun.farm[plotIndex]) return;
 
     if (!currentBun.plotTimers) {
@@ -111,7 +111,8 @@ export function startPlotGrowthTimer(bunIndex: number, plotIndex: number) {
     }, 1000);
 }
 
-export function harvestFruit(index: number) {
+export function harvestFruit(bun: Bun, index: number) {
+    const plots = bun?.farm ?? Array(25).fill({ state: 'empty' });
     const plot = plots[index];
     if (plot.fruitsReady && plot.fruitsReady > 0) {
         // update bunWallet
@@ -166,8 +167,6 @@ export function harvestFruit(index: number) {
     allAvailableSeeds = [...allAvailableSeeds];
 }
 
-// add console logs to this function so that i can debug
-// i want to verify that the correct type is being planted and that the 
 export function plantBatchSeeds(bun: Bun, seeds: Item[]): PlantingResult {
     let seedsPlanted = 0;
     const bunCopy = structuredClone(bun);
