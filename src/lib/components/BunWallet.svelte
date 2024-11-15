@@ -75,7 +75,8 @@
 		activeBun.set(eggs[$eggIndex]);
 	}
 
-	$: bunWallet = bun?.wallet;
+	$: currentBun = buns[$bunIndex];
+	$: bunWallet = currentBun?.wallet;
 	$: items = bunWallet?.items.filter((items: Item) => items.quantity > 0);
 	$: bunId = bunWallet?.bunId;
 	$: gold = bunWallet?.gold;
@@ -352,6 +353,19 @@
 	function unHandleItemHover(item: Item) {
 		currentAbility = undefined;
 		showItemName = '';
+	}
+
+	$: {
+		if (currentBun && bunWallet) {
+			console.log(`Current bun ${currentBun.name} wallet:`, {
+				items: items,
+				fruit: fruit,
+				seeds: seeds,
+				witheredSeeds: witheredSeeds,
+				wearables: wearables,
+				consumables: consumables
+			});
+		}
 	}
 </script>
 

@@ -22,7 +22,7 @@
 	import { fade } from 'svelte/transition';
 
 	// buns in wallet
-	$: buns = $wallet?.nfts ?? [];
+	$: buns = $wallet?.nfts.filter((bun: Bun) => bun.type === 'Bun') ?? [];
 	$: bunWallet = buns[$bunIndex]?.wallet ?? {};
 
 	// existing items

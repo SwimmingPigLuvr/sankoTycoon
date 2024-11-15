@@ -87,35 +87,32 @@
 		currentSection.set('Eggs');
 	}
 
-	$: {
-		if ($activeBun && $activeBun.type === 'Bun') {
-			const currentBunIndex = buns.findIndex((b) => b.id === $activeBun.id);
-			if (currentBunIndex !== $bunIndex) {
-				bunIndex.set(currentBunIndex);
-			}
-		}
-	}
-
-	// prevent out of bound indices / display issues
-	$: {
-		buns.forEach((bun) => {
-			if (bun.name !== bun.variety) {
-				console.error('data mismatch detected:', {
-					bunId: bun.id,
-					name: bun.name,
-					variety: bun.variety,
-					thumbnail: bun.thumbUrl
-				});
-			}
-		});
-	}
+	let lastNFTCount = 0;
+	let lastNFTUpdate = '';
 
 	$: {
-		const properBuns = $wallet.nfts.filter((nft) => nft.type === 'Bun');
-		if (JSON.stringify(properBuns) !== JSON.stringify(buns)) {
-			console.error('Bun array mismatch:', {
-				properBuns: properBuns.map((b) => ({ id: b.id, name: b.name })),
-				displayedBuns: buns.map((b) => ({ id: b.id, name: b.name }))
+		// Only run checks if NFTs array has actually changed
+		const currentNFTCount = $wallet.nfts.length;
+		const currentNFTUpdate = JSON.stringify($wallet.nfts.map((nft) => nft.id));
+
+		if (lastNFTCount !== currentNFTCount || lastNFTUpdate !== currentNFTUpdate) {
+			lastNFTCount = currentNFTCount;
+			lastNFTUpdate = currentNFTUpdate;
+
+			// Update buns list
+			buns = $wallet.nfts.filter((nft: Bun) => nft.type === 'Bun');
+
+			// Run validation checks
+			buns.forEach((bun) => {
+				if (bun.name !== bun.variety || bun.type !== 'Bun') {
+					console.error('bun data validation failed:', {
+						bunId: bun.id,
+						name: bun.name,
+						variety: bun.variety,
+						type: bun.type,
+						thumbnail: bun.thumbUrl
+					});
+				}
 			});
 		}
 	}

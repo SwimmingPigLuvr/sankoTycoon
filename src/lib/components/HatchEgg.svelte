@@ -13,20 +13,97 @@
 	import Wallet from './Wallet.svelte';
 	import { startHungerInterval } from '$lib/stores/hungerState';
 
+	// Define the stats type
+	type RarityStats = {
+		industry: number;
+		luck: number;
+		speed: number;
+		stamina: number;
+		strength: number;
+	};
+
+	// Type the rarityStats object
+	const rarityStats: Record<BunRarity, RarityStats> = {
+		Common: { industry: 5, luck: 5, speed: 5, stamina: 5, strength: 5 },
+		Uncommon: { industry: 6, luck: 6, speed: 6, stamina: 6, strength: 6 },
+		Rare: { industry: 7, luck: 7, speed: 7, stamina: 7, strength: 7 },
+		Rotten: { industry: 4, luck: 4, speed: 4, stamina: 4, strength: 4 },
+		Moldy: { industry: 3, luck: 3, speed: 3, stamina: 3, strength: 3 },
+		SuperRare: { industry: 8, luck: 8, speed: 8, stamina: 8, strength: 8 }
+	};
+
 	// implement random bun hatching based on rarity
 
 	$: buns = $wallet.nfts.filter((nft: Bun) => nft.type === 'Bun') ?? [];
 	$: eggs = $wallet.nfts.filter((nft: Bun) => nft.type === 'Egg') ?? [];
 
 	function hatchEggHandler() {
+		if (isHatching) return;
 		isHatching = true;
-		setTimeout(() => {
-			progressStep();
-			hatchEgg($activeBun);
+		const eggToHatch = $activeBun;
+
+		try {
+			setTimeout(() => {
+				// Generate everything we need before updating wallet
+				const bun = getRandomBun(eggToHatch.rarity);
+				const stats = rarityStats[eggToHatch.rarity];
+
+				// Create the new bun
+				const newBun: Bun = {
+					id: eggToHatch.id,
+					name: bun.variety,
+					variety: bun.variety as BunVariety,
+					rarity: eggToHatch.rarity,
+					type: 'Bun' as BunType,
+					imageUrl: `/images/buns/${bun.variety}.webp`,
+					thumbUrl: `/images/buns/thumbs/${bun.variety}.png`,
+					industry: stats.industry,
+					luck: stats.luck,
+					speed: stats.speed,
+					stamina: stats.stamina,
+					strength: stats.strength,
+					birthday: new Date(),
+					wallet: {
+						address: generateEthAddress(),
+						bunId: eggToHatch.id,
+						gold: 10,
+						items: [...starterWallet.items]
+					},
+					farm: Array(25).fill({ state: 'empty' }),
+					hungerLevel: 0,
+					isCoolingDown: false,
+					isHibernating: false
+				};
+
+				// Update the wallet with all changes at once
+				wallet.update((w) => {
+					const otherNfts = w.nfts.filter((nft: Bun) => nft.id !== eggToHatch.id);
+					const updatedNfts = [...otherNfts, newBun];
+
+					// Update all the references
+					const bunsOnly = updatedNfts.filter((nft: Bun) => nft.type === 'Bun');
+					const newBunIndex = bunsOnly.findIndex((bun) => bun.id === newBun.id);
+
+					if (newBunIndex !== -1) {
+						bunIndex.set(newBunIndex);
+						activeBun.set(newBun);
+						currentSection.set('Buns');
+						startHungerInterval(newBun);
+					}
+
+					isHatching = false;
+					hatched = true;
+
+					return {
+						...w,
+						nfts: updatedNfts
+					};
+				});
+			}, 2500);
+		} catch (error) {
+			console.error('error during hatching', error);
 			isHatching = false;
-			hatched = true;
-			currentSection.set('Buns');
-		}, 333);
+		}
 	}
 
 	let isHatching = false;
@@ -172,16 +249,6 @@
 		]
 	};
 
-	// Base stats per rarity
-	const rarityStats = {
-		Common: { industry: 5, luck: 5, speed: 5, stamina: 5, strength: 5 },
-		Uncommon: { industry: 6, luck: 6, speed: 6, stamina: 6, strength: 6 },
-		Rare: { industry: 7, luck: 7, speed: 7, stamina: 7, strength: 7 },
-		Rotten: { industry: 4, luck: 4, speed: 4, stamina: 4, strength: 4 },
-		Moldy: { industry: 3, luck: 3, speed: 3, stamina: 3, strength: 3 },
-		SuperRare: { industry: 8, luck: 8, speed: 8, stamina: 8, strength: 8 }
-	};
-
 	function getRandomBun(rarity: BunRarity) {
 		const bunList = bunProbabilitiesByRarity[rarity];
 		if (!bunList) {
@@ -249,7 +316,7 @@
 
 			// calculate index, update stores
 			const bunsOnly = updatedWallet.nfts.filter((nft) => nft.type === 'Bun');
-			const newBunIndex = bunsOnly.findIndex(bun => bun.id === newBun.id);
+			const newBunIndex = bunsOnly.findIndex((bun) => bun.id === newBun.id);
 
 			if (newBunIndex !== -1) {
 				bunIndex.set(newBunIndex);

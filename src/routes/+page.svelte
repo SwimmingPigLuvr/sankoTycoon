@@ -74,7 +74,7 @@
 			</div>
 			{#if $activeBun && $activeBun.type === 'Bun'}
 				<div>
-					<Farm bun={$wallet?.nfts[$bunIndex]} />
+					<Farm bun={buns[$bunIndex]} />
 				</div>
 			{/if}
 			<div>
