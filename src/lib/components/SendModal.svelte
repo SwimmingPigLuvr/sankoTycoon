@@ -234,13 +234,11 @@
 	}
 
 	function handleTransfer() {
-		console.log('attempt to transfer');
 		if (payload) {
 			if (sendTokens && isToken(payload)) {
 				const amount = tokensToSend;
 				if (amount <= 0 || amount > payload.balance) {
 					addMessage('invalid amount');
-					console.log('invalid amount');
 					return;
 				}
 				transferToken(payload, amount);
@@ -250,7 +248,6 @@
 				const quantity = itemQuantityToSend;
 				if (quantity <= 0 || quantity > payload.quantity) {
 					addMessage('invalid quantity');
-					console.log('invalid quantity');
 					return;
 				}
 				transferItem(payload, quantity);

@@ -3,12 +3,51 @@
 	import { bunOil } from '$lib/itemData';
 	import { showAbout } from '$lib/stores/abilities';
 	import { addMessage, farmtekOpen } from '$lib/stores/gameState';
-	import { bunStatus } from '$lib/stores/hungerState';
+	import {
+		HUNGER_INTERVAL,
+		bunStatus,
+		hibernationTimers,
+		getTimeUntilHibernation
+	} from '$lib/stores/hungerState';
 	import { wallet, type Bun, type Plot, type Item } from '$lib/stores/wallet';
 	import { createSeedObject, plantBatchSeeds } from '$lib/utils/farmTools';
 	import { onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { scale } from 'svelte/transition';
+
+	$: buns.forEach((bun) => {
+		if (coundownIntervals[bun.id]) {
+			clearInterval(coundownIntervals[bun.id]);
+		}
+
+		if (!bun.isHibernating) {
+			coundownIntervals[bun.id] = setInterval(() => {
+				if ($hibernationTimers[bun.id]) {
+					const remaining = Math.max(0, $hibernationTimers[bun.id] - Date.now());
+					if (remaining <= 0 && !bun.isHibernating) {
+						wallet.update((w) => {
+							const bunNft = w.nfts.find((nft) => nft.id === bun.id);
+							if (bunNft) {
+								bunNft.isHibernating = true;
+								bunNft.hungerLevel = 6;
+							}
+							return w;
+						});
+					}
+				}
+			}, 1000);
+		}
+	});
+
+	function formatTimeRemaining(bunId: number): string {
+		if (!$hibernationTimers[bunId]) return 'Hibernating';
+		const remaining = Math.max(0, $hibernationTimers[bunId] - Date.now());
+		if (remaining <= 0) return 'Hibernating';
+
+		const minutes = Math.floor(remaining / (1000 * 60));
+		const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+		return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+	}
 
 	let isDropdownOpen = true;
 	let tempQuantities: { [key: string]: number } = {};
@@ -57,17 +96,9 @@
 		showAbout.set(false);
 	}
 
-	function formatTimeRemaining(seconds: number): string {
-		if (seconds <= 0) return 'Hibernating';
-		const minutes = Math.floor(seconds / 60);
-		const remainingSeconds = seconds % 60;
-		return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-	}
-
 	// Calculate remaining time functions
 	function calculateTimeUntilHibernation(bun: Bun) {
 		if (bun.isHibernating) return 0;
-		const HUNGER_INTERVAL = 5;
 		const levelsUntilHibernation = bunStatus.length - 1 - bun.hungerLevel;
 		if (bun.hungerIntervalId) {
 			const timeIntoInterval = Date.now() % HUNGER_INTERVAL;
@@ -76,23 +107,6 @@
 		}
 		return levelsUntilHibernation * HUNGER_INTERVAL;
 	}
-
-	$: {
-		buns.forEach((bun) => {
-			if (coundownIntervals[bun.id]) {
-				clearInterval(coundownIntervals[bun.id]);
-			}
-
-			coundownIntervals[bun.id] = setInterval(() => {
-				timeRemaining.update((times) => ({
-					...times,
-					[bun.id]: calculateTimeUntilHibernation(bun)
-				}));
-			}, 1000);
-		});
-	}
-
-	const timeRemaining = writable<{ [key: number]: number }>({});
 
 	function harvestAll(bun: Bun) {
 		wallet.update((w) => {
@@ -114,7 +128,7 @@
 					// reset plot when all fruits are harvested
 					if (plot.fruitRemaining === plot.fruitsReady) {
 						plots[plotIndex] = { state: 'empty', isWithered: false };
-					} else {
+					} else if (plot.fruitRemaining) {
 						plot.fruitRemaining -= plot.fruitsReady;
 						plot.fruitsReady = 0;
 					}
@@ -147,7 +161,6 @@
 
 	function handleChangeSeedQuantity(type: string, quantity: number) {
 		// pass type and quantity
-		console.log(`handle change seed quantity ${type} ${quantity}`);
 		createSeedObject(type, quantity);
 	}
 
@@ -258,7 +271,7 @@
 			</div>
 		{:else}
 			<!-- Table Header -->
-			<div class="p-2 win95-inner bg-white m-2">
+			<div class="p-2 win95-inner bg-white mt-12 m-2">
 				<div class="win95-scroll-container overflow-auto p-2">
 					<table class="w-full text-sm font-MS">
 						<thead>
@@ -322,7 +335,7 @@
 											<span class="font-MS-Bold uppercase">hibernating</span>
 										{:else}
 											<span>
-												{formatTimeRemaining($timeRemaining[bun.id])}
+												{formatTimeRemaining(bun.id)}
 											</span>
 										{/if}
 									</td>

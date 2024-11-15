@@ -1,50 +1,64 @@
 import { wallet, type bun } from '$lib/stores/wallet';
 import { addMessage } from '$lib/stores/gameState';
+import { writable, type Writable } from 'svelte/store';
 
+export const HUNGER_INTERVAL = 10000;
+export const MAX_HUNGER_LEVEL = 6;
 export const bunStatus = ['Bloated', 'Full', 'Fine', 'Hungry', 'Famished', 'Starving', 'Hibernating'];
 
-function startHungerInterval(bun: Bun) {
+export const hibernationTimers: Writable<Record<number, number>> = writable({});
+export const hibernationTimers = writable<Record<number, number>>({});
+
+function updateHungerState(bun: Bun) {
+    wallet.update((currentWallet) => {
+        const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
+        if (bunIndex === -1) return currentWallet;
+
+        const bunNft = currentWallet.nfts[bunIndex];
+        if (bunNft.isHibernating) return currentWallet;
+
+        bunNft.hungerLevel += 1;
+
+        if (bunNft.hungerLevel >= MAX_HUNGER_LEVEL) {
+            bunNft.hungerLevel = MAX_HUNGER_LEVEL;
+            bunNft.isHibernating = true;
+            clearInterval(bunNft.hungerIntervalId);
+            bunNft.hungerIntervalId = undefined;
+            addMessage(`${bunNft.name} has entered into a state of hibernation...`);
+
+            hibernationTimers.update(timers => {
+                delete timers[bunNft.id];
+                return timers;
+            });
+        } else {
+            const timeUntilHibernation = (MAX_HUNGER_LEVEL - bunNft.hungerLevel) * HUNGER_INTERVAL;
+            hibernationTimers.update(timers => ({
+                ...timers,
+                [bunNft.id]: Date.now() + timeUntilHibernation
+            }));
+        }
+
+        return currentWallet;
+    });
+}
+
+export function startHungerInterval(bun: Bun) {
     // clear existing interval
     if (bun.hungerIntervalId) {
         clearInterval(bun.hungerIntervalId);
     }
 
-    const HUNGER_INTERVAL = 1000 * 20;
+    const timeUntilHibernation = (MAX_HUNGER_LEVEL - bun.hungerLevel) * HUNGER_INTERVAL;
+    hibernationTimers.update(timers => ({
+        ...timers,
+        [bun.id]: Date.now() + timeUntilHibernation
+    }));
 
-    const intervalId = setInterval(() => {
-        wallet.update((currentWallet) => {
-            const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
-            if (bunIndex === -1) {
-                console.error('bun not found');
-                return currentWallet;
-            }
-            const bunNft: Bun = currentWallet.nfts[bunIndex];
-
-            // check if hibernating
-            if (bunNft.isHibernating) {
-                return currentWallet;
-            }
-
-            // increase hunger
-            bunNft.hungerLevel += 1;
-            bunNft.hungerLevel = Math.min(bunNft.hungerLevel, bunStatus.length - 1);
-
-
-            // hibernation after starvation
-            if (bunNft.hungerLevel === bunStatus.length -1) {
-                bunNft.isHibernating = true;
-                addMessage(`${bunNft.name} has entered into a state of hibernation...`);
-            }
-
-            return currentWallet;
-        });
-    }, HUNGER_INTERVAL);
-
-    // store interval in bun object
+    const intervalId = setInterval(() => updateHungerState(bun), HUNGER_INTERVAL);
     bun.hungerIntervalId = intervalId
 }
 
-function restartHungerInterval(bun: Bun) {
+export function restartHungerInterval(bun: Bun) {
     // clear interval
     if (bun.hungerIntervalId) {
         clearInterval(bun.hungerIntervalId);
@@ -54,13 +68,12 @@ function restartHungerInterval(bun: Bun) {
     // reset hungerlevel in wallet
     wallet.update((currentWallet) => {
         const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
-        if (bunIndex === -1) {
-            console.error('bun not found');
-            return currentWallet;
-        }
+        if (bunIndex === -1) return currentWallet;
+
         const bunNft: Bun = currentWallet.nfts[bunIndex];
         // reset hunger level to 0
         bunNft.hungerLevel = 0;
+        bunNft.isHibernating = false;
         return currentWallet
 
     })
@@ -69,4 +82,15 @@ function restartHungerInterval(bun: Bun) {
     startHungerInterval(bun);
 }
 
-export { startHungerInterval, restartHungerInterval };
+export function getTimeUntilHibernation(bunId: number): number {
+    let remainingTime = 0;
+    hibernationTimers.subscribe(timers => {
+        const hibernationTimer = timers[bunId];
+        if (hibernationTime) {
+            remainingTime = Math.max(0, hibernationTime - Date.now());
+        }
+
+    })();
+    return remainingTime;
+}
+

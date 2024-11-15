@@ -63,12 +63,7 @@
 					stamina: stats.stamina,
 					strength: stats.strength,
 					birthday: new Date(),
-					wallet: {
-						address: generateEthAddress(),
-						bunId: eggToHatch.id,
-						gold: 10,
-						items: [...starterWallet.items]
-					},
+					wallet: createStarterWallet(eggToHatch.id),
 					farm: Array(25).fill({ state: 'empty' }),
 					hungerLevel: 0,
 					isCoolingDown: false,
@@ -108,6 +103,18 @@
 
 	let isHatching = false;
 	let hatched = false;
+
+	function createStarterWallet(bunId: number) {
+		return {
+			address: generateEthAddress(),
+			bunId: bunId,
+			gold: 10,
+			items: starterWallet.items.map((item) => ({
+				...item,
+				quantity: item.quantity
+			}))
+		};
+	}
 
 	let starterWallet: BunWallet = {
 		address: generateEthAddress(),
@@ -267,68 +274,6 @@
 		}
 		// fallback
 		return bunList[bunList.length - 1];
-	}
-
-	function hatchEgg(egg: Bun) {
-		if (egg.type !== 'Egg') {
-			alert("cannot hatch this because it's not an egg");
-			return;
-		}
-
-		// update in 1 atomic operation
-		wallet.update((w) => {
-			const otherNfts = w.nfts.filter((nft: Bun) => nft.id !== egg.id);
-
-			// generate new bun
-			const bun = getRandomBun(egg.rarity);
-			const stats = rarityStats[egg.rarity];
-			const newBun = {
-				id: egg.id,
-				name: bun.variety,
-				variety: bun.variety as BunVariety,
-				rarity: egg.rarity,
-				type: 'Bun' as BunType,
-				imageUrl: `/images/buns/${bun.variety}.webp`,
-				thumbUrl: `/images/buns/thumbs/${bun.variety}.png`,
-				industry: stats.industry,
-				luck: stats.luck,
-				speed: stats.speed,
-				stamina: stats.stamina,
-				strength: stats.strength,
-				birthday: new Date(),
-				wallet: {
-					address: generateEthAddress(),
-					bunId: egg.id,
-					gold: 10,
-					items: [...starterWallet.items]
-				},
-				farm: Array(25).fill({ state: 'empty' }),
-				hungerLevel: 0,
-				isCoolingDown: false,
-				isHibernating: false
-			};
-
-			// update wallet with newBun
-			const updatedWallet = {
-				...w,
-				nfts: [...otherNfts, newBun]
-			};
-
-			// calculate index, update stores
-			const bunsOnly = updatedWallet.nfts.filter((nft) => nft.type === 'Bun');
-			const newBunIndex = bunsOnly.findIndex((bun) => bun.id === newBun.id);
-
-			if (newBunIndex !== -1) {
-				bunIndex.set(newBunIndex);
-				activeBun.set(newBun);
-				currentSection.set('Buns');
-			} else {
-				console.error('could not find new bun in array');
-			}
-
-			startHungerInterval(newBun);
-			return w;
-		});
 	}
 
 	// List of bun varieties and rarities

@@ -222,8 +222,6 @@
 	}
 
 	function eatFruit(bun: Bun, fruitName: string) {
-		console.log('eating fruit:', fruitName);
-
 		// wallet update
 		wallet.update((currentWallet) => {
 			const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
@@ -319,7 +317,6 @@
 				(item: Item) => item.type === 'fruit' && item.quantity > 0
 			);
 			if (anyFruit) {
-				console.log('auto feeder activated');
 				eatFruit(bun, anyFruit.name);
 			}
 		}
@@ -353,19 +350,6 @@
 	function unHandleItemHover(item: Item) {
 		currentAbility = undefined;
 		showItemName = '';
-	}
-
-	$: {
-		if (currentBun && bunWallet) {
-			console.log(`Current bun ${currentBun.name} wallet:`, {
-				items: items,
-				fruit: fruit,
-				seeds: seeds,
-				witheredSeeds: witheredSeeds,
-				wearables: wearables,
-				consumables: consumables
-			});
-		}
 	}
 </script>
 
