@@ -7,7 +7,7 @@ export const MAX_HUNGER_LEVEL = 6;
 export const bunStatus = ['Bloated', 'Full', 'Fine', 'Hungry', 'Famished', 'Starving', 'Hibernating'];
 
 export const hibernationTimers: Writable<Record<number, number>> = writable({});
-export const hibernationTimers = writable<Record<number, number>>({});
+// export const hibernationTimers = writable<Record<number, number>>({});
 
 function updateHungerState(bun: Bun) {
     wallet.update((currentWallet) => {
