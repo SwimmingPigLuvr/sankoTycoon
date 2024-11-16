@@ -112,15 +112,15 @@ export function startPlotGrowthTimer(bunIndex: number, plotIndex: number) {
 }
 
 export function harvestFruit(bun: Bun, index: number) {
-    const plots = bun?.farm ?? Array(25).fill({ state: 'empty' });
-    const plot = plots[index];
+    let plots = bun?.farm ?? Array(25).fill({ state: 'empty' });
+    let plot = plots[index];
 
-    const bunWallet = bun?.wallet ?? { bunId: 777, gold: 0, items: [itemData.hardHat] };
+    let bunWallet = bun?.wallet ?? { bunId: 777, gold: 0, items: [itemData.hardHat] };
 
-    const availableSeeds = bunWallet?.items.filter((item: Item) => item.type === 'seed' && item.quantity > 0) ?? [];
-    const availableWitheredSeeds = bunWallet?.items.filter((item: Item) => item.type === 'witheredSeed' && item.quantity > 0) ??
+    let availableSeeds = bunWallet?.items.filter((item: Item) => item.type === 'seed' && item.quantity > 0) ?? [];
+    let availableWitheredSeeds = bunWallet?.items.filter((item: Item) => item.type === 'witheredSeed' && item.quantity > 0) ??
     [];
-    const allAvailableSeeds = [...availableSeeds, ...availableWitheredSeeds];
+    let allAvailableSeeds = [...availableSeeds, ...availableWitheredSeeds];
     if (plot.fruitsReady && plot.fruitsReady > 0) {
         // update bunWallet
         wallet.update((currentWallet) => {
