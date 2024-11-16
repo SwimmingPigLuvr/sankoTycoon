@@ -35,9 +35,40 @@
 						});
 					}
 				}
-			}, 1000);
+			}, 100);
 		}
 	});
+
+	// for each bun use the id to get the time remaining from the formatTimeRemaining function
+	// Determine the type for formattedTimes based on the mapping structure
+	type FormattedTime = {
+		id: number;
+		timeRemaining: string;
+	};
+
+	let formattedTimes: FormattedTime[] = [];
+	$: setInterval(() => {
+		formattedTimes = buns.map((bun) => ({
+			id: bun.id,
+			timeRemaining: formatTimeRemaining(bun.id)
+		}));
+	}, 1000);
+
+	type FruitQuantity = {
+		id: number;
+		quantity: number;
+	};
+	$: fruitQuantities = buns.map((bun) => ({
+		id: bun.id,
+		quantity: bun.wallet.items
+			.filter((item) => item.type === 'fruit')
+			.reduce((sum, fruit) => sum + fruit.quantity, 0)
+	}));
+
+	$: quantitiesOfFruitToSell = buns.map((bun) => ({
+		id: bun.id,
+		quantity: 0
+	}));
 
 	function formatTimeRemaining(bunId: number): string {
 		if (!$hibernationTimers[bunId]) return 'Hibernating';
@@ -143,7 +174,7 @@
 		});
 	}
 
-	function sellFruit(bun: Bun) {
+	function sellFruit(bun: Bun, quantity: number) {
 		// Implementation for selling fruit
 		addMessage('Selling fruit not implemented yet');
 	}
@@ -333,10 +364,12 @@
 									<td class="p-1 border border-gray-400">
 										{#if bun.isHibernating}
 											<span class="font-MS-Bold uppercase">hibernating</span>
-										{:else}
+										{:else if formattedTimes.find((time) => time.id === bun.id)?.timeRemaining}
 											<span>
-												{formatTimeRemaining(bun.id)}
+												{formattedTimes.find((time) => time.id === bun.id)?.timeRemaining}
 											</span>
+										{:else}
+											<span class="loading-data"> </span>
 										{/if}
 									</td>
 									<!-- harvest all button -->
@@ -350,12 +383,20 @@
 									</td>
 									<!-- sell amount -->
 									<td class="p-1 border border-gray-400">
-										<input type="number" class="w-16 win95-input" min="1" value="1" />
+										<input
+											type="number"
+											class="w-16 win95-input"
+											min="0"
+											max={fruitQuantities.find((quantity) => quantity.id === bun.id)?.quantity}
+											bind:value={quantitiesOfFruitToSell.find((q) => q.id === bun.id)?.quantity}
+										/>
 									</td>
 									<!-- sell fruit button -->
 									<td class="p-1 border border-gray-400">
 										<button
-											class="whitespace-nowrap win95-button w-full"
+											class="whitespace-nowrap win95-button disabled:opacity-50 disabled:cursor-not-allowed w-full"
+											disabled={fruitQuantities.find((quantity) => quantity.id === bun.id)
+												?.quantity === 0}
 											on:click={() => sellFruit(bun)}
 										>
 											Sell Fruit
@@ -505,6 +546,7 @@
 		border-bottom-color: #fff;
 		border-left-color: #404040;
 		border-top-color: #404040;
+		padding-left: 3px;
 		background: #fff;
 		font-size: 11px;
 	}
@@ -597,5 +639,22 @@
 		scrollbar-color: #c0c0c0 #c0c0c0; /* Firefox */
 		overflow: auto;
 		max-height: calc(100vh - 100px); /* Adjust based on your needs */
+	}
+
+	/* create a css class loading-data that will show a simple loading animation */
+	.loading-data {
+		display: inline-block;
+		width: 10px;
+		height: 10px;
+		border: 2px solid #c0c0c0;
+		border-radius: 50%;
+		border-top-color: transparent;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
 	}
 </style>
