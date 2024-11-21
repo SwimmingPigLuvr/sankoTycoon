@@ -13,7 +13,7 @@
 	import { createSeedObject, plantBatchSeeds } from '$lib/utils/farmTools';
 	import { onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
-	import { scale } from 'svelte/transition';
+	import { scale, slide } from 'svelte/transition';
 
 	$: buns.forEach((bun) => {
 		if (coundownIntervals[bun.id]) {
@@ -38,6 +38,8 @@
 			}, 100);
 		}
 	});
+
+	
 
 	// for each bun use the id to get the time remaining from the formatTimeRemaining function
 	// Determine the type for formattedTimes based on the mapping structure
@@ -399,6 +401,16 @@
 		isDropdownOpen = [];
 	}
 
+	let showFeedBun: boolean[] = [];
+
+	function handleToggleFeedBun(bun: Bun) {
+		// reset the array
+		showFeedBun = [];
+		// get bun index
+		const bunIndex = $wallet.nfts.findIndex((nft) => nft.id === bun.id);
+		showFeedBun[bunIndex] = !showFeedBun[bunIndex];
+	}
+
 	function feedBun(bun: Bun) {
 		// Implementation for feeding bun
 		addMessage('Feeding bun not implemented yet');
@@ -656,12 +668,27 @@
 									<td class="p-1 border border-gray-400">
 										<button
 											class="whitespace-nowrap win95-button w-full"
-											on:click={() => feedBun(bun)}
+											on:click={() => handleToggleFeedBun(bun)}
 										>
 											Feed Bun
 										</button>
 									</td>
 								</tr>
+								{#if showFeedBun[index]}
+									<tr in:slide>
+										<div class="w-full h-8 flex justify-start space-x-2">
+											<button
+												class="whitespace-nowrap win95-button w-full"
+												on:click={() => handleToggleFeedBun(bun)}
+											>
+												Feed Bun
+											</button>
+											{#each  as }
+												
+											{/each}
+										</div>
+									</tr>
+								{/if}
 							{/each}
 						</tbody>
 					</table>
