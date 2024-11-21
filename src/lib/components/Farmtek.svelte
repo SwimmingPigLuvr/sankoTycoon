@@ -1,6 +1,6 @@
 <!-- lib/components/Farmtek.svelte -->
 <script lang="ts">
-	import { bunOil } from '$lib/itemData';
+	import { bunOil, dailyItems } from '$lib/itemData';
 	import { showAbout } from '$lib/stores/abilities';
 	import { addMessage, farmtekOpen } from '$lib/stores/gameState';
 	import {
@@ -54,10 +54,6 @@
 		}));
 	}, 1000);
 
-	type FruitQuantity = {
-		id: number;
-		quantity: number;
-	};
 	$: fruitQuantities = buns.map((bun) => ({
 		id: bun.id,
 		quantity: bun.wallet.items
@@ -65,10 +61,57 @@
 			.reduce((sum, fruit) => sum + fruit.quantity, 0)
 	}));
 
+	let quantitiesOfFruitToSell: { id: number; quantity: number }[] = [];
+
 	$: quantitiesOfFruitToSell = buns.map((bun) => ({
+		id: bun.id,
+		quantity: fruitQuantities.find((quantity) => quantity.id === bun.id)?.quantity ?? 0
+	}));
+
+	function updateSellQuantity(bunId: number, newQuantity: number) {
+		const availableFruits = fruitQuantities.find((fq) => fq.id === bunId)?.quantity || 0;
+		// Ensure quantity is between 1 and available fruits
+		const validQuantity = Math.max(1, Math.min(newQuantity, availableFruits));
+
+		quantitiesOfFruitToSell = quantitiesOfFruitToSell.map((q) =>
+			q.id === bunId ? { ...q, quantity: validQuantity } : q
+		);
+		quantitiesOfFruitToSell = quantitiesOfFruitToSell.map((q) =>
+			q.id === bunId ? { ...q, quantity: newQuantity } : q
+		);
+	}
+
+	let quantitiesOfSeedsToBuy: { id: number; quantity: number }[] = [];
+
+	$: quantitiesOfSeedsToBuy = buns.map((bun) => ({
 		id: bun.id,
 		quantity: 0
 	}));
+
+	$: maxSeedQuantities = buns.map((bun) => ({
+		id: bun.id,
+		maxQuantity: Math.floor((goldBalances.find((b) => b.id === bun.id)?.balance ?? 0) / 4)
+	}));
+
+	$: goldBalances = buns.map((bun) => ({
+		id: bun.id,
+		balance: bun.wallet.gold
+	}));
+
+	function updateBuyQuantity(bunId: number, newQuantity: number) {
+		// get balance for current bun
+		const goldBalance = goldBalances.find((gold) => gold.id === bunId)?.balance || 0;
+
+		// ensure user can afford to buy the newQuantity of seeds, each seed costs 4 GOLD
+		const maxAffordableQuantity = Math.floor(goldBalance / 4);
+
+		// if newQuantity * 4 > goldBalance, we cannot afford this many seeds, so we limit it
+		const validQuantity = Math.max(0, Math.min(newQuantity, maxAffordableQuantity));
+
+		quantitiesOfSeedsToBuy = quantitiesOfSeedsToBuy.map((q) =>
+			q.id === bunId ? { ...q, quantity: validQuantity } : q
+		);
+	}
 
 	function formatTimeRemaining(bunId: number): string {
 		if (!$hibernationTimers[bunId]) return 'Hibernating';
@@ -119,7 +162,7 @@
 
 	let selectedSeeds: Item[] = [];
 
-	$: buns = $wallet.nfts.filter((nft: Bun) => nft.type === 'Bun') ?? [];
+	$: buns = $wallet?.nfts.filter((nft: Bun) => nft.type === 'Bun') ?? [];
 
 	let coundownIntervals: { [key: number]: number } = {};
 
@@ -139,26 +182,52 @@
 		return levelsUntilHibernation * HUNGER_INTERVAL;
 	}
 
+	// harvest all available fruit with 1 click
 	function harvestAll(bun: Bun) {
+		// update wallet store
 		wallet.update((w) => {
+			// get bun index
 			const bunIndex = w.nfts.findIndex((nft) => nft.id === bun.id);
+			// return if invalid index
 			if (bunIndex === -1) return w;
 
+			// get farm plots
 			const plots = w.nfts[bunIndex].farm;
+
+			// initiate var to hold number of fruit harvested
 			let harvestedCount = 0;
 
+			// iterate through each plot
 			plots.forEach((plot, plotIndex) => {
+				// if there are fruits ready to harvest
 				if (plot.fruitsReady && plot.fruitsReady > 0) {
+					// tally harvested fruit
 					harvestedCount += plot.fruitsReady;
+					// get the fruit type of the current plot
 					const fruit = w.nfts[bunIndex].wallet.items.find(
 						(item) => item.type === 'fruit' && item.fruitType === plot.type
 					);
+					// add the correct amount of fruit to wallet
 					if (fruit) {
 						fruit.quantity += plot.fruitsReady;
 					}
-					// reset plot when all fruits are harvested
+
+					// get withered seed item object
+					const witheredSeed = w.nfts[bunIndex].wallet.items.find(
+						(item) => item.type === 'witheredSeed' && item.fruitType === plot.type
+					);
+
+					// if tree in plot is fully harvested
 					if (plot.fruitRemaining === plot.fruitsReady) {
+						// reset plot
 						plots[plotIndex] = { state: 'empty', isWithered: false };
+						// if the tree isn't already a withered tree
+						if (!plot.isWithered) {
+							// add withered seed to wallet
+							if (witheredSeed) {
+								witheredSeed.quantity += 1;
+							}
+						}
 					} else if (plot.fruitRemaining) {
 						plot.fruitRemaining -= plot.fruitsReady;
 						plot.fruitsReady = 0;
@@ -174,14 +243,94 @@
 		});
 	}
 
-	function sellFruit(bun: Bun, quantity: number) {
-		// Implementation for selling fruit
-		addMessage('Selling fruit not implemented yet');
+	function sellFruit(bun: Bun) {
+		const quantity = quantitiesOfFruitToSell.find((q) => q.id === bun.id)?.quantity || 0;
+		const availableFruits = fruitQuantities.find((fq) => fq.id === bun.id)?.quantity || 0;
+
+		if (quantity <= 0) {
+			addMessage('Please enter a quantity greater than 0');
+			return;
+		}
+
+		if (quantity > availableFruits) {
+			addMessage(`Not enough fruits. Only ${availableFruits} available`);
+			return;
+		}
+
+		const FRUIT_SELL_PRICE = 1;
+
+		wallet.update((w) => {
+			const bunIndex = w.nfts.findIndex((nft) => nft.id === bun.id);
+			if (bunIndex === -1) return w;
+
+			const bunNft = w.nfts[bunIndex];
+			const revenue = quantity * FRUIT_SELL_PRICE;
+			bunNft.wallet.gold += revenue;
+
+			const fruitItems = bunNft.wallet.items.filter(
+				(item) => item.type === 'fruit' && item.quantity > 0
+			);
+			let remainingToSell = quantity;
+
+			for (const fruit of fruitItems) {
+				if (remainingToSell <= 0) break;
+
+				if (fruit.quantity >= remainingToSell) {
+					fruit.quantity -= remainingToSell;
+					remainingToSell = 0;
+				} else {
+					remainingToSell -= fruit.quantity;
+					fruit.quantity = 0;
+				}
+			}
+			addMessage(`Selling ${quantity} fruits from ${bun.name}`);
+
+			return w;
+		});
+
+		// Reset the sell quantity for this bun
+		quantitiesOfFruitToSell = quantitiesOfFruitToSell.map((q) =>
+			q.id === bun.id ? { ...q, quantity: 0 } : q
+		);
 	}
 
 	function buySeeds(bun: Bun) {
-		// Implementation for buying seeds
-		addMessage('Buying seeds not implemented yet');
+		// get the amount of seeds the user wants to buy
+		const quantity = quantitiesOfSeedsToBuy.find((q) => q.id === bun.id)?.quantity || 0;
+		// get the bun's gold balance
+		const goldBalance = goldBalances.find((b) => b.id === bun.id)?.balance || 0;
+
+		// check if bun can afford the seeds, each seed costs 4 GOLD
+		if (goldBalance < quantity * 4) {
+			return;
+		}
+
+		wallet.update((w) => {
+			// get current bun index
+			const bunIndex = w.nfts.findIndex((nft) => nft.id === bun.id);
+			// return if invalid index
+			if (bunIndex === -1) return w;
+			// get bun based on index
+			const bunNft = w.nfts[bunIndex];
+			// get seed price
+			const price = quantity * 4;
+			// subtract seed price from wallet
+			bunNft.wallet.gold -= price;
+			// find correct seed to buy
+			const seed = bunNft.wallet.items.find(
+				(item) =>
+					item.type === 'seed' &&
+					$dailyItems.some((dailyItem) => dailyItem.type === 'seed' && dailyItem.name === item.name)
+			);
+			if (seed) {
+				seed.quantity += quantity;
+			}
+			addMessage(`bought ${quantity} seeds`);
+			return w;
+		});
+		quantitiesOfSeedsToBuy = quantitiesOfSeedsToBuy.map((q) =>
+			q.id === bun.id ? { ...q, quantity: 0 } : q
+		);
 	}
 
 	// create a seed object with the quantity that the user selected in the selected seeds value
@@ -386,9 +535,12 @@
 										<input
 											type="number"
 											class="w-16 win95-input"
-											min="0"
+											min="1"
 											max={fruitQuantities.find((quantity) => quantity.id === bun.id)?.quantity}
-											bind:value={quantitiesOfFruitToSell.find((q) => q.id === bun.id)?.quantity}
+											value={quantitiesOfFruitToSell.find((q) => q.id === bun.id)?.quantity ??
+												fruitQuantities.find((quantity) => quantity.id === bun.id)?.quantity}
+											on:input={(e) =>
+												updateSellQuantity(bun.id, parseInt(e.currentTarget.value) || 0)}
 										/>
 									</td>
 									<!-- sell fruit button -->
@@ -408,12 +560,22 @@
 									</td>
 									<!-- seed amount -->
 									<td class="p-1 border border-gray-400">
-										<input type="number" class="w-16 win95-input" min="1" value="1" />
+										<input
+											type="number"
+											class="w-16 win95-input"
+											min="1"
+											max={maxSeedQuantities.find((max) => max.id === bun.id)?.maxQuantity ?? 0}
+											value={quantitiesOfSeedsToBuy.find((q) => q.id === bun.id)?.quantity}
+											on:input={(e) =>
+												updateBuyQuantity(bun.id, parseInt(e.currentTarget.value) || 0)}
+										/>
 									</td>
 									<!-- buy seeds -->
 									<td class="p-1 border border-gray-400">
 										<button
 											class="whitespace-nowrap win95-button w-full"
+											disabled={(goldBalances.find((balance) => balance.id === bun.id)?.balance ??
+												0) <= 4}
 											on:click={() => buySeeds(bun)}
 										>
 											Buy

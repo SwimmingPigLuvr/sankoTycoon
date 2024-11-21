@@ -112,6 +112,7 @@ export function startPlotGrowthTimer(bunIndex: number, plotIndex: number) {
 }
 
 export function harvestFruit(bun: Bun, index: number) {
+    console.log('----farmTools.ts: harvesting fruit----');
     let plots = bun?.farm ?? Array(25).fill({ state: 'empty' });
     let plot = plots[index];
 
@@ -176,7 +177,14 @@ export function harvestFruit(bun: Bun, index: number) {
 
 export function plantBatchSeeds(bun: Bun, seeds: Item[]): PlantingResult {
     let seedsPlanted = 0;
-    const bunCopy = structuredClone(bun);
+    const bunCopy = {
+        ...bun,
+        wallet: {
+            ...bun.wallet,
+            items: bun.wallet.items.map(item => ({...item}))
+        },
+        farm: bun.farm.map(plot => ({...plot}))
+    }
     const plantedPlots: number[] = [];
     
     seeds.forEach(seed => {

@@ -11,10 +11,12 @@ export const hibernationTimers: Writable<Record<number, number>> = writable({});
 
 function updateHungerState(bun: Bun) {
     wallet.update((currentWallet) => {
+        if (!currentWallet?.nfts) return currentWallet;
         const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
         if (bunIndex === -1) return currentWallet;
 
         const bunNft = currentWallet.nfts[bunIndex];
+        if (!bunNft) return currentWallet;
         if (bunNft.isHibernating) return currentWallet;
 
         bunNft.hungerLevel += 1;

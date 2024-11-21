@@ -1,6 +1,8 @@
 import type { Item } from '$lib/stores/wallet';
+import { writable } from 'svelte/store';
 
-// the quantity of these objects dictates the quantity of the objects in the bun's wallet
+// daily shop items
+export let dailyItems = writable<Item[]>([]);
 
 // consumables
 export const slop: Item = {

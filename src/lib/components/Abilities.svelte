@@ -186,12 +186,12 @@
 
 	// wallet balance
 	// add two more vars for dmt and dmt balance. the exact same but the coin name is DMT
-	$: gold = $wallet.tokens.find((token: Token) => token.name === 'GOLD');
+	$: gold = $wallet?.tokens?.find((token: Token) => token.name === 'GOLD');
 	$: goldBalance = gold?.balance ?? 0;
 
-	$: dmt = $wallet.tokens.find((token: Token) => token.name === 'DMT');
+	$: dmt = $wallet?.tokens?.find((token: Token) => token.name === 'DMT');
 	$: dmtBalance = dmt?.balance ?? 0;
-	$: santo = $wallet.tokens.find((token: Token) => token.name === 'SANTO');
+	$: santo = $wallet?.tokens?.find((token: Token) => token.name === 'SANTO');
 	$: santoBalance = santo?.balance ?? 0;
 
 	let showFarmtekInfo = false;

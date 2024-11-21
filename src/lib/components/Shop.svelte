@@ -1,6 +1,7 @@
 <!-- $lib/components/Shop.svelte -->
 <script lang="ts">
 	import * as allItems from '$lib/itemData';
+	import { dailyItems } from '$lib/itemData';
 	import {
 		autoSeller,
 		autoBuyer,
@@ -64,7 +65,8 @@
 	let buy = true;
 	let sell = false;
 	// add buy/sell prices for all items
-	let dailyItems: Item[] = [
+
+	let initialDailyItems: Item[] = [
 		allItems.slop,
 		allItems.bunzempic,
 		allItems.heartFruit,
@@ -81,54 +83,37 @@
 	let i = 0;
 	// daily items always includes
 	function rotateDailyItems() {
-		const fruitTypes = ['heart', 'star', 'lumpy', 'round', 'square'];
+		const fruitTypes = {
+			heart: { fruit: allItems.heartFruit, seed: allItems.heartSeed },
+			star: { fruit: allItems.starFruit, seed: allItems.starSeed },
+			lumpy: { fruit: allItems.lumpyFruit, seed: allItems.heartSeed },
+			round: { fruit: allItems.roundFruit, seed: allItems.heartSeed },
+			square: { fruit: allItems.squareFruit, seed: allItems.squareSeed }
+		};
 
-		// Get current types with wraparound
-		const currentFruitType = fruitTypes[i % fruitTypes.length];
-		const currentSeedType = fruitTypes[(i + 1) % fruitTypes.length];
+		const typeKeys = Object.keys(fruitTypes) as (keyof typeof fruitTypes)[];
+		const currentType = typeKeys[i % typeKeys.length];
+		const { fruit: currentFruit, seed: currentSeed } = fruitTypes[currentType];
 
-		// Get the correct fruit and seed based on type
-		let currentFruit;
-		let currentSeed;
-
-		switch (currentFruitType) {
-			case 'heart':
-				currentFruit = allItems.heartFruit;
-				currentSeed = allItems.heartSeed;
-				break;
-			case 'star':
-				currentFruit = allItems.starFruit;
-				currentSeed = allItems.starSeed;
-				break;
-			case 'lumpy':
-				currentFruit = allItems.lumpyFruit;
-				currentSeed = allItems.lumpySeed;
-				break;
-			case 'round':
-				currentFruit = allItems.roundFruit;
-				currentSeed = allItems.roundSeed;
-				break;
-			case 'square':
-				currentFruit = allItems.squareFruit;
-				currentSeed = allItems.squareSeed;
-				break;
-		}
-
-		// Update daily items
-		dailyItems = [
-			// Constants stay the same
+		dailyItems.update(() => [
+			// slop and bunzempic stay in the shop year round
 			allItems.slop,
 			allItems.bunzempic,
+			// current fruit + seeds
 			currentFruit,
 			currentSeed,
+			// random wearable items (for now)
 			...Object.values(allItems)
 				.filter((item) => item.type === 'wearable' && item.buyPrice)
 				.sort(() => Math.random() - 0.5)
 				.slice(0, 7)
-		];
+		]);
 	}
 
 	onMount(() => {
+		// initiate store with items
+		dailyItems.set(initialDailyItems);
+
 		setInterval(() => {
 			rotateDailyItems();
 			i = (i + 1) % 5;
@@ -181,7 +166,7 @@
 				const wallet = bun.wallet;
 				const gold = wallet.gold;
 				for (let i = 0; i < sps; i++) {
-					const anySeeds = dailyItems.find((item: Item) => item.type === 'seed');
+					const anySeeds = $dailyItems.find((item: Item) => item.type === 'seed');
 					if (anySeeds && anySeeds.buyPrice && gold > anySeeds.buyPrice) {
 						buyItem($bunIndex, anySeeds);
 					} else {
@@ -303,7 +288,7 @@
 	<div class="flex w-full space-x-1 overflow-x-auto overflow-y-hidden whitespace-nowrap">
 		<!-- buying items -->
 		{#if buy}
-			{#each dailyItems as item, index}
+			{#each $dailyItems as item, index}
 				{#if item.buyPrice}
 					<button
 						on:mouseenter={() => {

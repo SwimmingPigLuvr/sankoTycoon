@@ -92,28 +92,30 @@
 
 	$: {
 		// Only run checks if NFTs array has actually changed
-		const currentNFTCount = $wallet.nfts.length;
-		const currentNFTUpdate = JSON.stringify($wallet.nfts.map((nft) => nft.id));
+		if ($wallet && $wallet.nfts) {
+			const currentNFTCount = $wallet.nfts.length;
+			const currentNFTUpdate = JSON.stringify($wallet.nfts.map((nft) => nft.id));
 
-		if (lastNFTCount !== currentNFTCount || lastNFTUpdate !== currentNFTUpdate) {
-			lastNFTCount = currentNFTCount;
-			lastNFTUpdate = currentNFTUpdate;
+			if (lastNFTCount !== currentNFTCount || lastNFTUpdate !== currentNFTUpdate) {
+				lastNFTCount = currentNFTCount;
+				lastNFTUpdate = currentNFTUpdate;
 
-			// Update buns list
-			buns = $wallet.nfts.filter((nft: Bun) => nft.type === 'Bun');
+				// Update buns list
+				buns = $wallet.nfts.filter((nft: Bun) => nft.type === 'Bun');
 
-			// Run validation checks
-			buns.forEach((bun) => {
-				if (bun.name !== bun.variety || bun.type !== 'Bun') {
-					console.error('bun data validation failed:', {
-						bunId: bun.id,
-						name: bun.name,
-						variety: bun.variety,
-						type: bun.type,
-						thumbnail: bun.thumbUrl
-					});
-				}
-			});
+				// Run validation checks
+				buns.forEach((bun) => {
+					if (bun.name !== bun.variety || bun.type !== 'Bun') {
+						console.error('bun data validation failed:', {
+							bunId: bun.id,
+							name: bun.name,
+							variety: bun.variety,
+							type: bun.type,
+							thumbnail: bun.thumbUrl
+						});
+					}
+				});
+			}
 		}
 	}
 </script>
@@ -171,7 +173,7 @@
 			<Bridge />
 		</div>
 	{/if}
-	{#if $wallet.nfts.length > 0}
+	{#if $wallet?.nfts.length > 0}
 		<!-- buns and eggs -->
 		<!-- mini wallet -->
 		<div in:fade class="py-2 w-full font-FinkHeavy">
