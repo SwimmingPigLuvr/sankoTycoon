@@ -1,6 +1,6 @@
 <!-- lib/components/Farmtek.svelte -->
 <script lang="ts">
-	import { bunOil, dailyItems } from '$lib/itemData';
+	import { bunOil, dailyItems, newsBoyHat } from '$lib/itemData';
 	import { showAbout } from '$lib/stores/abilities';
 	import { addMessage, farmtekOpen } from '$lib/stores/gameState';
 	import {
@@ -123,7 +123,7 @@
 		return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 	}
 
-	let isDropdownOpen = true;
+	let isDropdownOpen: boolean[] = [];
 	let tempQuantities: { [key: string]: number } = {};
 	$: selectedTotal = Object.values(tempQuantities).reduce((sum, qty) => sum + (qty || 0), 0);
 
@@ -156,11 +156,19 @@
 			return;
 		}
 
-		selectedSeeds = newSeeds;
+		const existingIndex = selectedSeeds.findIndex((s) => s.id === bun.id);
+		if (existingIndex >= 0) {
+			selectedSeeds[existingIndex].seeds = newSeeds;
+		} else {
+			selectedSeeds.push({
+				id: bun.id,
+				seeds: newSeeds
+			});
+		}
 		tempQuantities = {};
 	}
 
-	let selectedSeeds: Item[] = [];
+	let selectedSeeds: { id: number; seeds: Item[] }[] = [];
 
 	$: buns = $wallet?.nfts.filter((nft: Bun) => nft.type === 'Bun') ?? [];
 
@@ -348,7 +356,7 @@
 	function handleClickOutside(event: MouseEvent) {
 		const target = event.target as HTMLElement;
 		if (!target.closest('.win95-select') && isDropdownOpen) {
-			isDropdownOpen = false;
+			isDropdownOpen = [];
 		}
 	}
 
@@ -357,7 +365,8 @@
 	}
 
 	function plantSeeds(bun: Bun) {
-		if (selectedSeeds.length === 0) {
+		const relevantSeeds = selectedSeeds.find((s) => s.id === bun.id);
+		if (relevantSeeds && relevantSeeds.seeds && relevantSeeds.seeds.length === 0) {
 			addMessage('No seeds selected for planting');
 			return;
 		}
@@ -367,24 +376,27 @@
 			if (bunIndex === -1) return w;
 
 			// Plant the seeds and get updated bun
-			const result = plantBatchSeeds(w.nfts[bunIndex], selectedSeeds);
+			if (relevantSeeds && relevantSeeds.seeds) {
+				const result = plantBatchSeeds(w.nfts[bunIndex], relevantSeeds?.seeds);
+				// If no seeds were planted, don't update the wallet
+				if (result.seedsPlanted === 0) {
+					addMessage('No suitable plots available for planting');
+					return w;
+				}
 
-			// If no seeds were planted, don't update the wallet
-			if (result.seedsPlanted === 0) {
-				addMessage('No suitable plots available for planting');
+				// Update the bun in the wallet
+				w.nfts[bunIndex] = result.updatedBun;
+
+				return w;
+			} else {
 				return w;
 			}
-
-			// Update the bun in the wallet
-			w.nfts[bunIndex] = result.updatedBun;
-
-			return w;
 		});
 
 		// Clear selections after successful planting
 		selectedSeeds = [];
 		// Close the seed selection dropdown if it's open
-		isDropdownOpen = false;
+		isDropdownOpen = [];
 	}
 
 	function feedBun(bun: Bun) {
@@ -586,13 +598,13 @@
 										<div class="flex justify-between items-center gap-1">
 											<button
 												class="whitespace-nowrap win95-button text-xs flex-grow text-left px-2"
-												on:click={() => (isDropdownOpen = !isDropdownOpen)}
+												on:click={() => (isDropdownOpen[index] = !isDropdownOpen[index])}
 											>
 												Select Seeds
 											</button>
 										</div>
 
-										{#if isDropdownOpen}
+										{#if isDropdownOpen[index]}
 											<div
 												class="absolute left-0 top-full mt-1 bg-gray-100 border-2 border-gray-400 p-2 z-50 w-40 win95-inner"
 											>
@@ -621,7 +633,7 @@
 														class="win95-button flex-1 text-xs"
 														on:click={() => {
 															handleApplySeeds(bun);
-															isDropdownOpen = false;
+															isDropdownOpen = [];
 														}}
 													>
 														Apply
@@ -634,7 +646,7 @@
 									<td class="p-1 border border-gray-400">
 										<button
 											class="win95-button disabled:opacity-50 disabled:cursor-not-allowed w-full"
-											disabled={selectedSeeds.length === 0}
+											disabled={!selectedSeeds.find((s) => s.id === bun.id)?.seeds.length}
 											on:click={() => plantSeeds(bun)}
 										>
 											Plant
