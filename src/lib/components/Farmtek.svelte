@@ -39,7 +39,10 @@
 		}
 	});
 
-	
+	$: bunsFruits = buns.map((bun) => ({
+		id: bun.id,
+		fruits: bun.wallet.items.filter((item) => item.type === 'fruit' && item.quantity > 0)
+	}));
 
 	// for each bun use the id to get the time remaining from the formatTimeRemaining function
 	// Determine the type for formattedTimes based on the mapping structure
@@ -401,7 +404,7 @@
 		isDropdownOpen = [];
 	}
 
-	let showFeedBun: boolean[] = [];
+	let showFeedBun: boolean[] = [true];
 
 	function handleToggleFeedBun(bun: Bun) {
 		// reset the array
@@ -676,16 +679,26 @@
 								</tr>
 								{#if showFeedBun[index]}
 									<tr in:slide>
-										<div class="w-full h-8 flex justify-start space-x-2">
+										<div class="w-full bg-black justify-end items-center py-1 h-12 flex space-x-2">
 											<button
-												class="whitespace-nowrap win95-button w-full"
+												class="px-1 h-8 whitespace-nowrap win95-button"
 												on:click={() => handleToggleFeedBun(bun)}
 											>
 												Feed Bun
 											</button>
-											{#each  as }
-												
-											{/each}
+											{#if bunsFruits.find((f) => f.id === bun.id)?.fruits.length}
+												{#each bunsFruits.find((f) => f.id === bun.id)?.fruits || [] as fruit}
+													<div class="px-1 w-32 flex items-center h-full space-x-1">
+														<button class="group">
+															<p class="absolute top-0 left-0">{fruit.quantity}</p>
+															<img class="h-8 group-hover:scale-110 w-auto" src={fruit.imgPath} alt="" />
+														</button>
+														{#if fruit.quantity > 1}
+															<input max={fruit.quantity} class="h-6 w-10 win95-input" type="number" value="1" />
+														{/if}
+													</div>
+												{/each}
+											{/if}
 										</div>
 									</tr>
 								{/if}
