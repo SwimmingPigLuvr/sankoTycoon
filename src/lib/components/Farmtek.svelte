@@ -2,7 +2,7 @@
 <script lang="ts">
 	import { bunOil, dailyItems, newsBoyHat } from '$lib/itemData';
 	import { showAbout } from '$lib/stores/abilities';
-	import { addMessage, farmtekOpen } from '$lib/stores/gameState';
+	import { addMessage, bunIndex, farmtekOpen } from '$lib/stores/gameState';
 	import {
 		HUNGER_INTERVAL,
 		bunStatus,
@@ -17,27 +17,59 @@
 	import { writable } from 'svelte/store';
 	import { scale, slide } from 'svelte/transition';
 
-	let itemsToFeedMyBun: Item[] = [];
+	let itemsToFeedMyBun: { bunId: number; food: Item[] }[];
+	$: itemsToFeedMyBun = buns.map((bun) => ({
+		bunId: bun.id,
+		food: []
+	}));
 
 	function handleToggleItemsToFeed(bun: Bun, item: Item) {
+		// set the quantity of new item to 1, until they specify more later
 		const newItem: Item = { ...item, quantity: 1 };
-		// if the item is in the array remove it
-		const existingItem = itemsToFeedMyBun.find((i) => i.name === item.name);
-		if (existingItem) {
-			itemsToFeedMyBun = itemsToFeedMyBun.filter((i) => i !== item);
-		} else {
-			// else, add it
-			itemsToFeedMyBun = [...itemsToFeedMyBun, newItem];
-		}
+
+		itemsToFeedMyBun = itemsToFeedMyBun.map((bunItems) => {
+			// If this is the bun we're updating
+			if (bunItems.bunId === bun.id) {
+				// Check if item already exists
+				const existingItem = bunItems.food.find((f) => f.name === item.name);
+
+				if (existingItem) {
+					// Remove the item
+					return {
+						...bunItems,
+						food: bunItems.food.filter((f) => f.name !== item.name)
+					};
+				} else {
+					// Add the item
+					return {
+						...bunItems,
+						food: [...bunItems.food, newItem]
+					};
+				}
+			}
+			// If it's not the bun we're updating, return it unchanged
+			return bunItems;
+		});
 	}
 
 	function updateQuantityOfItemsToEat(bun: Bun, item: Item, newQuantity: number) {
 		// return if invalid quantity
 		if (newQuantity < 1 || newQuantity > item.quantity) return;
-		// update array by mapping through it
-		itemsToFeedMyBun = itemsToFeedMyBun.map((i) =>
-			i.name === item.name ? { ...i, quantity: newQuantity } : i
-		);
+
+		// Update the array by mapping through it
+		itemsToFeedMyBun = itemsToFeedMyBun.map((bunItems) => {
+			// If this is the bun we're updating
+			if (bunItems.bunId === bun.id) {
+				return {
+					...bunItems,
+					food: bunItems.food.map((foodItem) =>
+						foodItem.name === item.name ? { ...foodItem, quantity: newQuantity } : foodItem
+					)
+				};
+			}
+			// If it's not the bun we're updating, return it unchanged
+			return bunItems;
+		});
 	}
 
 	function handleRemoveItemsToFeed(bun: Bun, items: Item[]) {
@@ -773,16 +805,18 @@
 														Clear All
 													</button>
 												{/if}
-												<div class="flex flex-wrap">
-													{#each itemsToFeedMyBun as food, index}
-														<span class="inline-block pl-2">{food.quantity}x {food.name} </span>
-														{#if index > -1 && index < itemsToFeedMyBun.length - 1}
-															<span class="inline-block">,</span>
-														{:else if index === itemsToFeedMyBun.length - 1}
-															<span class="inline-block">.</span>
-														{/if}
-													{/each}
-												</div>
+												{#if itemsToFeedMyBun.find((i) => i.bunId === bun.id)?.food.length > 0}
+													<div class="flex flex-wrap">
+														{#each itemsToFeedMyBun.find((i) => i.bunId === bun.id)?.food as food, index}
+															<span class="inline-block pl-2">{food.quantity}x {food.name} </span>
+															{#if index > -1 && index < itemsToFeedMyBun.length - 1}
+																<span class="inline-block">,</span>
+															{:else if index === itemsToFeedMyBun.length - 1}
+																<span class="inline-block">.</span>
+															{/if}
+														{/each}
+													</div>
+												{/if}
 											</td>
 										{/if}
 									</tr>
