@@ -8,63 +8,65 @@
 	import { createSeedObject, plantBatchSeeds } from '$lib/utils/farmTools';
 	import { onDestroy } from 'svelte';
 	import { backOut } from 'svelte/easing';
+	import { writable } from 'svelte/store';
 	import { scale, slide } from 'svelte/transition';
 
-	let itemsToFeedMyBun: { bunId: number; food: Item[] }[];
-	$: itemsToFeedMyBun = buns.map((bun) => ({
-		bunId: bun.id,
-		food: []
-	}));
-
-	function isItemSelected(bunId: number, itemName: string) {
-		return (
-			itemsToFeedMyBun.find((i) => i.bunId === bunId)?.food.some((f) => f.name === itemName) ??
-			false
-		);
+	let itemsToFeedMyBun = writable<{ bunId: number; food: Item[] }[]>([]);
+	$: if (buns?.length > 0 && !$itemsToFeedMyBun.length) {
+		const existingBunIds = new Set($itemsToFeedMyBun.map((item) => item.bunId));
+		const newBuns = buns.filter((bun) => !existingBunIds.has(bun.id));
+		if (newBuns.length > 0) {
+			itemsToFeedMyBun.update((items) => [
+				...items,
+				...newBuns.map((bun) => ({
+					bunId: bun.id,
+					food: []
+				}))
+			]);
+		}
 	}
 
-	function getSelectedBunConsumableItems(bunId: number): Item[] {
-		return itemsToFeedMyBun.find((i) => i.bunId === bunId)?.food || [];
-	}
+	$: isItemSelected = (bunId: number, itemName: string) => {
+		const bunItems = $itemsToFeedMyBun.find((i) => i.bunId === bunId);
+		return bunItems?.food.some((f) => f.name === itemName) ?? false;
+	};
 
-	function getSelectedItemQuantity(bunId: number, itemName: string): number {
+	$: getSelectedBunConsumableItems = (bunId: number) => {
+		return $itemsToFeedMyBun.find((i) => i.bunId === bunId)?.food || [];
+	};
+
+	$: getSelectedItemQuantity = (bunId: number, itemName: string) => {
 		return (
-			itemsToFeedMyBun.find((i) => i.bunId === bunId)?.food.find((f) => f.name === itemName)
+			$itemsToFeedMyBun.find((i) => i.bunId === bunId)?.food.find((f) => f.name === itemName)
 				?.quantity || 1
 		);
-	}
+	};
 
 	// use this function when user selects an item to eat
 	// most likely the user wants to feed the bun 1 fruit at a time
 	// they might want to batch feed later on to maximize stats
 	function handleToggleItemsToFeed(bun: Bun, item: Item) {
-		// set the quantity of new item to 1, until they specify more later
 		const newItem: Item = { ...item, quantity: 1 };
 
-		// map through
-		itemsToFeedMyBun = itemsToFeedMyBun.map((bunItems) => {
-			// If this is the bun we're updating
-			if (bunItems.bunId === bun.id) {
-				// Check if item already exists
-				const existingItem = bunItems.food.find((f) => f.name === item.name);
-
-				if (existingItem) {
-					// Remove the item
-					return {
-						...bunItems,
-						food: bunItems.food.filter((f) => f.name !== item.name)
-					};
-				} else {
-					// Add the item
-					return {
-						...bunItems,
-						food: [...bunItems.food, newItem]
-					};
+		itemsToFeedMyBun.update((items) => [
+			...items.map((bunItems) => {
+				if (bunItems.bunId === bun.id) {
+					const existingItem = bunItems.food.find((f) => f.name === item.name);
+					if (existingItem) {
+						return {
+							...bunItems,
+							food: bunItems.food.filter((f) => f.name !== item.name)
+						};
+					} else {
+						return {
+							...bunItems,
+							food: [...bunItems.food, newItem]
+						};
+					}
 				}
-			}
-			// If it's not the bun we're updating, return it unchanged
-			return bunItems;
-		});
+				return { ...bunItems, food: [...bunItems.food] };
+			})
+		]);
 	}
 
 	// use this when user wants to feed their bun multiples of a specific item
@@ -73,35 +75,39 @@
 		if (newQuantity < 1 || newQuantity > item.quantity) return;
 
 		// Update the array by mapping through it
-		itemsToFeedMyBun = itemsToFeedMyBun.map((bunItems) => {
-			// If this is the bun we're updating
-			if (bunItems.bunId === bun.id) {
-				return {
-					...bunItems,
-					food: bunItems.food.map((foodItem) =>
-						foodItem.name === item.name ? { ...foodItem, quantity: newQuantity } : foodItem
-					)
-				};
-			}
-			// If it's not the bun we're updating, return it unchanged
-			return bunItems;
-		});
+		itemsToFeedMyBun.update((items) =>
+			items.map((bunItems) => {
+				// If this is the bun we're updating
+				if (bunItems.bunId === bun.id) {
+					return {
+						...bunItems,
+						food: bunItems.food.map((foodItem) =>
+							foodItem.name === item.name ? { ...foodItem, quantity: newQuantity } : foodItem
+						)
+					};
+				}
+				// If it's not the bun we're updating, return it unchanged
+				return bunItems;
+			})
+		);
 	}
 
 	function handleClearAll(bun: Bun) {
 		// map through
-		itemsToFeedMyBun = itemsToFeedMyBun.map((bunItems) => {
-			// if we get to the correct bun
-			if (bunItems.bunId === bun.id) {
-				return {
-					...bunItems,
-					// clear the food array
-					food: []
-				};
-			}
-			// else return bunItems as we found it
-			return bunItems;
-		});
+		itemsToFeedMyBun.update((items) => [
+			...items.map((bunItems) => {
+				// if we get to the correct bun
+				if (bunItems.bunId === bun.id) {
+					return {
+						...bunItems,
+						// clear the food array
+						food: []
+					};
+				}
+				// else return bunItems as we found it
+				return { ...bunItems, food: [...bunItems.food] };
+			})
+		]);
 	}
 
 	// handles the hungerIntervals
@@ -274,18 +280,6 @@
 
 	function connectWallet() {
 		showAbout.set(false);
-	}
-
-	// Calculate remaining time functions
-	function calculateTimeUntilHibernation(bun: Bun) {
-		if (bun.isHibernating) return 0;
-		const levelsUntilHibernation = bunStatus.length - 1 - bun.hungerLevel;
-		if (bun.hungerIntervalId) {
-			const timeIntoInterval = Date.now() % HUNGER_INTERVAL;
-			const currentLevelTimeRemaining = HUNGER_INTERVAL - Math.floor(timeIntoInterval);
-			return (levelsUntilHibernation - 1) * HUNGER_INTERVAL + currentLevelTimeRemaining;
-		}
-		return levelsUntilHibernation * HUNGER_INTERVAL;
 	}
 
 	// harvest all available fruit with 1 click
@@ -543,7 +537,7 @@
 		in:scale={{ delay: 500 }}
 		class="win95-window {$showAbout
 			? 'w-[520px] m-auto absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2'
-			: 'w-full absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 m-auto'} bg-gray-200 max-w-[1440px] h-auto m-auto"
+			: 'w-full absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 m-auto'} bg-gray-200 max-w-[1440px] m-auto"
 	>
 		<!-- Title bar -->
 		<div
@@ -581,8 +575,8 @@
 		{:else}
 			<!-- Table Header -->
 			<div class="p-2 win95-inner bg-white mt-12 m-2">
-				<div class="win95-scroll-container overflow-auto p-2">
-					<table class="w-full text-sm font-MS">
+				<div class="win95-scroll-container h-full overflow-auto p-2">
+					<table class="w-full h-full text-sm font-MS">
 						<thead>
 							<tr class="bg-gray-200 font-MS-Bold">
 								<th class="p-1 border border-gray-400 text-left">Bun ID</th>
@@ -714,7 +708,7 @@
 									<td class="p-1 border border-gray-400 relative">
 										<div class="flex justify-between items-center gap-1">
 											<button
-												class="whitespace-nowrap win95-button text-xs flex-grow text-left px-2"
+												class="whitespace-nowrap h-6 win95-button text-xs flex-grow text-left px-2"
 												on:click={() => (isDropdownOpen[index] = !isDropdownOpen[index])}
 											>
 												Select Seeds
@@ -723,13 +717,22 @@
 
 										{#if isDropdownOpen[index]}
 											<div
+												in:slide={{ duration: 250, easing: backOut }}
 												class="absolute left-0 top-full mt-1 bg-gray-100 border-2 border-gray-400 p-2 z-50 w-40 win95-inner"
 											>
 												<!-- Seed Selection Controls -->
 												<div class="w-full mb-1 text-xs">
+													<div class="w-full px-2">
+														<button class="win95-button px-2">Plant All</button>
+													</div>
 													{#each bun.wallet.items.filter((item) => (item.type === 'seed' || item.type === 'witheredSeed') && item.quantity > 0) as seed}
-														<div class="flex justify-between mb-1">
-															<p>{seed.name}: ({seed.quantity})</p>
+														<div class="flex justify-between px-1 mb-2">
+															<div
+																class={`${seed.type === 'witheredSeed' ? '-translate-x-1' : ''}`}
+															>
+																<img src={seed.imgPath} class={`inline-block h-6`} alt="" />
+																({seed.quantity})
+															</div>
 															<input
 																class="win95-input px-1 w-12"
 																min="0"
@@ -742,7 +745,7 @@
 													{/each}
 												</div>
 
-												<div class="flex gap-4 items-center">
+												<div class=" p-2 left-0 w-full flex gap-4 items-center bg-gray-200">
 													<p>
 														Total: {selectedTotal}
 													</p>
@@ -784,79 +787,81 @@
 										<td
 											colspan="14"
 											in:slide={{ duration: 250, easing: backOut }}
-											class="justify-between items-center py-1 h-12 flex space-x-1"
+											class="py-1 h-12"
 										>
-											<div class="flex gap-2">
+											<!-- feed bun button -->
+											<div class="flex justify-end items-center space-x-2">
 												<button
-													class="px-1 h-8 whitespace-nowrap win95-button"
+													disabled={getSelectedBunConsumableItems(bun.id).length < 1}
+													class="disabled:opacity-50 disabled:cursor-not-allowed px-1 h-8 whitespace-nowrap win95-button"
 													on:click={() => feedBun(bun)}
 												>
 													Feed Bun
 												</button>
 											</div>
 
+											<!-- list of fruits -->
 											{#if bunsFruits.find((f) => f.id === bun.id)?.fruits.length}
-												{#each bunsFruits.find((f) => f.id === bun.id)?.fruits || [] as fruit}
-													<div class="px-1 flex items-center h-full space-x-1">
-														<button
-															on:click={() => handleToggleItemsToFeed(bun, fruit)}
-															class="group relative"
+												<div class="flex items-center space-x-1">
+													{#each bunsFruits.find((f) => f.id === bun.id)?.fruits || [] as fruit}
+														<div
+															class={`${isItemSelected(bun.id, fruit.name) ? 'border-blue-700 border-2' : ''} rounded px-1 flex items-center h-full space-x-1`}
 														>
-															<div>
-																{#if fruit.quantity > 1}
-																	<p class="absolute -top-2 -left-2 px-1 rounded-full text-xs">
-																		{fruit.quantity}
-																	</p>
-																{/if}
-																<img
-																	class={`h-8 group-hover:scale-110 w-auto transition-opacity duration-200 ${isItemSelected(bun.id, fruit.name)}`}
-																	src={fruit.imgPath}
-																	alt={fruit.name}
+															<button
+																on:click={() => handleToggleItemsToFeed(bun, fruit)}
+																class="group relative"
+															>
+																<div>
+																	<img
+																		class={`h-8 group-hover:scale-110 w-auto transition-opacity duration-200 ${isItemSelected(bun.id, fruit.name) ? 'opacity-100' : 'opacity-50 hover:opacity-85'}`}
+																		src={fruit.imgPath}
+																		alt={fruit.name}
+																	/>
+																</div>
+															</button>
+															{#if fruit.quantity > 1 && isItemSelected(bun.id, fruit.name)}
+																<input
+																	max={fruit.quantity}
+																	class="h-6 w-8 win95-input"
+																	type="number"
+																	value={getSelectedItemQuantity(bun.id, fruit.name)}
+																	on:input={(e) =>
+																		updateQuantityOfItemsToEat(
+																			bun,
+																			fruit,
+																			parseInt(e.currentTarget.value)
+																		)}
 																/>
-															</div>
-														</button>
-														{#if fruit.quantity > 1 && isItemSelected(bun.id, fruit.name)}
-															<input
-																max={fruit.quantity}
-																class="h-6 w-8 win95-input"
-																type="number"
-																value={getSelectedItemQuantity(bun.id, fruit.name)}
-																on:input={(e) =>
-																	updateQuantityOfItemsToEat(
-																		bun,
-																		fruit,
-																		parseInt(e.currentTarget.value)
-																	)}
-															/>
-														{/if}
-													</div>
-												{/each}
+															{/if}
+														</div>
+													{/each}
+												</div>
 											{/if}
 										</td>
-										{#if getSelectedBunConsumableItems(bun.id).length > 0}
-											<td colspan="14" class="p-2 bg-gray-100">
-												{#if itemsToFeedMyBun.length > 0}
-													<button
-														on:click={() => handleClearAll(bun)}
-														class="px-1 h-8 whitespace-nowrap win95-button"
-													>
-														Clear All
-													</button>
-												{/if}
-												{#if getSelectedBunConsumableItems(bun.id).length > 0}
+										<!-- clear all button, text based list of items to eat -->
+										{#each [getSelectedBunConsumableItems(bun.id)] as selectedItems}
+											{#if selectedItems.length > 0}
+												<div class="flex justify-end items-center p-2 bg-gray-100 space-x-2">
+													<!-- list of selected items-->
 													<div class="flex flex-wrap">
-														{#each getSelectedBunConsumableItems(bun.id) as food, index}
+														{#each selectedItems as food, index}
 															<span class="inline-block pl-2">{food.quantity}x {food.name} </span>
-															{#if index > -1 && index < itemsToFeedMyBun.length - 1}
+															{#if index > -1 && index < selectedItems.length - 1}
 																<span class="inline-block">,</span>
-															{:else if index === itemsToFeedMyBun.length - 1}
+															{:else if index === getSelectedBunConsumableItems(bun.id).length - 1}
 																<span class="inline-block">.</span>
 															{/if}
 														{/each}
+														<button
+															on:click={() => handleClearAll(bun)}
+															class="px-1 h-8 whitespace-nowrap win95-button"
+														>
+															Clear All
+														</button>
 													</div>
-												{/if}
-											</td>
-										{/if}
+												</div>
+											{/if}
+										{/each}
 									</tr>
 								{/if}
 							{/each}
