@@ -57,7 +57,7 @@
 
 		const itemName = event.dataTransfer.getData('text/plain');
 		if (itemName) {
-			activateAbility(itemName);
+			eatItem(itemName);
 		}
 	}
 
@@ -116,7 +116,7 @@
 		currentSection.set(sections[index]);
 	}
 
-	function activateAbility(itemName: string) {
+	function eatItem(itemName: string) {
 		// update wallet
 		wallet.update((currentWallet) => {
 			// find bun

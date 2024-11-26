@@ -27,6 +27,7 @@
 	import { showDashboard } from '$lib/stores/abilities';
 	import Abilities from '$lib/components/Abilities.svelte';
 	import Farmtek from '$lib/components/Farmtek.svelte';
+	import StrengthTest from '$lib/components/StrengthTest.svelte';
 
 	let currentStep: StepID;
 	const unsubscribe = gameState.subscribe((state) => {
@@ -79,6 +80,9 @@
 			{/if}
 			<div>
 				<Abilities />
+			</div>
+			<div>
+				<StrengthTest bun={buns[$bunIndex]} />
 			</div>
 		</div>
 		<div class="">

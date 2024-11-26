@@ -6,12 +6,15 @@
 	import { HUNGER_INTERVAL, bunStatus, hibernationTimers } from '$lib/stores/hungerState';
 	import { wallet, type Bun, type Item } from '$lib/stores/wallet';
 	import { createSeedObject, plantBatchSeeds } from '$lib/utils/farmTools';
+	import { feedBun } from '$lib/utils/feedBun';
 	import { onDestroy } from 'svelte';
-	import { backOut } from 'svelte/easing';
-	import { writable } from 'svelte/store';
+	import { backIn, backOut, cubicIn, cubicInOut } from 'svelte/easing';
+	import { writable, get } from 'svelte/store';
 	import { scale, slide } from 'svelte/transition';
 
+	// use this to hold the items that are selected for feeding
 	let itemsToFeedMyBun = writable<{ bunId: number; food: Item[] }[]>([]);
+	// init new arrays for new buns
 	$: if (buns?.length > 0 && !$itemsToFeedMyBun.length) {
 		const existingBunIds = new Set($itemsToFeedMyBun.map((item) => item.bunId));
 		const newBuns = buns.filter((bun) => !existingBunIds.has(bun.id));
@@ -26,15 +29,18 @@
 		}
 	}
 
+	// checks if item is selected
 	$: isItemSelected = (bunId: number, itemName: string) => {
 		const bunItems = $itemsToFeedMyBun.find((i) => i.bunId === bunId);
 		return bunItems?.food.some((f) => f.name === itemName) ?? false;
 	};
 
+	// get all selected items for a bun
 	$: getSelectedBunConsumableItems = (bunId: number) => {
 		return $itemsToFeedMyBun.find((i) => i.bunId === bunId)?.food || [];
 	};
 
+	// get quantity of selected bun items
 	$: getSelectedItemQuantity = (bunId: number, itemName: string) => {
 		return (
 			$itemsToFeedMyBun.find((i) => i.bunId === bunId)?.food.find((f) => f.name === itemName)
@@ -43,20 +49,23 @@
 	};
 
 	// use this function when user selects an item to eat
-	// most likely the user wants to feed the bun 1 fruit at a time
-	// they might want to batch feed later on to maximize stats
 	function handleToggleItemsToFeed(bun: Bun, item: Item) {
+		// most likely the user wants to feed the bun 1 fruit at a time
+		// they might want to batch feed later on to maximize stats
 		const newItem: Item = { ...item, quantity: 1 };
 
+		// map through
 		itemsToFeedMyBun.update((items) => [
 			...items.map((bunItems) => {
 				if (bunItems.bunId === bun.id) {
 					const existingItem = bunItems.food.find((f) => f.name === item.name);
+					// if item exists, remove it
 					if (existingItem) {
 						return {
 							...bunItems,
 							food: bunItems.food.filter((f) => f.name !== item.name)
 						};
+						// else, add item
 					} else {
 						return {
 							...bunItems,
@@ -217,6 +226,17 @@
 		);
 	}
 
+	function setMaxSeeds(bun: Bun) {
+		const goldBalance = goldBalances.find((gold) => gold.id === bun.id)?.balance || 0;
+
+		// ensure user can afford to buy the newQuantity of seeds, each seed costs 4 GOLD
+		const maxAffordableQuantity = Math.floor(goldBalance / 4);
+
+		quantitiesOfSeedsToBuy = quantitiesOfSeedsToBuy.map((q) =>
+			q.id === bun.id ? { ...q, quantity: maxAffordableQuantity } : q
+		);
+	}
+
 	function formatTimeRemaining(bunId: number): string {
 		if (!$hibernationTimers[bunId]) return 'Hibernating';
 		const remaining = Math.max(0, $hibernationTimers[bunId] - Date.now());
@@ -235,6 +255,13 @@
 		const quantity = tempQuantities[seed.name];
 		if (quantity < 0) tempQuantities[seed.name] = 0;
 		if (quantity > seed.quantity) tempQuantities[seed.name] = seed.quantity;
+		tempQuantities = { ...tempQuantities };
+	}
+
+	function setMax(seed: Item) {
+		// set temp quantity to max seed value
+		tempQuantities[seed.name] = seed.quantity;
+		// ensure reactivity
 		tempQuantities = { ...tempQuantities };
 	}
 
@@ -500,7 +527,7 @@
 		isDropdownOpen = [];
 	}
 
-	let showFeedBun: boolean[] = [true];
+	let showFeedBun: boolean[] = [];
 
 	function handleToggleFeedBun(bun: Bun) {
 		// reset the array
@@ -508,11 +535,6 @@
 		// get bun index
 		const bunIndex = $wallet.nfts.findIndex((nft) => nft.id === bun.id);
 		showFeedBun[bunIndex] = !showFeedBun[bunIndex];
-	}
-
-	function feedBun(bun: Bun) {
-		// Implementation for feeding bun
-		addMessage('Feeding bun not implemented yet');
 	}
 
 	function handleCloseFarmtek() {
@@ -682,7 +704,7 @@
 										{bun.wallet.gold}
 									</td>
 									<!-- seed amount -->
-									<td class="p-1 border border-gray-400">
+									<td class="p-1 border border-gray-400 flex justify-start">
 										<input
 											type="number"
 											class="w-16 win95-input"
@@ -692,6 +714,8 @@
 											on:input={(e) =>
 												updateBuyQuantity(bun.id, parseInt(e.currentTarget.value) || 0)}
 										/>
+										<!-- set seeds to max -->
+										<button on:click={() => setMaxSeeds(bun)} class="win95-button w-10">Max</button>
 									</td>
 									<!-- buy seeds -->
 									<td class="p-1 border border-gray-400">
@@ -717,14 +741,11 @@
 
 										{#if isDropdownOpen[index]}
 											<div
-												in:slide={{ duration: 250, easing: backOut }}
+												in:slide={{ duration: 250, easing: cubicInOut }}
 												class="absolute left-0 top-full mt-1 bg-gray-100 border-2 border-gray-400 p-2 z-50 w-40 win95-inner"
 											>
 												<!-- Seed Selection Controls -->
 												<div class="w-full mb-1 text-xs">
-													<div class="w-full px-2">
-														<button class="win95-button px-2">Plant All</button>
-													</div>
 													{#each bun.wallet.items.filter((item) => (item.type === 'seed' || item.type === 'witheredSeed') && item.quantity > 0) as seed}
 														<div class="flex justify-between px-1 mb-2">
 															<div
@@ -733,6 +754,9 @@
 																<img src={seed.imgPath} class={`inline-block h-6`} alt="" />
 																({seed.quantity})
 															</div>
+															<!-- max seeds -->
+															<button on:click={() => setMax(seed)} class="win95-button">Max</button
+															>
 															<input
 																class="win95-input px-1 w-12"
 																min="0"
@@ -778,7 +802,7 @@
 											class="whitespace-nowrap win95-button w-full"
 											on:click={() => handleToggleFeedBun(bun)}
 										>
-											Feed Bun
+											Select Fruits
 										</button>
 									</td>
 								</tr>
@@ -786,23 +810,12 @@
 									<tr>
 										<td
 											colspan="14"
-											in:slide={{ duration: 250, easing: backOut }}
+											in:slide={{ duration: 250, easing: cubicInOut }}
 											class="py-1 h-12"
 										>
-											<!-- feed bun button -->
-											<div class="flex justify-end items-center space-x-2">
-												<button
-													disabled={getSelectedBunConsumableItems(bun.id).length < 1}
-													class="disabled:opacity-50 disabled:cursor-not-allowed px-1 h-8 whitespace-nowrap win95-button"
-													on:click={() => feedBun(bun)}
-												>
-													Feed Bun
-												</button>
-											</div>
-
 											<!-- list of fruits -->
 											{#if bunsFruits.find((f) => f.id === bun.id)?.fruits.length}
-												<div class="flex items-center space-x-1">
+												<div class="flex justify-end items-center space-x-1">
 													{#each bunsFruits.find((f) => f.id === bun.id)?.fruits || [] as fruit}
 														<div
 															class={`${isItemSelected(bun.id, fruit.name) ? 'border-blue-700 border-2' : ''} rounded px-1 flex items-center h-full space-x-1`}
@@ -835,34 +848,56 @@
 															{/if}
 														</div>
 													{/each}
+													<!-- feed bun button -->
+													<button
+														disabled={getSelectedBunConsumableItems(bun.id).length < 1}
+														class="disabled:opacity-50 disabled:cursor-not-allowed px-1 h-8 whitespace-nowrap win95-button"
+														on:click={() => feedBun(bun)}
+													>
+														Feed Bun
+													</button>
 												</div>
 											{/if}
 										</td>
-										<!-- clear all button, text based list of items to eat -->
-										{#each [getSelectedBunConsumableItems(bun.id)] as selectedItems}
-											{#if selectedItems.length > 0}
-												<div class="flex justify-end items-center p-2 bg-gray-100 space-x-2">
-													<!-- list of selected items-->
-													<div class="flex flex-wrap">
-														{#each selectedItems as food, index}
-															<span class="inline-block pl-2">{food.quantity}x {food.name} </span>
-															{#if index > -1 && index < selectedItems.length - 1}
-																<span class="inline-block">,</span>
-															{:else if index === getSelectedBunConsumableItems(bun.id).length - 1}
-																<span class="inline-block">.</span>
-															{/if}
-														{/each}
-														<button
-															on:click={() => handleClearAll(bun)}
-															class="px-1 h-8 whitespace-nowrap win95-button"
-														>
-															Clear All
-														</button>
-													</div>
-												</div>
-											{/if}
-										{/each}
 									</tr>
+									<!-- clear all button, text based list of items to eat -->
+									{#if getSelectedBunConsumableItems(bun.id).length > 0}
+										<tr>
+											<td
+												colspan="14"
+												in:slide={{ duration: 250, easing: cubicInOut }}
+												class="py-1 h-12 bg-blue-100"
+											>
+												{#each [getSelectedBunConsumableItems(bun.id)] as selectedItems}
+													{#if selectedItems.length > 0}
+														<div class="flex justify-end items-center space-x-2">
+															<!-- list of selected items-->
+															<div class="flex items-center">
+																<div class="">
+																	{#each selectedItems as food, index}
+																		<span class="inline-block pl-2"
+																			>{food.quantity}x {food.name}
+																		</span>
+																		{#if index > -1 && index < selectedItems.length - 1}
+																			<span class="inline-block">,</span>
+																		{:else if index === getSelectedBunConsumableItems(bun.id).length - 1}
+																			<span class="pr-2 inline-block">.</span>
+																		{/if}
+																	{/each}
+																</div>
+																<button
+																	on:click={() => handleClearAll(bun)}
+																	class="px-1 h-8 whitespace-nowrap win95-button"
+																>
+																	Clear All
+																</button>
+															</div>
+														</div>
+													{/if}
+												{/each}
+											</td>
+										</tr>
+									{/if}
 								{/if}
 							{/each}
 						</tbody>
