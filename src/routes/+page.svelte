@@ -81,9 +81,6 @@
 			<div>
 				<Abilities />
 			</div>
-			<div>
-				<StrengthTest bun={buns[$bunIndex]} />
-			</div>
 		</div>
 		<div class="">
 			{#if buns[$bunIndex]}
