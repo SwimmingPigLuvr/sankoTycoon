@@ -729,7 +729,8 @@
 		<!-- transfer button -->
 		<button
 			on:click={() => handleTransfer()}
-			class="bg-yellow-300 m-auto items-center flex space-x-1 justify-evenly border-yellow-200 border-2 p-1 px-2 rounded-lg"
+			disabled={isBun(receivingWallet) && payload?.name === 'DMT'}
+			class="disabled:cursor-not-allowed disabled:opacity-50 bg-yellow-300 m-auto items-center flex space-x-1 justify-evenly border-yellow-200 border-2 p-1 px-2 rounded-lg"
 		>
 			<p class="font-FinkHeavy">Transfer</p>
 			<img

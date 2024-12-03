@@ -228,6 +228,8 @@
 		return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 	}
 
+	let selectedSeeds: { id: number; seeds: Item[] }[] = [];
+
 	let isDropdownOpen: boolean[] = [];
 	let tempQuantities: { [key: string]: number } = {};
 	$: selectedTotal = Object.values(tempQuantities).reduce((sum, qty) => sum + (qty || 0), 0);
@@ -277,10 +279,13 @@
 				seeds: newSeeds
 			});
 		}
-		tempQuantities = {};
-	}
 
-	let selectedSeeds: { id: number; seeds: Item[] }[] = [];
+		// Triggering reactivity for selectedSeeds by reassigning it
+		selectedSeeds = [...selectedSeeds];
+
+		tempQuantities = {};
+		isDropdownOpen = [];
+	}
 
 	$: buns = $wallet?.nfts.filter((nft: Bun) => nft.type === 'Bun') ?? [];
 
@@ -511,9 +516,6 @@
 	let showFeedBun: boolean[] = [];
 
 	function handleToggleFeedBun(bun: Bun) {
-		// reset the array
-		showFeedBun = [];
-		// get bun index
 		const bunIndex = $wallet.nfts.findIndex((nft) => nft.id === bun.id);
 		showFeedBun[bunIndex] = !showFeedBun[bunIndex];
 	}
@@ -762,7 +764,6 @@
 														class="win95-button flex-1 text-xs"
 														on:click={() => {
 															handleApplySeeds(bun);
-															isDropdownOpen = [];
 														}}
 													>
 														Apply
@@ -791,6 +792,9 @@
 										</button>
 									</td>
 								</tr>
+								{#if isDropdownOpen[index]}
+									<div in:slide out:slide class="h-32"></div>
+								{/if}
 								{#if showFeedBun[index]}
 									<tr>
 										<td
