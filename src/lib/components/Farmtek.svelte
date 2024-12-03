@@ -2,18 +2,16 @@
 <script lang="ts">
 	import { dailyItems } from '$lib/itemData';
 	import { showAbout } from '$lib/stores/abilities';
-	import { addMessage, farmtekOpen } from '$lib/stores/gameState';
+	import { addMessage, bunIndex, farmtekOpen } from '$lib/stores/gameState';
 	import { HUNGER_INTERVAL, bunStatus, hibernationTimers } from '$lib/stores/hungerState';
 	import { wallet, type Bun, type Item } from '$lib/stores/wallet';
 	import { createSeedObject, plantBatchSeeds } from '$lib/utils/farmTools';
-	import { feedBun } from '$lib/utils/feedBun';
+	import { feedBun, lastFedBunIndex, itemsToFeedMyBun, handleClearAll } from '$lib/utils/feedBun';
 	import { onDestroy } from 'svelte';
 	import { backIn, backOut, cubicIn, cubicInOut } from 'svelte/easing';
 	import { writable, get } from 'svelte/store';
 	import { scale, slide } from 'svelte/transition';
 
-	// use this to hold the items that are selected for feeding
-	let itemsToFeedMyBun = writable<{ bunId: number; food: Item[] }[]>([]);
 	// init new arrays for new buns
 	$: if (buns?.length > 0 && !$itemsToFeedMyBun.length) {
 		const existingBunIds = new Set($itemsToFeedMyBun.map((item) => item.bunId));
@@ -29,6 +27,7 @@
 		}
 	}
 
+	// these values of the selected items need to be cleared after the bun eats them
 	// checks if item is selected
 	$: isItemSelected = (bunId: number, itemName: string) => {
 		const bunItems = $itemsToFeedMyBun.find((i) => i.bunId === bunId);
@@ -99,24 +98,6 @@
 				return bunItems;
 			})
 		);
-	}
-
-	function handleClearAll(bun: Bun) {
-		// map through
-		itemsToFeedMyBun.update((items) => [
-			...items.map((bunItems) => {
-				// if we get to the correct bun
-				if (bunItems.bunId === bun.id) {
-					return {
-						...bunItems,
-						// clear the food array
-						food: []
-					};
-				}
-				// else return bunItems as we found it
-				return { ...bunItems, food: [...bunItems.food] };
-			})
-		]);
 	}
 
 	// handles the hungerIntervals
@@ -602,10 +583,10 @@
 						<thead>
 							<tr class="bg-gray-200 font-MS-Bold">
 								<th class="p-1 border border-gray-400 text-left">Bun ID</th>
+								<th class="p-1 border border-gray-400 text-left">Hibernation</th>
 								<th class="p-1 border border-gray-400 text-left">Planted</th>
 								<th class="p-1 border border-gray-400 text-left">Remaining</th>
 								<th class="p-1 border border-gray-400 text-left">Harvestable</th>
-								<th class="p-1 border border-gray-400 text-left">Hibernation</th>
 								<th class="p-1 border border-gray-400 text-left">Harvest</th>
 								<th class="p-1 border border-gray-400 text-left">Sell Amount</th>
 								<th class="p-1 border border-gray-400 text-left">Sell Fruit</th>
@@ -642,6 +623,20 @@
 											</div>
 										{/if}
 									</td>
+									<!-- time before hibernation -->
+									<td
+										class={`${$lastFedBunIndex === $bunIndex ? 'bg-lime-400 text-white' : ''} p-1 border border-gray-400`}
+									>
+										{#if bun.isHibernating}
+											<span class="font-MS-Bold uppercase">hibernating</span>
+										{:else if formattedTimes.find((time) => time.id === bun.id)?.timeRemaining}
+											<span>
+												{formattedTimes.find((time) => time.id === bun.id)?.timeRemaining}
+											</span>
+										{:else}
+											<span class="loading-data"> </span>
+										{/if}
+									</td>
 									<!-- trees planted -->
 									<td class="p-1 border border-gray-400">
 										{bun.farm.filter((plot) => plot.state === 'planted').length}
@@ -654,22 +649,12 @@
 									<td class="p-1 border border-gray-400">
 										{bun.farm.reduce((sum, plot) => sum + (plot.fruitsReady || 0), 0)}
 									</td>
-									<!-- time before hibernation -->
-									<td class="p-1 border border-gray-400">
-										{#if bun.isHibernating}
-											<span class="font-MS-Bold uppercase">hibernating</span>
-										{:else if formattedTimes.find((time) => time.id === bun.id)?.timeRemaining}
-											<span>
-												{formattedTimes.find((time) => time.id === bun.id)?.timeRemaining}
-											</span>
-										{:else}
-											<span class="loading-data"> </span>
-										{/if}
-									</td>
 									<!-- harvest all button -->
 									<td class="p-1 border border-gray-400">
 										<button
-											class="whitespace-nowrap win95-button w-full"
+											disabled={bun.farm.reduce((sum, plot) => sum + (plot.fruitsReady || 0), 0) ===
+												0}
+											class="whitespace-nowrap disabled:cursor-not-allowed win95-button w-full"
 											on:click={() => harvestAll(bun)}
 										>
 											Harvest All
@@ -691,7 +676,7 @@
 									<!-- sell fruit button -->
 									<td class="p-1 border border-gray-400">
 										<button
-											class="whitespace-nowrap win95-button disabled:opacity-50 disabled:cursor-not-allowed w-full"
+											class="whitespace-nowrap win95-button disabled:cursor-not-allowed w-full"
 											disabled={fruitQuantities.find((quantity) => quantity.id === bun.id)
 												?.quantity === 0}
 											on:click={() => sellFruit(bun)}
@@ -802,7 +787,7 @@
 											class="whitespace-nowrap win95-button w-full"
 											on:click={() => handleToggleFeedBun(bun)}
 										>
-											Select Fruits
+											Select
 										</button>
 									</td>
 								</tr>
@@ -860,7 +845,7 @@
 											{/if}
 										</td>
 									</tr>
-									<!-- clear all button, text based list of items to eat -->
+									<!-- text based list of items to eat, clear all button -->
 									{#if getSelectedBunConsumableItems(bun.id).length > 0}
 										<tr>
 											<td

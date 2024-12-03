@@ -1,7 +1,14 @@
 <!-- $lib/components/BunWallet.svelte -->
 <script lang="ts">
 	import * as itemData from '$lib/itemData';
-	import { autoFeeder, bunBlasted, isReviving, totalFruitsEaten } from '$lib/stores/abilities';
+	import {
+		activateBunBlaster,
+		autoFeeder,
+		bunBlasted,
+		isReviving,
+		narcanBun,
+		totalFruitsEaten
+	} from '$lib/stores/abilities';
 	import {
 		addMessage,
 		gameState,
@@ -18,13 +25,16 @@
 	import HatchEgg from './HatchEgg.svelte';
 	import { restartHungerInterval } from '$lib/stores/hungerState';
 	import MintEgg from './MintEgg.svelte';
+	import {
+		eatFruit,
+		latestStatIncrease,
+		playSparkle,
+		showHungerReduced,
+		showStatIncrease
+	} from '$lib/utils/feedBun';
 
 	export let bun: Bun;
 
-	let latestStatIncrease = '';
-	let playSparkleAnimation = false;
-	let showHungerReduced = false;
-	let showPlusOne = false;
 	let isOverDropZone = false;
 	let dropZoneItems: Array<Item & { id: string }> = [];
 	let draggedItem: (Item & { id: string }) | null = null;
@@ -141,169 +151,12 @@
 				case 'Round Fruit':
 				case 'Square Fruit':
 				case 'Slop':
-					eatFruit(bunNft, itemName);
+					bunNft, itemName;
 					break;
 				default:
 					break;
 			}
 			return currentWallet;
-		});
-	}
-
-	function activateBunBlaster(bun: Bun) {
-		// find bun blaster in inventory
-		const blaster = bun.wallet.items.find((item: Item) => item.name === 'Bun Blaster');
-		if (blaster && blaster.quantity > 0) {
-			// clear currentAbility message
-			currentAbility = undefined;
-			// decrement blaster by 1
-			blaster.quantity -= 1;
-
-			// check gold
-			let startingGold = bun.wallet.gold;
-			// activate bun blaster state
-			bunBlasted.set(true);
-			addMessage(`${bun.name} inhales an extremely deep breath of nitrous from the Bun Blaster.`);
-
-			// lasts 10s
-			setTimeout(() => {
-				bunBlasted.set(false);
-				addMessage('The effects from the Bun Blaster have worn off.');
-				let endingGold = bun.wallet.gold;
-				let profit = endingGold - startingGold;
-				addMessage(`Total Gold earned while blasted: ${profit}`);
-			}, 10000);
-		} else {
-			addMessage('No Bun Blaster detected. Consider buying one from the shop.');
-		}
-	}
-
-	function narcanBun(bun: Bun) {
-		if (!bun.isHibernating) {
-			addMessage('Cannot use bunzempic on bun that is not in hibernation.');
-			return;
-		}
-		// clear currentAbility message
-		currentAbility = undefined;
-
-		// find bunzempic
-		const bunzempicBottle = bun.wallet.items.find((item: Item) => item.name === 'Bunzempic');
-		if (bunzempicBottle && bunzempicBottle.quantity > 0) {
-			// decrement
-			bunzempicBottle.quantity -= 1;
-
-			// reset hunger level
-			bun.hungerLevel = 0;
-			// wake up bun
-			bun.isHibernating = false;
-			// start cool down period
-			bun.isCoolingDown = true;
-			addMessage(`${bun.name} is reviving...`);
-			const COOLDOWN_DURATION = 5000;
-
-			setTimeout(() => {
-				// reset hunger
-				restartHungerInterval(bun);
-				// update wallet
-				wallet.update((currentWallet) => {
-					const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
-					if (bunIndex === -1) {
-						return currentWallet;
-					}
-					const bunNft = currentWallet.nfts[bunIndex];
-					bunNft.isCoolingDown = false;
-					addMessage(`${bunNft.name} has been revived.`);
-					return currentWallet;
-				});
-			}, COOLDOWN_DURATION);
-		} else {
-			addMessage('No Bunzempic left to use. Buy some from the shop');
-		}
-	}
-
-	function eatFruit(bun: Bun, fruitName: string) {
-		// wallet update
-		wallet.update((currentWallet) => {
-			const bunIndex = currentWallet.nfts.findIndex((nft: Bun) => nft.id === bun.id);
-			if (bunIndex === -1) {
-				console.error('bun not found');
-				return currentWallet;
-			}
-			const bunNft: Bun = currentWallet.nfts[bunIndex];
-
-			if (bunNft.isHibernating) {
-				addMessage('Cannot feed bun in hibernation. Use Bunzempic to revive');
-				return currentWallet;
-			}
-			if (bunNft.isCoolingDown) {
-				addMessage(
-					`Cannot feed ${bun.name}. Wait until cool down period is over to be fully revived`
-				);
-				return currentWallet;
-			}
-			const fruitItem = bun.wallet.items.find((item: Item) => item.name === fruitName);
-
-			// check if the fruit exists and that the quantity is > 0
-			if (fruitItem && fruitItem.quantity > 0) {
-				// decrement
-				fruitItem.quantity -= 1;
-				// reset hunger
-				bunNft.hungerLevel = 0;
-				restartHungerInterval(bunNft);
-				playSparkleAnimation = true;
-				showHungerReduced = true;
-				setTimeout(() => {
-					showHungerReduced = false;
-					showPlusOne = true;
-				}, 2500);
-				setTimeout(() => {
-					showPlusOne = false;
-				}, 5000);
-				setTimeout(() => {
-					playSparkleAnimation = false;
-				}, 5000);
-
-				// handle fruit type
-				switch (fruitItem.fruitType) {
-					case 'heart':
-						bunNft.strength += 1;
-						latestStatIncrease = 'Strength';
-						addMessage('Hunger reduced. Strength +1.');
-						break;
-					case 'star':
-						bunNft.luck += 1;
-						latestStatIncrease = 'Luck';
-						addMessage('Hunger reduced. Luck +1.');
-						break;
-					case 'lumpy':
-						bunNft.stamina += 1;
-						latestStatIncrease = 'Stamina';
-						addMessage('Hunger reduced. Stamina +1.');
-						break;
-					case 'round':
-						bunNft.speed += 1;
-						latestStatIncrease = 'Speed';
-						addMessage('Hunger reduced. Speed +1.');
-						break;
-					case 'square':
-						bunNft.industry += 1;
-						latestStatIncrease = 'Industry';
-						addMessage('Hunger reduced. Industry +1.');
-						break;
-					case 'slop':
-						addMessage('Hunger reduced.');
-						break;
-					default:
-						break;
-				}
-
-				// add to total fruits eaten
-				totalFruitsEaten.update((total) => (total += 1));
-				return currentWallet;
-			} else {
-				addMessage(`You do not have any ${fruitName}s.`);
-				return currentWallet;
-			}
 		});
 	}
 
@@ -438,7 +291,7 @@
 						in:fade
 						class="relative"
 					>
-						{#if playSparkleAnimation}
+						{#if $playSparkle}
 							<img class="absolute top-0 left-0 w-full h-auto" src="ui/gifs/sparkle.gif" alt="" />
 							<div
 								class="absolute font-FinkHeavy p-1 whitespace-nowrap bg-white bg-opacity-75 text-green-500 rounded top-1/4 translate-y-1/2 left-1/2 -translate-x-1/2 w-[90%] m-auto h-auto"
@@ -446,8 +299,8 @@
 								{#if showHungerReduced}
 									Hunger reduced!
 								{/if}
-								{#if showPlusOne}
-									+1 {latestStatIncrease}
+								{#if $showStatIncrease}
+									+1 {$latestStatIncrease}
 								{/if}
 							</div>
 						{/if}
