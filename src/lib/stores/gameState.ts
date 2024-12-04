@@ -1,6 +1,6 @@
 // lib/stores/gameState.ts
 import { writable } from 'svelte/store';
-import type { Bun } from '/$lib/stores/wallet';
+import type { Bun } from './wallet';
 
 export const activeBun = writable<Bun>();
 export const bunIndex = writable<number>(0);
@@ -10,6 +10,7 @@ export const currentSection = writable<string>('Mint');
 
 export const bridged = writable<boolean>(false);
 export const sendModalOpen = writable<boolean>(false);
+export const swapModalOpen = writable<boolean>(true);
 export const farmtekOpen = writable<boolean>(false);
 
 export const totalEggsRemaining = writable<number>(4444);
@@ -47,7 +48,7 @@ const steps: Step[] = [
         completed: false,
         message: 'Successfully Bridged $DMT to Sanko Chain',
     },
-      {
+    {
         id: StepID.Mint, // Corrected to use StepID.Mint instead of 2
         name: 'Mint a SankoPets egg',
         description: 'Mint Egg',

@@ -151,7 +151,7 @@
 				case 'Round Fruit':
 				case 'Square Fruit':
 				case 'Slop':
-					bunNft, itemName;
+					eatFruit(bunNft, itemName);
 					break;
 				default:
 					break;
@@ -296,7 +296,7 @@
 							<div
 								class="absolute font-FinkHeavy p-1 whitespace-nowrap bg-white bg-opacity-75 text-green-500 rounded top-1/4 translate-y-1/2 left-1/2 -translate-x-1/2 w-[90%] m-auto h-auto"
 							>
-								{#if showHungerReduced}
+								{#if $showHungerReduced}
 									Hunger reduced!
 								{/if}
 								{#if $showStatIncrease}

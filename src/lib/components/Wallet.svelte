@@ -11,7 +11,10 @@
 		gameState,
 		sendModalOpen,
 		StepID,
-		currentSection
+		currentSection,
+
+		swapModalOpen
+
 	} from '$lib/stores/gameState';
 	import Hunger from './Hunger.svelte';
 	import HatchEgg from './HatchEgg.svelte';
@@ -144,7 +147,10 @@
 									class="hover:bg-lime-400 hover:font-black h-full w-1/2">send</button
 								>
 								<!-- swap -->
-								<button class="hover:bg-lime-400 hover:font-black h-full w-1/2">swap</button>
+								<button
+									on:click={() => swapModalOpen.set(true)}
+									class="hover:bg-lime-400 hover:font-black h-full w-1/2">swap</button
+								>
 							</div>
 						{:else}
 							<div class="flex font-mono px-1 items-center space-x-2 justify-between">

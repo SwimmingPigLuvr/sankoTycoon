@@ -12,7 +12,8 @@
 		sendModalOpen,
 		bridged,
 		bunIndex,
-		farmtekOpen
+		farmtekOpen,
+		swapModalOpen
 	} from '../lib/stores/gameState';
 	import { onDestroy } from 'svelte';
 	import HatchEgg from '$lib/components/HatchEgg.svelte';
@@ -28,6 +29,7 @@
 	import Abilities from '$lib/components/Abilities.svelte';
 	import Farmtek from '$lib/components/Farmtek.svelte';
 	import StrengthTest from '$lib/components/StrengthTest.svelte';
+	import Swap from '$lib/components/Swap.svelte';
 
 	let currentStep: StepID;
 	const unsubscribe = gameState.subscribe((state) => {
@@ -110,6 +112,11 @@
 	{#if $sendModalOpen}
 		<button class="fixed top-0 left-0">
 			<SendModal />
+		</button>
+	{/if}
+	{#if $swapModalOpen}
+		<button class="fixed z-30 top-0 left-0">
+			<Swap />
 		</button>
 	{/if}
 </main>

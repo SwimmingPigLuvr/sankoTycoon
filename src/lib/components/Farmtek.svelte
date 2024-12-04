@@ -846,6 +846,8 @@
 														Feed Bun
 													</button>
 												</div>
+												{:else}
+												<p class="text-right">no consumable items</p>
 											{/if}
 										</td>
 									</tr>
