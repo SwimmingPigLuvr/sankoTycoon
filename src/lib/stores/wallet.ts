@@ -6,6 +6,9 @@ export interface Token {
     name: string;
     balance: number;
     iconUrl: string;
+    price?: number;
+    ticker?: string;
+    address?: string;
 }
 
 export interface Plot {
@@ -18,7 +21,7 @@ export interface Plot {
     isWithered: boolean;
 }
 
-export interface Item  {
+export interface Item {
     type: 'fruit' | 'seed' | 'witheredSeed' | 'consumable' | 'wearable' | 'tool';
     name: string;
     quantity: number;
@@ -129,12 +132,12 @@ export interface Wallet {
 
 // Generate a mock Ethereum wallet address
 export function generateEthAddress() {
-        const hexCharacters = '0123456789abcdefABCDEF';
-        let address = '0x';
-        for (let i = 0; i < 16; i++) {
-                address += hexCharacters[Math.floor(Math.random() * 16)];
-        }
-        return address;
+    const hexCharacters = '0123456789abcdefABCDEF';
+    let address = '0x';
+    for (let i = 0; i < 16; i++) {
+        address += hexCharacters[Math.floor(Math.random() * 16)];
+    }
+    return address;
 }
 
 // Function to truncate the middle of the Ethereum address
