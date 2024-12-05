@@ -1,14 +1,15 @@
 // lib/stores/wallet.ts
+import { dmt, gold, santo } from "$lib/tokenData";
 import { writable } from "svelte/store";
 
 // Define interfaces for various types used in the wallet objects
 export interface Token {
-    name: string;
-    balance: number;
+    address: string;
     iconUrl: string;
-    price?: number;
-    ticker?: string;
-    address?: string;
+    name: string;
+    price: number;
+    ticker: string;
+    balance: number;
 }
 
 export interface Plot {
@@ -154,21 +155,9 @@ const starterWallet: Wallet = {
     walletAddress: generateEthAddress(),
     network: 'Arbitrum',
     tokens: [
-        {
-            name: 'DMT',
-            balance: 300,
-            iconUrl: '/ui/icons/dmt.png',
-        },
-        {
-            name: 'GOLD',
-            balance: 0,
-            iconUrl: '/ui/icons/sankogold.png',
-        },
-        {
-            name: 'SANTO',
-            balance: 4200000,
-            iconUrl: '/ui/icons/bunsanto.webp',
-        }
+        {...dmt, balance: 100},
+        gold,
+        santo,
     ],
     nfts: [], // No NFTs
     items: [], // No items

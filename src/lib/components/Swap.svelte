@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { swapModalOpen } from '$lib/stores/gameState';
-	import { wallet, type Token } from '$lib/stores/wallet';
+	import { truncateEthAddress, wallet, type Token } from '$lib/stores/wallet';
+	import { dmt, gold, himgo, poop, santo, smoke, star, sp } from '$lib/tokenData';
 	import { cubicInOut } from 'svelte/easing';
 	import { fade } from 'svelte/transition';
 
@@ -12,32 +13,7 @@
 		swapModalOpen.set(false);
 	}
 
-	const gold: Token = {
-		name: 'Sanko Gold',
-		ticker: 'GOLD',
-		balance: 0,
-		iconUrl: 'ui/icons/sankogold.png',
-		price: 0.01,
-		address: '0xD2A35b0EA0e99b9f8cA247C86B08De35Ee5D3Bf6'
-	};
-
-	const dmt: Token = {
-		name: 'Dream Machine Token',
-		ticker: 'DMT',
-		balance: 0,
-		iconUrl: 'ui/icons/dmt.png',
-		price: 1,
-		address: '0xD2A35b0EA0e99b9f8cA247C86B08De35Ee5D3Bf6'
-	};
-
-	const santo: Token = {
-		name: 'SANTO',
-		balance: 0,
-		iconUrl: '/ui/icons/bunsanto.webp',
-		price: 0.00001
-	};
-
-	const tokensList: Token[] = [gold, dmt, santo];
+	const tokensList: Token[] = [gold, dmt, santo, poop, smoke, himgo, star, sp];
 	const yourTokens: Token[] = $wallet?.tokens;
 
 	let from: Token | null = dmt;
@@ -67,6 +43,14 @@
 		isTokenListOpen = true;
 		selectFor = toOrFrom;
 	}
+
+	// use this function to approximate usd value
+	function getUsdValue(token: Token): number {
+		return (token.balance || 0) * (token.price || 0) * 50;
+	}
+
+	// put this coins in the trending tokens list
+	let recentActivity: Token[] = [gold, sp];
 </script>
 
 <button on:click|preventDefault={handleOutsideClicks} class="bg-red-400 w-screen h-screen">
@@ -102,7 +86,7 @@
 					>
 						{#if from}
 							<img class="w-6 h-6" src={from.iconUrl} alt="" />
-							<span>{from.name}</span>
+							<span>{from.ticker}</span>
 						{:else}
 							<span class="text-xs">Select a Token</span>
 						{/if}
@@ -129,7 +113,7 @@
 				<button class="px-2 h-8 p-1 rounded hover:bg-indigo-50 flex items-center space-x-2">
 					{#if to}
 						<img class="w-6 h-6" src={to.iconUrl} alt="" />
-						<span>{to.name}</span>
+						<span>{to.ticker}</span>
 					{:else}
 						<span class="text-xs">Select a Token</span>
 					{/if}
@@ -176,21 +160,58 @@
 				</div>
 
 				<hr class="w-full border-blue-500" />
-				<!-- your tokens -->
-				<span class="p-4 text-left text-blue-400">Your Tokens</span>
-				<div class="flex flex-col w-full">
-					{#each yourTokens as token}
-						<div class="hover:bg-blue-50 p-3 px-6 w-full flex space-x-4">
-							<img src={token.iconUrl} class="w-[2.1rem] rounded-full" alt="" />
-							<div class="flex flex-col">
-								<span>{token.name}</span>
-								<div class="flex space-x-2">
-									<span>{token.ticker}</span>
-									<span>{token.address}</span>
+				<div class="overflow-y-auto overflow-x-hidden w-full pt-6">
+					<!-- your tokens -->
+					<span class="p-4 text-left text-blue-400">Your tokens</span>
+					<div class="flex flex-col w-full">
+						{#each yourTokens as token}
+							{#if token.balance > 0}
+								<div class="hover:bg-blue-50 p-3 px-6 w-full items-center flex space-x-4">
+									<img src={token.iconUrl} class="w-[2rem] h-[2rem] rounded-full" alt="" />
+									<div class="flex flex-col space-y-1 flex-grow">
+										<span class="text-left text-blue-700 font-black -tracking-wider"
+											>{token.name}</span
+										>
+										<div class="flex text-xs space-x-2">
+											<span class="text-blue-500">{token.ticker}</span>
+											<span class="text-blue-300">{truncateEthAddress(token.address)}</span>
+										</div>
+									</div>
+									<div class="flex flex-col text-right space-y-1 h-full ml-auto">
+										<span class="text-blue-700"
+											>{$wallet.tokens.find((t) => t.ticker === token.ticker)?.balance}</span
+										>
+										<span class="text-xs text-blue-300">${getUsdValue(token)}</span>
+									</div>
 								</div>
-							</div>
+							{/if}
+						{/each}
+						<!-- all tokens -->
+						<span class="p-4 text-left text-blue-400">All tokens</span>
+						<div class="flex flex-col w-full">
+							{#each tokensList as token}
+								<div class="hover:bg-blue-50 p-3 px-6 w-full items-center flex space-x-4">
+									<img src={token.iconUrl} class="w-[2rem] h-[2rem] rounded-full" alt="" />
+									<div class="flex flex-col space-y-1 flex-grow">
+										<span class="text-left text-blue-700 font-black -tracking-wider"
+											>{token.name}</span
+										>
+										<div class="flex text-xs space-x-2">
+											<span class="text-blue-500">{token.ticker}</span>
+											<span class="text-blue-300">{truncateEthAddress(token.address)}</span>
+										</div>
+									</div>
+									<!-- if recent activity, show price change in percent, show MC -->
+									{#if recentActivity.includes(token)}
+										<div class="flex flex-col text-right space-y-1 h-full ml-auto">
+											<span class="text-lime-400">25.15%</span>
+											<span class="text-xs text-blue-300">$3.1M MC</span>
+										</div>
+									{/if}
+								</div>
+							{/each}
 						</div>
-					{/each}
+					</div>
 				</div>
 			</button>
 		</button>

@@ -17,6 +17,7 @@
 		type BunWallet,
 		truncateEthAddress
 	} from '$lib/stores/wallet';
+	import { gold } from '$lib/tokenData';
 	import {
 		backIn,
 		backOut,
@@ -44,9 +45,8 @@
 	function getSenderGoldToken(): Token | undefined {
 		if (isBun(sendingWallet)) {
 			return {
-				name: 'GOLD',
-				balance: sendingWallet.wallet.gold,
-				iconUrl: '/ui/icons/sankogold.png'
+				...gold,
+				balance: sendingWallet.wallet.gold
 			};
 		} else {
 			return sendingWallet.tokens.find((t: Token) => t.name === 'GOLD');
@@ -291,7 +291,7 @@
 			}
 		} else {
 			const senderToken = sendingWallet.tokens.find((t: Token) => t.name === 'GOLD');
-			if (senderToken) {
+			if (senderToken && senderToken.balance) {
 				senderToken.balance -= amount;
 			}
 		}
