@@ -29,8 +29,6 @@
 	// existing items
 	$: items = bunWallet?.items.filter((items: Item) => items.quantity > 0) ?? [];
 
-	export let bun: Bun;
-
 	// bun id and gold
 	$: bunId = bunWallet.bunId;
 	$: gold = bunWallet.gold;
@@ -279,7 +277,7 @@
 		<div
 			class="border-yellow-500 border-2 rounded overflow-hidden bg-yellow-100 text-yellow-500 flex items-center space-x-1 font-FinkHeavy font-bold px-1"
 		>
-			<img src="/ui/icons/sankogold.png" class="w-4 h-4" alt="" />
+			<img src="/images/tokens/sankogold.png" class="w-4 h-4" alt="" />
 			<p>{bunWallet.gold}</p>
 			<p class="border-l-2 border-l-yellow-500 px-1">{buns[$bunIndex].name}</p>
 		</div>
@@ -304,7 +302,7 @@
 						<div
 							class="bg-white bg-opacity-75 rounded-full p-[1px] px-[3px] flex space-x-1 absolute top-[2px] right-[2px]"
 						>
-							<img class="w-3" src="/ui/icons/sankogold.png" alt="" />
+							<img class="w-3" src="/images/tokens/sankogold.png" alt="" />
 							<p>{item.buyPrice}</p>
 						</div>
 						<!-- item img -->

@@ -339,7 +339,7 @@
 							on:click={() => withdrawGold()}
 							class="hover:bg-slate-100 rounded-full px-2 flex justify-center space-x-1 p-1"
 						>
-							<img src="/ui/icons/sankogold.png" class="h-4" alt="" />
+							<img src="/images/tokens/sankogold.png" class="h-4" alt="" />
 							<p class="text-xs">{buns[$bunIndex].wallet.gold}</p>
 						</button>
 						<!-- tooltip -->

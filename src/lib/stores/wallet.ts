@@ -3,6 +3,7 @@ import { dmt, gold, santo } from "$lib/tokenData";
 import { writable } from "svelte/store";
 
 // Define interfaces for various types used in the wallet objects
+
 export interface Token {
     address: string;
     iconUrl: string;

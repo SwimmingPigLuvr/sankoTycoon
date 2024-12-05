@@ -481,14 +481,14 @@
 								on:click={() => handleSelectPayload(senderDmtToken)}
 								class="px-2 p-1 items-center space-x-1 flex bg-gray-100 hover:bg-gray-200 border-gray-500 border-2"
 							>
-								<img class="w-4 h-4" src="/ui/icons/dmt.png" alt="" />
+								<img class="w-4 h-4" src="/images/tokens/dmt.png" alt="" />
 								<p>{senderDmtBalance}</p>
 							</button>
 							<button
 								on:click={() => handleSelectPayload(senderGoldToken)}
 								class="-translate-x-[2px] items-center px-2 p-1 flex space-x-1 bg-gray-100 hover:bg-gray-200 border-2 border-gray-500"
 							>
-								<img class="w-4 h-4" src="/ui/icons/sankogold.png" alt="" />
+								<img class="w-4 h-4" src="/images/tokens/sankogold.png" alt="" />
 								<p>{senderGoldBalance}</p>
 							</button>
 						{/if}
@@ -499,7 +499,7 @@
 								on:click={() => handleSelectPayload(senderGoldToken)}
 								class="px-2 p-1 items-center space-x-1 flex bg-gray-200 border-2 border-gray-500"
 							>
-								<img class="w-4" src="/ui/icons/sankogold.png" alt="" />
+								<img class="w-4" src="/images/tokens/sankogold.png" alt="" />
 								<p>{senderGoldBalance}</p>
 							</button>
 						{/if}
@@ -627,13 +627,13 @@
 							<div
 								class="px-2 p-1 items-center space-x-1 flex bg-gray-200 border-gray-500 border-2"
 							>
-								<img class="w-4 h-4" src="/ui/icons/dmt.png" alt="" />
+								<img class="w-4 h-4" src="/images/tokens/dmt.png" alt="" />
 								<p>{receiverDmtBalance}</p>
 							</div>
 							<div
 								class="-translate-x-[2px] items-center px-2 p-1 flex space-x-1 bg-gray-200 border-2 border-gray-500"
 							>
-								<img class="w-4 h-4" src="/ui/icons/sankogold.png" alt="" />
+								<img class="w-4 h-4" src="/images/tokens/sankogold.png" alt="" />
 								<p>{receiverGoldBalance}</p>
 							</div>
 						{/if}
@@ -643,7 +643,7 @@
 							<div
 								class="px-2 p-1 items-center space-x-1 flex bg-gray-100 hover:bg-gray-200 border-2 border-gray-500"
 							>
-								<img class="w-4" src="/ui/icons/sankogold.png" alt="" />
+								<img class="w-4" src="/images/tokens/sankogold.png" alt="" />
 								<p>{receiverGoldBalance}</p>
 							</div>
 						{/if}

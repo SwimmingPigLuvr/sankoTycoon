@@ -277,7 +277,7 @@
 								disabled={dmtBalance < farmtekPrice.dmt}
 								class="hover:text-lime-400 disabled:cursor-not-allowed rounded-full px-1 flex items-center space-x-1"
 							>
-								<img src="/ui/icons/dmt.png" class="w-5" alt="" />
+								<img src="/images/tokens/dmt.png" class="w-5" alt="" />
 								<p class="font-FinkHeavy text-md">9.9</p>
 							</button>
 							<p class="font-FinkHeavy text-md">/</p>
@@ -324,7 +324,7 @@
 				<div class="flex justify-between w-full">
 					<p class="text-white">autoFeeder</p>
 					<div class="absolute px-1 top-1 right-1 flex items-center space-x-1">
-						<img src="/ui/icons/sankogold.png" class="w-4" alt="" />
+						<img src="/images/tokens/sankogold.png" class="w-4" alt="" />
 						<p class="font-FinkHeavy text-sm text-yellow-300">10</p>
 					</div>
 				</div>
@@ -361,7 +361,7 @@
 				<div class="flex justify-between w-full">
 					<p class="text-white">autoBuyer</p>
 					<div class="absolute px-1 top-1 right-1 flex items-center space-x-1">
-						<img src="/ui/icons/sankogold.png" class="w-4" alt="" />
+						<img src="/images/tokens/sankogold.png" class="w-4" alt="" />
 						<p class="font-FinkHeavy text-sm text-yellow-300">{autoBuyerPrice}</p>
 					</div>
 				</div>
@@ -394,7 +394,7 @@
 				<div class="flex justify-between w-full">
 					<p class="text-white">level {$autoBuyer.level + 1}</p>
 					<div class="absolute px-1 top-1 right-1 flex items-center space-x-1">
-						<img src="/ui/icons/sankogold.png" class="w-4" alt="" />
+						<img src="/images/tokens/sankogold.png" class="w-4" alt="" />
 						<p class="font-FinkHeavy text-sm text-yellow-300">{autoBuyerPrice}</p>
 					</div>
 				</div>
@@ -413,7 +413,7 @@
 				<div class="flex justify-between w-full">
 					<p class="text-white">autoSeller</p>
 					<div class="absolute px-1 top-1 right-1 flex items-center space-x-1">
-						<img src="/ui/icons/sankogold.png" class="w-4" alt="" />
+						<img src="/images/tokens/sankogold.png" class="w-4" alt="" />
 						<p class="font-FinkHeavy text-sm text-yellow-300">{autoSellerPrice}</p>
 					</div>
 				</div>
@@ -446,7 +446,7 @@
 				<div class="flex justify-between w-full">
 					<p class="text-white">level {$autoSeller.level + 1}</p>
 					<div class="absolute px-1 top-1 right-1 flex items-center space-x-1">
-						<img src="/ui/icons/sankogold.png" class="w-4" alt="" />
+						<img src="/images/tokens/sankogold.png" class="w-4" alt="" />
 						<p class="font-FinkHeavy text-sm text-yellow-300">{autoSellerPrice}</p>
 					</div>
 				</div>
@@ -468,7 +468,7 @@
 				<div class="flex justify-between w-full">
 					<p class="text-white">click2plant</p>
 					<div class="absolute px-1 top-1 right-1 flex items-center space-x-1">
-						<img src="/ui/icons/sankogold.png" class="w-4" alt="" />
+						<img src="/images/tokens/sankogold.png" class="w-4" alt="" />
 						<p class="font-FinkHeavy text-sm text-yellow-300">{c2pPrice}</p>
 					</div>
 				</div>
@@ -502,7 +502,7 @@
 				<div class="flex justify-between w-full">
 					<p class="text-white">level 2</p>
 					<div class="absolute px-1 top-1 right-1 flex items-center space-x-1">
-						<img src="/ui/icons/sankogold.png" class="w-4" alt="" />
+						<img src="/images/tokens/sankogold.png" class="w-4" alt="" />
 						<p class="font-FinkHeavy text-sm text-yellow-300">{c2pPrice}</p>
 					</div>
 				</div>
@@ -523,7 +523,7 @@
 				<div class="flex justify-between w-full">
 					<p class="text-white">autoHARVEST™️</p>
 					<div class="absolute px-1 top-1 right-1 flex items-center space-x-1">
-						<img src="/ui/icons/sankogold.png" class="w-4" alt="" />
+						<img src="/images/tokens/sankogold.png" class="w-4" alt="" />
 						<p class="font-FinkHeavy text-sm text-yellow-300">{autoHarvestPrice}</p>
 					</div>
 				</div>

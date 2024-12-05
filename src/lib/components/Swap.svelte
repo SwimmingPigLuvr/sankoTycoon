@@ -19,11 +19,24 @@
 	let from: Token | null = dmt;
 	let to: Token | null;
 
+	let fromAmount: number = 0;
+	let toAmount: number = 0;
+
 	$: fromTokenWallet = $wallet?.tokens.find((token) => from?.name === token?.name);
 	$: toTokenWallet = $wallet?.tokens.find((token) => to?.name === token?.name);
 
 	let isTokenListOpen = true;
 	let selectFor: 'to' | 'from' = 'from';
+
+	$: {
+		if (from && to && fromAmount > 0) {
+			const fromTokenPrice = from.price || 0;
+			const toTokenPrice = to.price || 1;
+			toAmount = (fromAmount * fromTokenPrice) / toTokenPrice;
+		} else {
+			toAmount = 0;
+		}
+	}
 
 	function setMax(toOrFrom: 'to' | 'from') {
 		if (to && toOrFrom === 'to') {
@@ -44,9 +57,62 @@
 		selectFor = toOrFrom;
 	}
 
+	function selectToken(token: Token) {
+		if (selectFor === 'to') {
+			to = token;
+		} else if (selectFor === 'from') {
+			from = token;
+		}
+		isTokenListOpen = false;
+	}
+
 	// use this function to approximate usd value
 	function getUsdValue(token: Token): number {
 		return (token.balance || 0) * (token.price || 0) * 50;
+	}
+
+	function swapTokens() {
+		if (!from || !to) return;
+		const amountToSwap = fromAmount;
+		const amountToReceive = toAmount;
+		wallet.update((currentWallet) => {
+			if (!to) {
+				return currentWallet;
+			}
+
+			const fromTokenWallet = currentWallet.tokens.find((token) => token.name === from?.name);
+			const toTokenWallet = currentWallet.tokens.find((token) => token.name === to?.name);
+
+			// Check if from token exists and has enough balance
+			if (fromTokenWallet && fromTokenWallet.balance >= amountToSwap && amountToSwap > 0) {
+				// subtract
+				fromTokenWallet.balance -= amountToSwap;
+
+				// add
+				if (toTokenWallet) {
+					toTokenWallet.balance += amountToReceive;
+				} else {
+					// add token object if nonexistent
+					currentWallet.tokens.push({ ...to, balance: amountToReceive });
+				}
+
+				// reset input
+				fromAmount = 0;
+			}
+
+			const newToken: Token = {
+				address: to.address,
+				iconUrl: to.iconUrl,
+				name: to.name,
+				price: to.price,
+				ticker: to.ticker,
+				balance: to.balance
+			};
+
+			currentWallet.tokens.push(newToken);
+
+			return currentWallet;
+		});
 	}
 
 	// put this coins in the trending tokens list
@@ -60,6 +126,7 @@
 		class="modal fixed flex flex-col p-2 left-1/2 top-40 -translate-x-1/2 w-[420px] h-[420px] bg-white border-opacity-50 border-white border-[5px] rounded-lg"
 	>
 		<h2 class="text-center w-full py-4">Swap</h2>
+
 		<!-- from -->
 		<div class="mt-4 rounded border-[1px] border-blue-700 w-full p-1 flex flex-col space-y-1">
 			<div class="p-1 text-xs flex w-full justify-between">
@@ -71,7 +138,7 @@
 				{/if}
 			</div>
 			<div class="p-1 flex items-center text-xl justify-between">
-				<input class="w-20" type="number" value={from?.balance || 0} />
+				<input class="w-20" type="number" bind:value={fromAmount} min="0" />
 				<div class="flex h-8 space-x-2">
 					{#if from && fromTokenWallet && from.balance < fromTokenWallet?.balance}
 						<button
@@ -109,8 +176,11 @@
 				{/if}
 			</div>
 			<div class="p-1 flex items-center text-2xl justify-between">
-				<input class="w-20" type="number" value={to?.balance || 0} />
-				<button class="px-2 h-8 p-1 rounded hover:bg-indigo-50 flex items-center space-x-2">
+				<input class="w-20" type="number" bind:value={toAmount} disabled />
+				<button
+					on:click={() => handleOpenTokenList('to')}
+					class="px-2 h-8 p-1 rounded hover:bg-indigo-50 flex items-center space-x-2"
+				>
 					{#if to}
 						<img class="w-6 h-6" src={to.iconUrl} alt="" />
 						<span>{to.ticker}</span>
@@ -122,6 +192,7 @@
 		</div>
 		<button
 			disabled={!to || !from}
+			on:click={() => swapTokens()}
 			class="disabled:cursor-not-allowed absolute bottom-2 left-1/2 -translate-x-1/2 swap-button text-white p-4 rounded w-[97%]"
 		>
 			{#if !to || !from}
@@ -166,7 +237,10 @@
 					<div class="flex flex-col w-full">
 						{#each yourTokens as token}
 							{#if token.balance > 0}
-								<div class="hover:bg-blue-50 p-3 px-6 w-full items-center flex space-x-4">
+								<button
+									on:click={() => selectToken(token)}
+									class="hover:bg-blue-50 p-3 px-6 w-full items-center flex space-x-4"
+								>
 									<img src={token.iconUrl} class="w-[2rem] h-[2rem] rounded-full" alt="" />
 									<div class="flex flex-col space-y-1 flex-grow">
 										<span class="text-left text-blue-700 font-black -tracking-wider"
@@ -183,14 +257,17 @@
 										>
 										<span class="text-xs text-blue-300">${getUsdValue(token)}</span>
 									</div>
-								</div>
+								</button>
 							{/if}
 						{/each}
 						<!-- all tokens -->
 						<span class="p-4 text-left text-blue-400">All tokens</span>
 						<div class="flex flex-col w-full">
 							{#each tokensList as token}
-								<div class="hover:bg-blue-50 p-3 px-6 w-full items-center flex space-x-4">
+								<button
+									on:click={() => selectToken(token)}
+									class="hover:bg-blue-50 p-3 px-6 w-full items-center flex space-x-4"
+								>
 									<img src={token.iconUrl} class="w-[2rem] h-[2rem] rounded-full" alt="" />
 									<div class="flex flex-col space-y-1 flex-grow">
 										<span class="text-left text-blue-700 font-black -tracking-wider"
@@ -208,7 +285,7 @@
 											<span class="text-xs text-blue-300">$3.1M MC</span>
 										</div>
 									{/if}
-								</div>
+								</button>
 							{/each}
 						</div>
 					</div>
