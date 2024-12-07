@@ -58,9 +58,9 @@
 	}
 
 	function selectToken(token: Token) {
-		if (selectFor === 'to') {
+		if (selectFor === 'to' && from !== token) {
 			to = token;
-		} else if (selectFor === 'from') {
+		} else if (selectFor === 'from' && to !== token) {
 			from = token;
 		}
 		isTokenListOpen = false;
@@ -138,7 +138,7 @@
 				{/if}
 			</div>
 			<div class="p-1 flex items-center text-xl justify-between">
-				<input class="w-20" type="number" bind:value={fromAmount} min="0" />
+				<input class="w-fit" type="number" bind:value={fromAmount} min="0" />
 				<div class="flex h-8 space-x-2">
 					{#if from && fromTokenWallet && from.balance < fromTokenWallet?.balance}
 						<button
@@ -163,7 +163,10 @@
 		</div>
 
 		<!-- switch -->
-		<button on:click={() => handleSwitch()} class="py-4 w-10 mx-auto">⬇️</button>
+		<button
+			on:click={() => handleSwitch()}
+			class="hover:scale-y-[-1] hover:filter hover:hue-rotate-90 py-4 w-10 mx-auto">⬇️</button
+		>
 
 		<!-- to -->
 		<div class="rounded border-[1px] border-blue-700 w-full p-1 flex flex-col space-y-1">
@@ -176,7 +179,7 @@
 				{/if}
 			</div>
 			<div class="p-1 flex items-center text-2xl justify-between">
-				<input class="w-20" type="number" bind:value={toAmount} disabled />
+				<input class="w-[80%]" type="number" bind:value={toAmount} disabled />
 				<button
 					on:click={() => handleOpenTokenList('to')}
 					class="px-2 h-8 p-1 rounded hover:bg-indigo-50 flex items-center space-x-2"
@@ -217,10 +220,10 @@
 				<!-- top section -->
 				<div class="flex flex-col w-full p-4 space-y-3">
 					<div class="flex justify-between w-full items-center">
-						<span>Select a token</span>
+						<span class="text-blue-700">Select a token</span>
 						<button
 							on:click={() => (isTokenListOpen = false)}
-							class="scale-w-150 scale-y-90 text-xl">x</button
+							class="scale-w-150 scale-y-90 text-xl text-blue-700">x</button
 						>
 					</div>
 					<input
@@ -238,12 +241,13 @@
 						{#each yourTokens as token}
 							{#if token.balance > 0}
 								<button
+									disabled={to === token || from === token}
 									on:click={() => selectToken(token)}
-									class="hover:bg-blue-50 p-3 px-6 w-full items-center flex space-x-4"
+									class="disabled:bg-gray-50 disabled:cursor-not-allowed disabled:filter disabled:grayscale hover:bg-blue-50 p-3 px-6 w-full items-center flex space-x-4"
 								>
 									<img src={token.iconUrl} class="w-[2rem] h-[2rem] rounded-full" alt="" />
 									<div class="flex flex-col space-y-1 flex-grow">
-										<span class="text-left text-blue-700 font-black -tracking-wider"
+										<span class="text-left text-blue-500 font-black -tracking-wider"
 											>{token.name}</span
 										>
 										<div class="flex text-xs space-x-2">
@@ -265,12 +269,13 @@
 						<div class="flex flex-col w-full">
 							{#each tokensList as token}
 								<button
+									disabled={to === token || from === token}
 									on:click={() => selectToken(token)}
-									class="hover:bg-blue-50 p-3 px-6 w-full items-center flex space-x-4"
+									class="disabled:bg-gray-50 disabled:cursor-not-allowed disabled:filter disabled:grayscale hover:bg-blue-50 p-3 px-6 w-full items-center flex space-x-4"
 								>
 									<img src={token.iconUrl} class="w-[2rem] h-[2rem] rounded-full" alt="" />
 									<div class="flex flex-col space-y-1 flex-grow">
-										<span class="text-left text-blue-700 font-black -tracking-wider"
+										<span class="text-left text-blue-500 font-black -tracking-wider"
 											>{token.name}</span
 										>
 										<div class="flex text-xs space-x-2">
